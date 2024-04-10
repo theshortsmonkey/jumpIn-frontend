@@ -202,6 +202,10 @@ void _handleDelete () async {
           itemProfile('Colour: ', '${car["colour"]}', CupertinoIcons.check_mark),
           const SizedBox(height: 20,),
           itemProfile('Tax Due Date: ', '${car["tax_due_date"]}', CupertinoIcons.check_mark),
+          const SizedBox(height: 20,),
+          itemProfile('Fuel Type: ', '${car["fuelType"]}', CupertinoIcons.check_mark),
+          const SizedBox(height: 20,),
+          itemProfile('CO2 Emissions: ', '${car["co2Emissions"]}', CupertinoIcons.check_mark),
         ]
       ),
     );

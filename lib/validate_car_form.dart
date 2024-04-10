@@ -38,8 +38,8 @@ class _ValidateCarFormState extends State<ValidateCarFrom> {
         "reg": carData["registrationNumber"],
         "colour": carData["colour"],
         "tax_due_date": carData["taxDueDate"],
-        "fuel_type": carData["fuelType"],
-        "co2_emissions": carData["co2Emissions"]
+        "fuelType": carData["fuelType"],
+        "co2Emissions": carData["co2Emissions"]
       };
       var userData = User(
           firstName: currUser.firstName,
