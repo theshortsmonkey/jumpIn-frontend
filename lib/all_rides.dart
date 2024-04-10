@@ -1,4 +1,5 @@
 import 'package:fe/appbar.dart';
+import 'package:fe/login_page.dart';
 import 'package:flutter/material.dart';
 import './ride_card.dart';
 import './classes/get_ride_class.dart';
@@ -48,7 +49,8 @@ class _GetRideState extends State<GetRide>{
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return context.read<AuthState>().isAuthorized
+    ? Scaffold(
       appBar: CustomAppBar(
             title: 'jumpIn: Find a Ride',
             context: context,
@@ -64,15 +66,15 @@ class _GetRideState extends State<GetRide>{
                 children: [
                   TextFormField(
                     controller: fromController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       hintText: 'Start Point',
                       border: OutlineInputBorder(),
                     ),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   TextFormField(
                     controller: toController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       hintText: 'End Point',
                       border: OutlineInputBorder(),
                     ),
@@ -88,7 +90,7 @@ class _GetRideState extends State<GetRide>{
                   from: fromController.text
                 );
             },
-            child: Text('Filter'),
+            child: const Text('Filter'),
           ),
           const SizedBox(height: 8),
           ElevatedButton(
@@ -97,7 +99,7 @@ class _GetRideState extends State<GetRide>{
                 _filterRides();
               });
             },
-            child: Text('Clear'),
+            child: const Text('Clear'),
           ),
           const SizedBox(height: 8),
           Expanded(
@@ -106,7 +108,7 @@ class _GetRideState extends State<GetRide>{
                 future: futureRides,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return CircularProgressIndicator();
+                    return const CircularProgressIndicator();
                   } else if (snapshot.hasError) {
                     return Text('Error: ${snapshot.error}');
                   } else if (snapshot.hasData) {
@@ -119,7 +121,7 @@ class _GetRideState extends State<GetRide>{
                       },
                     );
                   } else {
-                    return Text('No data');
+                    return const Text('No data');
                   }
                 },
               ),
@@ -127,6 +129,7 @@ class _GetRideState extends State<GetRide>{
           ),
         ],
       ),
-    );
+    )
+    : const LoginPage();
   }
 }

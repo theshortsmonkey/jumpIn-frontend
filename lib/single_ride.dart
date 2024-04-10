@@ -1,7 +1,7 @@
 import 'package:fe/api.dart';
+import 'package:fe/appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/widgets.dart';
 import './classes/get_ride_class.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -46,9 +46,11 @@ class _SingleRideState extends State<SingleRide> {
     ];
 
     return Scaffold(
-      appBar: AppBar(
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          title: const Text('jumpIn')),
+      appBar: CustomAppBar(
+              title: 'jumpIn - Your Account',
+              context: context,
+              disableProfileButton: true,
+            ),
       body: Center(
         child: FutureBuilder<Ride>(
             future: futureRide,
@@ -113,12 +115,12 @@ class _SingleRideState extends State<SingleRide> {
                         ),
                       ),
                     ),
-                    SizedBox(width: 10),
+                    const SizedBox(width: 10),
                     driverProfile(imgURL, rideData),
                   ],
                 );
               } else {
-                return Text('No data');
+                return const Text('No data');
               }
             }),
       ),
