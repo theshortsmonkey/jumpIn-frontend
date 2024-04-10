@@ -61,7 +61,7 @@ void _handleDelete () async {
     return context.read<AuthState>().isAuthorized
     ? Scaffold(
       appBar: CustomAppBar(
-              title: 'jumpIn',
+              title: 'jumpIn - Your Account',
               onMainPagePressed: () {
                 context.read<AuthState>();
                 Navigator.of(context).pushNamed('/');

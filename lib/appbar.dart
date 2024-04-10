@@ -30,6 +30,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       leading: ClipOval(
         child: Transform.scale(
           scale: 1.6,
+          child: GestureDetector(
+            onTap: () {
+              Navigator.of(context).pushNamed('/');
+            },
           child: Container(
             width: 40.0,
             height: 40.0,
@@ -41,6 +45,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               ),
             ),
           ),
+          ), 
         ),
       ),
       title: Text(title),
@@ -49,6 +54,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           IconButton(
             icon: const Icon(Icons.verified_user),
             onPressed: onDefaultUserPressed,
+            tooltip: 'Login default user',
           ),
         if (isLoggedIn && onProfilePressed != null)
           IconButton(

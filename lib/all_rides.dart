@@ -1,7 +1,10 @@
+import 'package:fe/appbar.dart';
 import 'package:flutter/material.dart';
 import './ride_card.dart';
 import './classes/get_ride_class.dart';
 import './api.dart';
+import 'package:provider/provider.dart';
+import "./auth_provider.dart";
 
 class GetRide extends StatefulWidget {
   const GetRide({super.key});
@@ -46,10 +49,17 @@ class _GetRideState extends State<GetRide>{
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text('jumpIn'),
-      ),
+      appBar: CustomAppBar(
+            title: 'jumpIn: Find a Ride',
+            onMainPagePressed: () {
+              context.read<AuthState>();
+              Navigator.of(context).pushNamed('/');
+            },
+            onLogoutPressed: () {
+              context.read<AuthState>().logout();
+              Navigator.of(context).pushNamed('/');
+            },
+          ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
