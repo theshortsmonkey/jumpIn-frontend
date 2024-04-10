@@ -1,10 +1,8 @@
-import 'package:fe/classes/get_user_login.dart';
+
 import 'package:fe/login_page.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'classes/post_ride_class.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'package:geocode/geocode.dart';
 import 'dart:async';
 import 'api.dart';
 import "./auth_provider.dart";
@@ -25,7 +23,7 @@ class _PostRideFormState extends State<PostRideForm> {
   final _endRegionTextController = TextEditingController();
   final _inputPriceTextController = TextEditingController();
   final _carRegTextController = TextEditingController();
-  dynamic? _calculatedPrice; //in pence - to store calc'd result
+  dynamic _calculatedPrice; //in pence - to store calc'd result
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
   int? _selectedSeats;
@@ -83,7 +81,7 @@ class _PostRideFormState extends State<PostRideForm> {
       final double? endLat = endPoint[1];
       final double? endLong = endPoint[0];
 
-      final String apiString = "lonlat:${startLong},${startLat}|lonlat:${endLong},${endLat}";
+      final String apiString = "lonlat:$startLong,$startLat|lonlat:$endLong,$endLat";
 
       final metreDistanceFuture = fetchDistance(apiString);
 
@@ -134,7 +132,7 @@ class _PostRideFormState extends State<PostRideForm> {
   @override
   Widget build(BuildContext context) {
     final userData = context.read<AuthState>().userInfo;
-    Widget priceWidget = _calculatedPrice != null ? Text('We recommend a price of £$_calculatedPrice'): Text('We recommend a price');
+    Widget priceWidget = _calculatedPrice != null ? Text('We recommend a price of £$_calculatedPrice'): const Text('We recommend a price');
 
     //if user has a car return form, if not present message - need to have car and licence validated to post ride
     // print(userData.car['reg']);
@@ -185,7 +183,7 @@ class _PostRideFormState extends State<PostRideForm> {
               decoration: const InputDecoration(hintText: 'Enter Car Reg'),
             ),
           ),
-          Text('Select your date below'),
+          const Text('Select your date below'),
           Padding(
             padding: const EdgeInsets.all(8),
             child: TableCalendar(
@@ -208,7 +206,7 @@ class _PostRideFormState extends State<PostRideForm> {
           Padding(
             padding: const EdgeInsets.all(8),
             child: DropdownButton(
-              hint: Text('Select available seats'),
+              hint: const Text('Select available seats'),
               isExpanded: true,
               onChanged: (int? newValue) {
                 setState(() {
@@ -218,7 +216,7 @@ class _PostRideFormState extends State<PostRideForm> {
               items: [1, 2, 3, 4, 5].map<DropdownMenuItem<int>>((int value) {
                 return DropdownMenuItem<int>(
                   value: value,
-                  child: Text('${value}'),
+                  child: Text('$value'),
                 );
               }).toList(),
             ),
@@ -231,7 +229,7 @@ class _PostRideFormState extends State<PostRideForm> {
               });
             });
             },
-            child: Text('Calculate price')),
+            child: const Text('Calculate price')),
           priceWidget,
           Padding(
             padding: const EdgeInsets.all(8),

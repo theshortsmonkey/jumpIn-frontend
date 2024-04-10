@@ -52,7 +52,7 @@ class _GetRideChatState extends State<GetRideChat> {
                   children: [
                     TextFormField(
                       controller: _msgTextController,
-                      decoration: InputDecoration(hintText: "Send a message"),
+                      decoration: const InputDecoration(hintText: "Send a message"),
                     ),
                   ],
                 ),
@@ -71,7 +71,7 @@ class _GetRideChatState extends State<GetRideChat> {
               // });
               
               //post message(_msgTextController, )
-            }, child: Text('Send'))
+            }, child: const Text('Send'))
           ],
         ),
         Expanded(

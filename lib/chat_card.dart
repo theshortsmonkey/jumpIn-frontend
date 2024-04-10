@@ -7,10 +7,7 @@ class ChatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final textStyle = theme.textTheme.bodyMedium;
-    final titleStyleL = theme.textTheme.titleLarge;
     final titleStyleM = theme.textTheme.titleMedium;
-    final titleStyleS = theme.textTheme.titleSmall;
     return GestureDetector(
       onTap: () {
         //enable action upon tapping the card

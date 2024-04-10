@@ -10,11 +10,9 @@ class RideCard extends StatelessWidget {
   @override
 Widget build(BuildContext context) {
   final theme = Theme.of(context);
-  final textStyle = theme.textTheme.bodyMedium;
-  final titleStyleL = theme.textTheme.titleLarge;
   final titleStyleM = theme.textTheme.titleMedium;
   final titleStyleS = theme.textTheme.titleSmall;
-  final String imgURL = 'http://localhost:1337/users/${ride?.driverUsername}/image';
+  final String imgUrl = 'http://localhost:1337/users/${ride?.driverUsername}/image';
   return GestureDetector(
     onTap: () {
       //enable action upon tapping the card
@@ -38,17 +36,19 @@ Widget build(BuildContext context) {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               // Add an image widget to display an image
-              Column(children: [
-                new CircleAvatar(
-                radius: 50,
-                backgroundImage: NetworkImage(imgURL),
+              Column(
+                children: [
+                  CircleAvatar(
+                      radius: 70,
+                      backgroundImage: NetworkImage(imgUrl),
+                    ),
+                  const SizedBox(height: 10),
+                  Text(
+                    '${ride.driverUsername}',
+                    style: titleStyleM,
+                  ),
+                ],
               ),
-              SizedBox(height: 10),
-              Text(
-                '${ride.driverUsername}',
-                style: titleStyleM,
-              ),
-              ],),
               // Add some spacing between the image and the text
               Container(width: 20),
               // Add an expanded widget to take up the remaining horizontal space
@@ -63,7 +63,7 @@ Widget build(BuildContext context) {
                       "${ride.from}",
                       style: titleStyleM
                       ),
-                    Icon(Icons.arrow_circle_down_rounded),
+                    const Icon(Icons.arrow_circle_down_rounded),
                     // Add a subtitle widget
                     Text(
                     "${ride.to}",

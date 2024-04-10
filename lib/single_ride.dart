@@ -56,12 +56,12 @@ class _SingleRideState extends State<SingleRide> {
             future: futureRide,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return CircularProgressIndicator();
+                return const CircularProgressIndicator();
               } else if (snapshot.hasError) {
                 return Text('Error: ${snapshot.error}');
               } else if (snapshot.hasData) {
                 final rideData = snapshot.data;
-                final String imgURL =
+                final String imgUrl =
                     'http://localhost:1337/users/${rideData?.driverUsername}/image';
                 // Use ListView.builder to loop through snapshot.data and render a card for each ride
                 return Column(
@@ -116,7 +116,7 @@ class _SingleRideState extends State<SingleRide> {
                       ),
                     ),
                     const SizedBox(width: 10),
-                    driverProfile(imgURL, rideData),
+                    driverProfile(imgUrl, rideData),
                   ],
                 );
               } else {
@@ -166,18 +166,18 @@ class _SingleRideState extends State<SingleRide> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Column(children: [
-                new CircleAvatar(
+                CircleAvatar(
                 radius: 50,
                 backgroundImage: NetworkImage(imgURL),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               FilledButton(
                   onPressed: () {
                     Navigator.of(context)
                     .pushNamed('/ridechat', arguments: rideId);
                   },
-                child: Text('Message')),
-              SizedBox(height: 10),
+                child: const Text('Message')),
+              const SizedBox(height: 10),
               deleteButton
               ],
               ),
