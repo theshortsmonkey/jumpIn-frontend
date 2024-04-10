@@ -1,3 +1,4 @@
+import 'package:fe/appbar.dart';
 import 'package:flutter/material.dart';
 import "./post_ride_form.dart";
 class PostRidePage extends StatelessWidget {
@@ -6,8 +7,10 @@ class PostRidePage extends StatelessWidget {
   @override
   Widget build(BuildContext context){
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Post a Ride'),
+      appBar: CustomAppBar(
+              title: 'jumpIn - Your Account',
+              context: context,
+              showPostRideButton: false,
       ),
       body: Center(
         child: SingleChildScrollView(

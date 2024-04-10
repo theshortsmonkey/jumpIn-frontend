@@ -51,14 +51,8 @@ class _GetRideState extends State<GetRide>{
     return Scaffold(
       appBar: CustomAppBar(
             title: 'jumpIn: Find a Ride',
-            onMainPagePressed: () {
-              context.read<AuthState>();
-              Navigator.of(context).pushNamed('/');
-            },
-            onLogoutPressed: () {
-              context.read<AuthState>().logout();
-              Navigator.of(context).pushNamed('/');
-            },
+            context: context,
+            showAllRidesButton: false,
           ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

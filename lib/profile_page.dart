@@ -54,22 +54,12 @@ void _handleDelete () async {
 
   @override
   Widget build(BuildContext context) {
-    // setState(() {
-    //   userData = context.read<AuthState>().userInfo;
-    //   imgUrl = "http://localhost:1337/users/${userData.username}/image";
-    // });
     return context.read<AuthState>().isAuthorized
     ? Scaffold(
       appBar: CustomAppBar(
               title: 'jumpIn - Your Account',
-              onMainPagePressed: () {
-                context.read<AuthState>();
-                Navigator.of(context).pushNamed('/');
-              },
-              onLogoutPressed: () {
-                context.read<AuthState>().logout();
-                Navigator.of(context).pushNamed('/');
-              },
+              context: context,
+              showProfileButton: false,
             ),
       body: 
        _isDeleted

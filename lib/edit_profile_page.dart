@@ -1,18 +1,21 @@
+import 'package:fe/login_page.dart';
 import 'package:flutter/material.dart';
 import './sign_up_form.dart';
 import "./appbar.dart";
+import 'package:provider/provider.dart';
+import "./auth_provider.dart";
 
 class EditProfilePage extends StatelessWidget {
   const EditProfilePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return context.read<AuthState>().isAuthorized
+    ? Scaffold(
       appBar: CustomAppBar(
-              title: 'jumpIn',
-              onMainPagePressed: () {
-                Navigator.of(context).pushNamed('/');
-              },
+              title: 'jumpIn - edit your profile',
+              context: context,
+              showPostRideButton: false,
             ),
       body: const Center(
         child: SingleChildScrollView(
@@ -24,6 +27,7 @@ class EditProfilePage extends StatelessWidget {
         ),
         ),
       ),
-    );
+    )
+    : const LoginPage();
   }
 }

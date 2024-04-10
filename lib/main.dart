@@ -54,11 +54,6 @@ class MyApp extends StatelessWidget {
         )
       ),
       home: const MyHomePage(title:"jumpIn"),
-      // home: Consumer<AuthState>(builder: (context, authState, _) {
-      //   return authState.isAuthorized
-      //         ? const MyHomePage(title:"jumpIn")
-      //         : const LoginPage();
-      // }),
       routes: {
         "/signup" : (context) => const SignUpPage(),
         "/login" : (context) => const LoginPage(),

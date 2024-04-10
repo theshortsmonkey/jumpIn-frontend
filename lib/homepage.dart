@@ -1,3 +1,4 @@
+import 'package:fe/appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import './api.dart';
@@ -13,17 +14,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  void _setDefaultUser() async {
-    final futureUser = fetchUserByUsername('testUSername1');
-    futureUser.then((user) {
-      context.read<AuthState>().setUser(user);
-      Navigator.of(context).pushNamed('/profile');
-    });
-  }
-
-  void _showSignUpScreen() {
-    Navigator.of(context).pushNamed('/signup');
-  }
 
   void _showLoginPage() {
     Navigator.of(context).pushNamed('/login');
@@ -37,68 +27,21 @@ class _MyHomePageState extends State<MyHomePage> {
     Navigator.of(context).pushNamed('/allrides');
   }
 
-  void _showProfilePage() {
-    Navigator.of(context).pushNamed('/profile');
-  }
-
-  void _showInbox() {
-    Navigator.of(context).pushNamed('/inbox');
-  }
-  void _handleLogout() {
-    context.read<AuthState>().logout();
-    Navigator.of(context).pushNamed('/');
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final titleStyle = theme.textTheme.titleLarge;
     final isLoggedIn = context.watch<AuthState>().isAuthorized;
     return Scaffold(
-      appBar: AppBar(
-  backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-  leading: ClipOval(
-    child: Transform.scale(
-      scale:1.6,
-    child: Container(
-      width: 40.0, 
-      height: 40.0,
-      decoration: const BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage("../web/icons/logo.png"), 
-          fit: BoxFit.cover,
-          alignment: Alignment(-0.2, -0.2),
-        ),
-      ),
-    ),)
-  ),
-         title: Text(widget.title),
-                actions: [
-                IconButton(
-                icon : const Icon(Icons.verified_user),
-                onPressed:_setDefaultUser ,
-                ),
-                if(isLoggedIn)
-                IconButton(
-                icon : const Icon(Icons.account_box_outlined),
-                onPressed:_showProfilePage ,
-                ),
-                if(!isLoggedIn)
-                IconButton(
-                icon : const Icon(Icons.login),
-                onPressed:_showLoginPage ,
-                ),
-                if(isLoggedIn)
-                IconButton(
-                icon : const Icon(Icons.logout),
-                onPressed:_handleLogout ,
-                ),
-          IconButton(
-            icon: const Icon(Icons.mail),
-            onPressed: _showInbox,
-          )
-      ],
-      ),
+      appBar: CustomAppBar(
+              title: 'jumpIn',
+              context: context,
+              showDefaultUserButton: true,
+              showProfileButton: true,
+              showLoginButton: true,
+              showLogoutButton: true,
+              showMainPageButton: false,
+            ),
       body: Container(
         alignment: Alignment.topCenter,
         decoration: const BoxDecoration(
@@ -123,7 +66,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   fontWeight: FontWeight.bold,
                   background: Paint()
                     ..strokeWidth = 60.0
-                    ..color = Colors.green
+                    ..color = Theme.of(context).colorScheme.inversePrimary
                     ..style = PaintingStyle.stroke
                     ..strokeJoin = StrokeJoin.round,
                 ),
@@ -148,7 +91,7 @@ class _MyHomePageState extends State<MyHomePage> {
     ),
                 ),
                 // if logged in show rides page, if not show sign up page
-            onPressed:isLoggedIn ? _showRidesPage : _showSignUpScreen,
+            onPressed:isLoggedIn ? _showRidesPage : _showLoginPage,
             child: Text(
               'Find a ride',
               style: titleStyle),

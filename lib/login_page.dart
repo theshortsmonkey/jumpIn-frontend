@@ -1,4 +1,5 @@
 import 'package:fe/appbar.dart';
+import 'package:fe/profile_page.dart';
 import 'package:flutter/material.dart';
 import './login_form.dart';
 import 'package:provider/provider.dart';
@@ -9,12 +10,13 @@ class LoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return context.read<AuthState>().isAuthorized
+    ? const ProfileScreen()
+    : Scaffold(
       appBar: CustomAppBar(
             title: 'jumpIn: Find a Ride',
-            onMainPagePressed: () {
-              Navigator.of(context).pushNamed('/');
-            },
+            context: context,
+            showLoginButton: false,
           ),
       body: const Center(
         child: SizedBox(
