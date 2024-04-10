@@ -36,11 +36,7 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: CustomAppBar(
               title: 'jumpIn',
               context: context,
-              showDefaultUserButton: true,
-              showProfileButton: true,
-              showLoginButton: true,
-              showLogoutButton: true,
-              showMainPageButton: false,
+              disableMainPageButton: true,
             ),
       body: Container(
         alignment: Alignment.topCenter,

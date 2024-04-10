@@ -15,7 +15,8 @@ class EditProfilePage extends StatelessWidget {
       appBar: CustomAppBar(
               title: 'jumpIn - edit your profile',
               context: context,
-              showPostRideButton: false,
+              disablePostRideButton: true,
+              disableAllRidesButton: true,
             ),
       body: const Center(
         child: SingleChildScrollView(

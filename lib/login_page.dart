@@ -16,7 +16,7 @@ class LoginPage extends StatelessWidget {
       appBar: CustomAppBar(
             title: 'jumpIn: Find a Ride',
             context: context,
-            showLoginButton: false,
+            disableLoginButton: true,
           ),
       body: const Center(
         child: SizedBox(

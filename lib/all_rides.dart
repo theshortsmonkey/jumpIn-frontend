@@ -52,7 +52,7 @@ class _GetRideState extends State<GetRide>{
       appBar: CustomAppBar(
             title: 'jumpIn: Find a Ride',
             context: context,
-            showAllRidesButton: false,
+            disableAllRidesButton: true,
           ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

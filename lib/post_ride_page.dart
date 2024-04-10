@@ -10,7 +10,7 @@ class PostRidePage extends StatelessWidget {
       appBar: CustomAppBar(
               title: 'jumpIn - Your Account',
               context: context,
-              showPostRideButton: false,
+              disablePostRideButton: true,
       ),
       body: Center(
         child: SingleChildScrollView(

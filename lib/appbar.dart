@@ -7,25 +7,25 @@ import 'package:provider/provider.dart';
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final BuildContext context;
-  final bool showDefaultUserButton;
-  final bool showProfileButton;
-  final bool showLoginButton;
-  final bool showLogoutButton;
-  final bool showMainPageButton;
-  final bool showPostRideButton;
-  final bool showAllRidesButton;
+  final bool disableDefaultUserButton;
+  final bool disableProfileButton;
+  final bool disableLoginButton;
+  final bool disableMailboxButton;
+  final bool disableMainPageButton;
+  final bool disablePostRideButton;
+  final bool disableAllRidesButton;
 
   const CustomAppBar({
     Key? key,
     required this.title,
     required this.context,
-    this.showDefaultUserButton = false,
-    this.showProfileButton = true,
-    this.showLoginButton = true,
-    this.showLogoutButton = true,
-    this.showMainPageButton = true,
-    this.showPostRideButton = true,
-    this.showAllRidesButton = true,
+    this.disableDefaultUserButton = false,
+    this.disableProfileButton = false,
+    this.disableLoginButton = false,
+    this.disableMailboxButton = false,
+    this.disableMainPageButton = false,
+    this.disablePostRideButton = false,
+    this.disableAllRidesButton = false,
   }) : super(key: key);
 
   void _setDefaultUser() async {
@@ -33,6 +33,15 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     final userState = Provider.of<AuthState>(context, listen:false);
     userState.setUser(futureUser);
     Navigator.of(context).pushNamed('/profile');
+  }
+
+  void _navigateToPage(String page) {
+    Navigator.of(context).pushNamed('/$page');
+  }
+
+  void _handleLogout() {
+    context.read<AuthState>().logout();
+    Navigator.of(context).pushNamed('/');
   }
 
   @override
@@ -65,63 +74,57 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       title: Text(title),
       actions: [
-        if (showDefaultUserButton)
+        if (!disableDefaultUserButton)
           IconButton(
             icon: const Icon(Icons.verified_user),
             onPressed: _setDefaultUser,
             tooltip: 'Login default user',
           ),
-        if (isLoggedIn && showPostRideButton)
-          IconButton(
-            icon: const Icon(Icons.navigation_rounded),
-            onPressed: () {
-              Navigator.of(context).pushNamed('/postride');
-            },
-          ),
-        if (isLoggedIn && showAllRidesButton)
-          IconButton(
-            icon: const Icon(Icons.drive_eta),
-            onPressed: () {
-              Navigator.of(context).pushNamed('/allrides');
-            },
-          ),
-        if (isLoggedIn && showProfileButton)
-          IconButton(
-            icon: const Icon(Icons.account_box_outlined),
-            onPressed: () {
-              Navigator.of(context).pushNamed('/profile');
-            },
-          ),
-        if (!isLoggedIn && showLoginButton)
-          IconButton(
-            icon: const Icon(Icons.login),
-            onPressed: () {
-              Navigator.of(context).pushNamed('/login');
-            },
-          ),
-        if (isLoggedIn && showLogoutButton)
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () {
-              context.read<AuthState>().logout();
-              Navigator.of(context).pushNamed('/');
-            },
-          ),
-        if (isLoggedIn && showLoginButton)
-          IconButton(
-            icon: const Icon(Icons.mail),
-            onPressed: () {
-              Navigator.of(context).pushNamed('/inbox');
-            },
-          ),
-        if (showMainPageButton)
-          IconButton(
-            icon: const Icon(Icons.home_outlined),
-            onPressed: () {
-                context.read<AuthState>();
-                Navigator.of(context).pushNamed('/');
-              },
-          ),
+        isLoggedIn
+          ? Row(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.drive_eta),
+                onPressed: disableAllRidesButton
+                  ? null
+                  : () => _navigateToPage('allrides'),
+              ),
+              IconButton(
+                icon: const Icon(Icons.navigation_rounded),
+                onPressed: disablePostRideButton
+                  ? null
+                  : () => _navigateToPage('postride'),
+              ),
+              IconButton(
+                icon: const Icon(Icons.account_box_outlined),
+                onPressed: disableProfileButton 
+                  ? null
+                  : () => _navigateToPage('profile'),
+              ),
+              IconButton (
+                icon: const Icon(Icons.mail),
+                onPressed: disableMailboxButton
+                  ? null
+                  : () => _navigateToPage('inbox'),
+              ),
+              IconButton(
+                icon: const Icon(Icons.logout),
+                onPressed: _handleLogout,
+              ),
+            ],
+          )
+          : IconButton(
+              icon: const Icon(Icons.login),
+              onPressed: disableLoginButton 
+              ? null
+              : () => _navigateToPage('login'),
+            ),
+        IconButton(
+          icon: const Icon(Icons.home_outlined),
+          onPressed: disableMainPageButton 
+          ? null
+          : () => _navigateToPage(''),
+        ),
       ],
     );
   }

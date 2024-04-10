@@ -1,3 +1,4 @@
+import 'package:fe/appbar.dart';
 import 'package:flutter/material.dart';
 import './classes/get_message_class.dart';
 import './api.dart';
@@ -26,10 +27,11 @@ class _GetMessageState extends State<GetMessage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text('jumpIn'),
-      ),
+      appBar: CustomAppBar(
+              title: 'jumpIn - Your Account',
+              context: context,
+              disableMailboxButton: true,
+            ),
       body: Center(
           child: FutureBuilder<List<Message>>(
               future: futureMessages,

@@ -59,7 +59,7 @@ void _handleDelete () async {
       appBar: CustomAppBar(
               title: 'jumpIn - Your Account',
               context: context,
-              showProfileButton: false,
+              disableProfileButton: true,
             ),
       body: 
        _isDeleted
