@@ -29,7 +29,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   }) : super(key: key);
 
   void _setDefaultUser() async {
-    final futureUser = await fetchUserByUsername('testUSername1');
+    final futureUser = await fetchUserByUsername('testUSername4');
     final userState = Provider.of<AuthState>(context, listen:false);
     userState.setUser(futureUser);
     Navigator.of(context).pushNamed('/profile');

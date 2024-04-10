@@ -34,25 +34,24 @@ class _ValidateCarFormState extends State<ValidateCarFrom> {
     });
     if (carData["taxStatus"] == "Taxed") {
       final carDetails = {
-        "make":carData["make"],
-        "reg":carData["registrationNumber"],
-        "colour":carData["colour"],
-        "tax_due_date":carData["taxDueDate"],
-        "fuel_type":carData["fuelType"],
-        "co2_emissions":carData["co2Emissions"]
+        "make": carData["make"],
+        "reg": carData["registrationNumber"],
+        "colour": carData["colour"],
+        "tax_due_date": carData["taxDueDate"],
+        "fuel_type": carData["fuelType"],
+        "co2_emissions": carData["co2Emissions"]
       };
-    var userData = User(
-      firstName: currUser.firstName,
-      lastName: currUser.lastName,
-      username: currUser.username,
-      email: currUser.email,
-      password: currUser.password,
-      phoneNumber: currUser.phoneNumber,
-      bio: currUser.bio,
-      identity_verification_status: currUser.identity_verification_status,
-      driver_verification_status: true,
-      car : carDetails
-    );
+      var userData = User(
+          firstName: currUser.firstName,
+          lastName: currUser.lastName,
+          username: currUser.username,
+          email: currUser.email,
+          password: currUser.password,
+          phoneNumber: currUser.phoneNumber,
+          bio: currUser.bio,
+          identity_verification_status: currUser.identity_verification_status,
+          driver_verification_status: true,
+          car: carDetails);
       final patchedUser = await patchUser(userData);
       final futureUser = fetchUserByUsername(patchedUser.username);
       futureUser.then((user) {
@@ -83,12 +82,17 @@ class _ValidateCarFormState extends State<ValidateCarFrom> {
 
   @override
   Widget build(BuildContext context) {
-    String titleText = 'Validate Car';
+    String titleText = 'Validate Your Car';
     return Form(
       onChanged: _updateFormProgress,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          Text(
+            'Enter your car registration to validate your vehicle',
+            style: Theme.of(context).textTheme.headlineMedium,
+            textAlign: TextAlign.center,
+          ),
           AnimatedProgressIndicator(value: _formProgress),
           Padding(
             padding: const EdgeInsets.all(8),

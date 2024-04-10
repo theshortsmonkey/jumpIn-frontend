@@ -13,7 +13,7 @@ class EditProfilePage extends StatelessWidget {
     return context.read<AuthState>().isAuthorized
     ? Scaffold(
       appBar: CustomAppBar(
-              title: 'jumpIn - edit your profile',
+              title: 'jumpIn - Your Account',
               context: context,
               disablePostRideButton: true,
               disableAllRidesButton: true,

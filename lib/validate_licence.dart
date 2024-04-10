@@ -1,15 +1,22 @@
+import 'package:fe/appbar.dart';
+import 'package:fe/login_page.dart';
 import 'package:flutter/material.dart';
 import "./validate_licence_form.dart";
+import "./auth_provider.dart";
+import 'package:provider/provider.dart';
 
 class ValidateLicencePage extends StatelessWidget {
   const ValidateLicencePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Validate Licence'),
-      ),
+    return context.read<AuthState>().isAuthorized
+        ? Scaffold(
+            appBar: CustomAppBar(
+              title: 'jumpIn - Your Account',
+              context: context,
+              disablePostRideButton: true,
+            ),
       body: const Center(
         child: SingleChildScrollView(
         child: SizedBox(
@@ -21,6 +28,7 @@ class ValidateLicencePage extends StatelessWidget {
         ),
         ),
       ),
-    );
+    )
+    : const LoginPage();
   }
 }

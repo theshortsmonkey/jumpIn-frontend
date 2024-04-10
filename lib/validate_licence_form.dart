@@ -87,6 +87,11 @@ class _ValidateLicenceFormState extends State<ValidateLicenceForm> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          Text(
+            'Enter your license details to validate your license',
+            style: Theme.of(context).textTheme.headlineMedium,
+            textAlign: TextAlign.center,
+          ),
           AnimatedProgressIndicator(value: _formProgress), 
           Padding(
             padding: const EdgeInsets.all(8),

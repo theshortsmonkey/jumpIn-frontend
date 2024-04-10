@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import './api.dart';
 import "./auth_provider.dart";
 import 'package:provider/provider.dart';
-import 'package:flutter/cupertino.dart';
 
 class UploadImageForm extends StatefulWidget {
   const UploadImageForm({super.key});
@@ -95,7 +94,7 @@ itemProfile(String title, String subtitle, IconData iconData) {
           borderRadius: BorderRadius.circular(10),
           boxShadow: [
             BoxShadow(
-                offset: Offset(0, 5),
+                offset: const Offset(0, 5),
                 color: Colors.deepOrange.withOpacity(.2),
                 spreadRadius: 2,
                 blurRadius: 10

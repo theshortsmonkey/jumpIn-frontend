@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:enhanced_http/enhanced_http.dart';
-import 'package:fe/classes/post_ride_class.dart';
 import 'classes/get_ride_class.dart';
 import 'classes/get_message_class.dart';
 import 'dart:async';
@@ -56,7 +55,7 @@ Future<List<Ride>> fetchRides({
 }
 
 Future<Ride> fetchRideById(rideId) async {
-  final response = await httpEnhanced.get('/rides/${rideId}'); 
+  final response = await httpEnhanced.get('/rides/$rideId'); 
   if (response.isNotEmpty) {
     return Ride.fromJson(response as Map<String, dynamic>);
   } else {

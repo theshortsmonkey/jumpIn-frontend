@@ -1,4 +1,3 @@
-import 'package:fe/appbar.dart';
 import 'package:flutter/material.dart';
 import 'classes/post_ride_class.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -61,12 +60,11 @@ class _PostRideFormState extends State<PostRideForm> {
   Future calculatePrice() async {
     final startPointFuture = fetchLatLong(_startPointTextController.text);
     final endPointFuture = fetchLatLong(_endPointTextController.text);
-    
+
     return Future.wait([
       startPointFuture,
       endPointFuture,
-    ])
-        .then((results) {
+    ]).then((results) {
       final startPoint = results[0];
       final endPoint = results[1];
       if (carDetails == null) {
@@ -74,7 +72,8 @@ class _PostRideFormState extends State<PostRideForm> {
       }
       final fuelType = carDetails["fuelType"];
 
-      final co2 = carDetails["co2Emissions"]; // I AM AN INTEGER emissions in g/km
+      final co2 =
+          carDetails["co2Emissions"]; // I AM AN INTEGER emissions in g/km
       final fuelPriceFuture = fetchFuelPrice(fuelType);
 
       // Handle the results of all completed futures
@@ -143,11 +142,6 @@ class _PostRideFormState extends State<PostRideForm> {
         : const Text('We recommend a price');
 
     return Scaffold(
-      appBar: CustomAppBar(
-        title: 'jumpIn - Your Account',
-        context: context,
-        disablePostRideButton: true,
-      ),
       body: userData.car != null
           ? Form(
               onChanged: _updateFormProgress, // NEW
@@ -155,9 +149,12 @@ class _PostRideFormState extends State<PostRideForm> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    Text(
+                      'Complete the form to post a ride',
+                      style: Theme.of(context).textTheme.headlineMedium,
+                      textAlign: TextAlign.center,
+                    ),
                     AnimatedProgressIndicator(value: _formProgress), // NEW
-                    Text('Post a Ride',
-                        style: Theme.of(context).textTheme.headlineMedium),
                     Padding(
                       padding: const EdgeInsets.all(8),
                       child: TextFormField(
@@ -233,8 +230,7 @@ class _PostRideFormState extends State<PostRideForm> {
                     ),
                     FilledButton(
                         onPressed: () {
-                          calculatePrice()
-                              .then((price) {
+                          calculatePrice().then((price) {
                             setState(() {
                               _calculatedPrice = price;
                             });

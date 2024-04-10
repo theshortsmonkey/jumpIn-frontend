@@ -14,7 +14,7 @@ class LoginPage extends StatelessWidget {
     ? const ProfileScreen()
     : Scaffold(
       appBar: CustomAppBar(
-            title: 'jumpIn: Find a Ride',
+            title: 'jumpIn: Login',
             context: context,
             disableLoginButton: true,
           ),

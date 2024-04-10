@@ -24,7 +24,7 @@ class _SignUpFormState extends State<SignUpForm> {
   @override
   void initState () {
     super.initState();
-    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
     final provider = Provider.of<AuthState>(context, listen:false);
     final currUser = provider.userInfo;
     _firstNameTextController = TextEditingController(text: currUser.firstName);
@@ -119,13 +119,14 @@ class _SignUpFormState extends State<SignUpForm> {
   Widget build(BuildContext context) {
     String titleText;
     widget.submitType == 'post' 
-    ? titleText = 'Sign Up'
-    : titleText = 'Edit Profile';
+    ? titleText = 'Enter your details to sign up'
+    : titleText = 'Edit your profile details';
     return Form(
       onChanged: _updateFormProgress,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          Text(titleText, style: Theme.of(context).textTheme.headlineMedium),
           AnimatedProgressIndicator(value: _formProgress), 
           Padding(
             padding: const EdgeInsets.all(8),
@@ -136,12 +137,15 @@ class _SignUpFormState extends State<SignUpForm> {
                 errorMaxLines: 3,
                 errorText: _isUserNameValid ? null : 'Enter valid username: letters, numbers or underscore. 5-20 characters'
                 ),
-                onChanged: (value) {
-                  final RegExp regex = RegExp(r'^[a-zA-Z0-9_]{5,20}$');
-                  setState(() {
-                    _isUserNameValid = regex.hasMatch(value);
-                  });
-                },
+              onChanged: (value) {
+                final RegExp regex = RegExp(r'^[a-zA-Z0-9_]{5,20}$');
+                setState(() {
+                  _isUserNameValid = regex.hasMatch(value);
+                });
+              },
+              readOnly: widget.submitType == 'post' 
+                ? false
+                : true,
             ),
           ),
           Padding(

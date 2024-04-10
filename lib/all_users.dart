@@ -27,7 +27,7 @@ class _GetUserState extends State<GetUser>{
           future: futureUsers,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return CircularProgressIndicator();
+              return const CircularProgressIndicator();
             } else if (snapshot.hasError) {
               return Text('Error: ${snapshot.error}');
             } else if (snapshot.hasData) {
@@ -41,7 +41,7 @@ class _GetUserState extends State<GetUser>{
                 },
               );
             } else {
-              return Text('No data');
+              return const Text('No data');
             }
           },
         ),

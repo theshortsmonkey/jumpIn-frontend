@@ -1,3 +1,4 @@
+import 'package:fe/appbar.dart';
 import 'package:flutter/material.dart';
 import './sign_up_form.dart';
 
@@ -7,9 +8,10 @@ class SignUpPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Sign Up'),
-      ),
+      appBar: CustomAppBar(
+              title: 'jumpIn - Sign Up',
+              context: context,
+            ),
       body: const Center(
         child: SingleChildScrollView(
         child: SizedBox(

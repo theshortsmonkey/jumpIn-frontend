@@ -64,8 +64,7 @@ class _LoginFormState extends State<LoginForm> {
     return !_isUserExist 
     ?
     Scaffold(
-      body:
-    Center(
+      body: Center(
         child: SingleChildScrollView(
         child: SizedBox(
           width: 400,
@@ -101,7 +100,7 @@ class _LoginFormState extends State<LoginForm> {
         mainAxisSize: MainAxisSize.min,
         children: [
           AnimatedProgressIndicator(value: _formProgress), 
-          Text('Login', style: Theme.of(context).textTheme.headlineMedium),
+          Text('Login to your account', style: Theme.of(context).textTheme.headlineMedium),
           Padding(
             padding: const EdgeInsets.all(8),
             child: TextFormField(

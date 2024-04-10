@@ -16,7 +16,6 @@ class GetRide extends StatefulWidget {
 
 class _GetRideState extends State<GetRide>{
   late Future<List<Ride>> futureRides;
-  final _formKey = GlobalKey<FormState>();
   final toController = TextEditingController();
   final fromController = TextEditingController();
 
@@ -29,20 +28,20 @@ class _GetRideState extends State<GetRide>{
   Future<void> _filterRides({
     String? to,
     String? from,
-    String? date_and_time,
+    String? dateAndTime,
     int? price,
-    int? available_seats,
-    int? carbon_emissions
+    int? availableSeats,
+    int? carbonEmissions
   }) async {
     // Fetch rides based on the provided criteria
     setState(() {
       futureRides = fetchRides(
         to: to,
         from: from,
-        date_and_time: date_and_time,
+        date_and_time: dateAndTime,
         price: price,
-        available_seats: available_seats,
-        carbon_emissions: carbon_emissions
+        available_seats: availableSeats,
+        carbon_emissions: carbonEmissions
       );
     });
   }

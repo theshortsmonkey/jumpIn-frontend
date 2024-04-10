@@ -36,10 +36,6 @@ class _SingleRideState extends State<SingleRide> {
 
   @override
   Widget build(BuildContext context) {
-    List<LatLng> polylinePoints = [
-      LatLng(53.47764, -2.23892), //start
-      LatLng(51.51408, -0.10648), //end
-    ];
 
     return context.read<AuthState>().isAuthorized 
       ? Scaffold(
@@ -290,9 +286,10 @@ class _SingleRideState extends State<SingleRide> {
         PolylineLayer(
           polylines: [
             Polyline(points: [
-              LatLng(53.47764, -2.23892),
-              LatLng(51.51408, -0.10648)
-            ], color: Colors.red, strokeWidth: 10),
+              const LatLng(53.47764, -2.23892),
+              const LatLng(51.51408, -0.10648)
+            ], 
+            color: Colors.red, strokeWidth: 10),
           ],
         ),
         // RichAttributionWidget(
