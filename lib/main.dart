@@ -6,7 +6,6 @@ import './sign_up_page.dart';
 import 'profile_page.dart';
 import './homepage.dart';
 import "post_ride_page.dart";
-import "./test_page.dart";
 import './all_rides.dart';
 import './single_ride.dart';
 import './inbox.dart';
@@ -59,7 +58,6 @@ class MyApp extends StatelessWidget {
         "/login" : (context) => const LoginPage(),
         '/profile': (context) => const ProfileScreen(),
         "/postride" : (context) => const PostRidePage(),
-        "/test": (context) => const TestPage(),
         "/allrides": (context) => const GetRide(),
         '/singleridetest': (context) => const SingleRide(),
         '/editprofile': (context) => const EditProfilePage(),
