@@ -1,12 +1,11 @@
 import 'package:fe/api.dart';
 import 'package:fe/appbar.dart';
+import 'package:fe/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import './classes/get_ride_class.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import "./auth_provider.dart";
 import 'package:provider/provider.dart';
 
@@ -28,26 +27,24 @@ class _SingleRideState extends State<SingleRide> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (rideId.isEmpty) {
-      rideId = ModalRoute.of(context)!.settings.arguments as String;
+      final rideIdArg = ModalRoute.of(context)!.settings.arguments;
+      if (rideIdArg != null) { rideId = rideIdArg as String; }
+      else { rideId = ''; }
       futureRide = fetchRideById(rideId); //pass rideId
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final textStyle = theme.textTheme.bodyMedium;
-    final titleStyleL = theme.textTheme.titleLarge;
-    final titleStyleM = theme.textTheme.titleMedium;
-    final titleStyleS = theme.textTheme.titleSmall;
     List<LatLng> polylinePoints = [
       LatLng(53.47764, -2.23892), //start
       LatLng(51.51408, -0.10648), //end
     ];
 
-    return Scaffold(
+    return context.read<AuthState>().isAuthorized 
+      ? Scaffold(
       appBar: CustomAppBar(
-              title: 'jumpIn - Your Account',
+              title: 'jumpIn - Ride Details',
               context: context,
               disableProfileButton: true,
             ),
@@ -124,7 +121,8 @@ class _SingleRideState extends State<SingleRide> {
               }
             }),
       ),
-    );
+    )
+    : const LoginPage();
   }
 
   itemProfile(String title, String subtitle, IconData iconData) {
@@ -150,7 +148,7 @@ class _SingleRideState extends State<SingleRide> {
                 deleteRide(rideData.id);
                 Navigator.of(context).pushNamed('/allrides');
               }, 
-      child: Text('Delete Ride')): SizedBox();
+      child: const Text('Delete Ride')): const SizedBox();
     
     return Card(
     shape: RoundedRectangleBorder(
@@ -280,7 +278,7 @@ class _SingleRideState extends State<SingleRide> {
 
   map() {
     return FlutterMap(
-      options: MapOptions(
+      options: const MapOptions(
         initialCenter: LatLng(51.509364, -0.128928),
         initialZoom: 3.4,
       ),
