@@ -1,5 +1,4 @@
-//define the ride class 
-class Ride { //I want to have properties which will have the following types
+class Ride { 
   final String? id;
   final String? driverUsername;
   final String? to;
@@ -7,12 +6,12 @@ class Ride { //I want to have properties which will have the following types
   final List<dynamic>? riderUsernames;
   final int? carbonEmissions;
   final int? distance;
-  final int? price;
+  final int price;
   final int? driverRating;
   final String? dateTime;
   final int? availableSeats;
   
-  const Ride ({ //this is my Ride class constructor - I am specifying it will have these properties
+  const Ride ({ 
     this.id,
     this.driverUsername,
     this.to,
@@ -20,14 +19,14 @@ class Ride { //I want to have properties which will have the following types
     this.riderUsernames,
     this.carbonEmissions,
     this.distance,
-    this.price,
+    this.price = 0,
     this.driverRating,
     this.dateTime,
     this.availableSeats
   });
 
   factory Ride.fromJson(Map<String, dynamic> json) {
-    return Ride( //access the values on the json object and assign them to the properties I specified in my Ride class constructor
+    return Ride( 
       id: json['id'] as String,
       driverUsername: json['driver_username'] as String,
       to: json['to'] as String,
@@ -41,9 +40,6 @@ class Ride { //I want to have properties which will have the following types
       availableSeats: json['available_seats'] as int
     );
   }
-  //define the fromJsonList method: it will parse the API response list by applying the factory .fromJson method defined above
-  // to assign values to an instance of the Ride class
-  //I will use this in my fetchRides() function to parse the response
   static List<Ride> fromJsonList(List<Map<String, dynamic>> jsonList) { 
   return jsonList.map<Ride>((json) => Ride.fromJson(json)).toList(); 
   }

@@ -32,7 +32,7 @@ class _PostRideFormState extends State<PostRideForm> {
   double _formProgress = 0;
   double _priceProgress = 0;
   bool isPriceLoading = false;
-
+  TimeOfDay _rideTime = TimeOfDay.now();
   dynamic carDetails;
 
   @override
@@ -124,6 +124,18 @@ class _PostRideFormState extends State<PostRideForm> {
       });
     });
   }
+
+  Future<void> _selectTime() async {
+        final TimeOfDay? picked = await showTimePicker(
+          context: context,
+          initialTime: TimeOfDay.now(),
+        );
+        if (picked != null) {
+          setState(() {
+            _rideTime = picked;
+          });
+        }
+      }
 
   void _updateFormProgress() {
     double progress = 0.0;
@@ -269,7 +281,7 @@ class _PostRideFormState extends State<PostRideForm> {
                             _dateSelectionTextController.text = DateFormat('dd-MM-yyyy').format(selectedDay);
                             _selectedDay = selectedDay;
                             _focusedDay =
-                                focusedDay; // update `_focusedDay` here as well
+                                focusedDay; 
                           });
                         },
                         onPageChanged: (focusedDay) {
@@ -277,6 +289,14 @@ class _PostRideFormState extends State<PostRideForm> {
                         },
                       ),
                     ),
+                    FilledButton(
+                      onPressed: _selectTime,
+                      child: const Text('Set Ride Time'),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Text('Ride Time: ${_rideTime.hour.toString()}:${_rideTime.minute.toString()}')
+                      ),
                     Padding(
                       padding: const EdgeInsets.all(8),
                       child: DropdownMenu<SeatsLabel>(
@@ -323,8 +343,8 @@ class _PostRideFormState extends State<PostRideForm> {
                       child: TextFormField(
                         controller: _inputPriceTextController,
                         decoration: const InputDecoration(
-                          hintText: 'Input final price',
-                          labelText: 'Final Price',
+                          hintText: 'Input final price (in pence)',
+                          labelText: 'Final Price (in pence)',
                         ),
                       ),
                     ),
