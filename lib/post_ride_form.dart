@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'classes/post_ride_class.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'dart:async';
@@ -19,12 +20,18 @@ class _PostRideFormState extends State<PostRideForm> {
   final _endPointTextController = TextEditingController();
   final _endRegionTextController = TextEditingController();
   final _inputPriceTextController = TextEditingController();
+  final _seatSelectionTextController = TextEditingController();
+  final _dateSelectionTextController = TextEditingController();
   dynamic _calculatedPrice; //in pence - to store calc'd result
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
-  int? _selectedSeats;
+  SeatsLabel? _selectedSeats;
+  RegionsLabel? _startRegion;
+  RegionsLabel? _endRegion;
 
   double _formProgress = 0;
+  double _priceProgress = 0;
+  bool isPriceLoading = false;
 
   dynamic carDetails;
 
@@ -40,9 +47,9 @@ class _PostRideFormState extends State<PostRideForm> {
 
     final rideData = PostRideClass(
         to: _endPointTextController.text,
-        to_region: _endRegionTextController.text,
+        to_region: _endRegion,
         from: _startPointTextController.text,
-        from_region: _startRegionTextController.text,
+        from_region: _startRegion,
         driver_username: context.read<AuthState>().userInfo.username,
         available_seats: _selectedSeats,
         carbon_emissions: co2,
@@ -58,6 +65,9 @@ class _PostRideFormState extends State<PostRideForm> {
   }
 
   Future calculatePrice() async {
+    setState(() {
+      isPriceLoading = true;
+    });
     final startPointFuture = fetchLatLong(_startPointTextController.text);
     final endPointFuture = fetchLatLong(_endPointTextController.text);
 
@@ -116,11 +126,20 @@ class _PostRideFormState extends State<PostRideForm> {
   }
 
   void _updateFormProgress() {
-    var progress = 0.0;
+    double progress = 0.0;
+    double priceProgress = 0.0;
     final controllers = [
       _startPointTextController,
       _endPointTextController,
       _inputPriceTextController,
+      _startRegionTextController,
+      _endRegionTextController,
+      _seatSelectionTextController,
+      _dateSelectionTextController
+    ];
+    final priceControllers = [
+      _startPointTextController,
+      _endPointTextController,
     ];
 
     for (final controller in controllers) {
@@ -128,18 +147,31 @@ class _PostRideFormState extends State<PostRideForm> {
         progress += 1 / controllers.length;
       }
     }
+    for (final priceController in priceControllers) {
+      if (priceController.value.text.isNotEmpty) {
+        priceProgress += 1 / priceControllers.length;
+      }
+    }
 
     setState(() {
       _formProgress = progress;
+      _priceProgress = priceProgress;
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final userData = context.read<AuthState>().userInfo;
-    Widget priceWidget = _calculatedPrice != null
-        ? Text('We recommend a price of £$_calculatedPrice')
-        : const Text('We recommend a price');
+    Widget priceWidget = 
+        Text(
+            _calculatedPrice != null 
+            ? 'We recommend a price of £$_calculatedPrice'
+            :'We recommend a price based on the supplied start and end points',
+            textAlign: TextAlign.center,
+          );
+    final screenWidth = MediaQuery.of(context).size.width;
+    final pixelRatio = MediaQuery.of(context).devicePixelRatio;
+    final viewWidth = screenWidth * pixelRatio;
 
     return Scaffold(
       body: userData.car != null
@@ -148,6 +180,7 @@ class _PostRideFormState extends State<PostRideForm> {
               child: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
+                  
                   children: [
                     Text(
                       'Complete the form to post a ride',
@@ -157,37 +190,71 @@ class _PostRideFormState extends State<PostRideForm> {
                     AnimatedProgressIndicator(value: _formProgress), // NEW
                     Padding(
                       padding: const EdgeInsets.all(8),
-                      child: TextFormField(
-                        controller: _startPointTextController,
-                        decoration:
-                            const InputDecoration(hintText: 'Start point'),
+                      child: DropdownMenu<RegionsLabel>(
+                        controller: _startRegionTextController,
+                        requestFocusOnTap: true,
+                        width: viewWidth*0.5,
+                        label: const Text('Start Region'),
+                        onSelected: (RegionsLabel? region) {
+                          setState(() {
+                            _startRegion = region;
+                          });
+                        },
+                        dropdownMenuEntries: RegionsLabel.values
+                            .map<DropdownMenuEntry<RegionsLabel>>(
+                                (RegionsLabel region) {
+                          return DropdownMenuEntry<RegionsLabel>(
+                            value: region,
+                            label: region.label,
+                            enabled: region.label != '0',
+                          );
+                        }).toList(),
                       ),
                     ),
                     Padding(
                       padding: const EdgeInsets.all(8),
                       child: TextFormField(
-                        controller: _startRegionTextController,
+                        controller: _startPointTextController,
                         decoration: const InputDecoration(
-                            hintText: 'Select start region'),
+                          hintText: 'Input start point',
+                          labelText: 'Start Point',
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: DropdownMenu<RegionsLabel>(
+                        controller: _endRegionTextController,
+                        requestFocusOnTap: true,
+                        width: viewWidth*0.5,
+                        label: const Text('End Region'),
+                        onSelected: (RegionsLabel? region) {
+                          setState(() {
+                            _endRegion = region;
+                          });
+                        },
+                        dropdownMenuEntries: RegionsLabel.values
+                            .map<DropdownMenuEntry<RegionsLabel>>(
+                                (RegionsLabel region) {
+                          return DropdownMenuEntry<RegionsLabel>(
+                            value: region,
+                            label: region.label,
+                            enabled: region.label != '0',
+                          );
+                        }).toList(),
                       ),
                     ),
                     Padding(
                       padding: const EdgeInsets.all(8),
                       child: TextFormField(
                         controller: _endPointTextController,
-                        decoration:
-                            const InputDecoration(hintText: 'End point'),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: TextFormField(
-                        controller: _endRegionTextController,
                         decoration: const InputDecoration(
-                            hintText: 'Select end region'),
+                          hintText: 'Input end point',
+                          labelText: 'End Point',
+                        ),
                       ),
                     ),
-                    const Text('Select your date below'),
+                    const Text('Select your ride date below'),
                     Padding(
                       padding: const EdgeInsets.all(8),
                       child: TableCalendar(
@@ -199,6 +266,7 @@ class _PostRideFormState extends State<PostRideForm> {
                             isSameDay(_selectedDay, day),
                         onDaySelected: (selectedDay, focusedDay) {
                           setState(() {
+                            _dateSelectionTextController.text = DateFormat('dd-MM-yyyy').format(selectedDay);
                             _selectedDay = selectedDay;
                             _focusedDay =
                                 focusedDay; // update `_focusedDay` here as well
@@ -211,38 +279,53 @@ class _PostRideFormState extends State<PostRideForm> {
                     ),
                     Padding(
                       padding: const EdgeInsets.all(8),
-                      child: DropdownButton(
-                        hint: const Text('Select available seats'),
-                        isExpanded: true,
-                        onChanged: (int? newValue) {
+                      child: DropdownMenu<SeatsLabel>(
+                        controller: _seatSelectionTextController,
+                        requestFocusOnTap: true,
+                        width: viewWidth*0.5,
+                        label: const Text('Set Available Seats'),
+                        onSelected: (SeatsLabel? seats) {
                           setState(() {
-                            _selectedSeats = newValue;
+                            _selectedSeats = seats;
                           });
                         },
-                        items: [1, 2, 3, 4, 5]
-                            .map<DropdownMenuItem<int>>((int value) {
-                          return DropdownMenuItem<int>(
-                            value: value,
-                            child: Text('$value'),
+                        dropdownMenuEntries: SeatsLabel.values
+                            .map<DropdownMenuEntry<SeatsLabel>>(
+                                (SeatsLabel seats) {
+                          return DropdownMenuEntry<SeatsLabel>(
+                            value: seats,
+                            label: seats.label,
+                            enabled: seats.label != '0',
                           );
                         }).toList(),
                       ),
                     ),
                     FilledButton(
-                        onPressed: () {
-                          calculatePrice().then((price) {
-                            setState(() {
-                              _calculatedPrice = price;
-                            });
-                          });
-                        },
-                        child: const Text('Calculate price')),
+                      onPressed: _priceProgress == 1
+                          ? () {
+                              calculatePrice().then((price) {
+                                setState(() {
+                                  _calculatedPrice = price;
+                                  isPriceLoading = false;
+                                });
+                              });
+                            }
+                          : null,
+                      child: isPriceLoading
+                          ? const CircularProgressIndicator(
+                              color: Colors.white,
+                            )
+                          : const Text('Calculate recommended price'),
+                    ),
                     priceWidget,
                     Padding(
                       padding: const EdgeInsets.all(8),
                       child: TextFormField(
                         controller: _inputPriceTextController,
-                        decoration: const InputDecoration(hintText: 'Price'),
+                        decoration: const InputDecoration(
+                          hintText: 'Input final price',
+                          labelText: 'Final Price',
+                        ),
                       ),
                     ),
                     TextButton(
@@ -261,7 +344,7 @@ class _PostRideFormState extends State<PostRideForm> {
                         }),
                       ),
                       onPressed:
-                          _formProgress == 1 ? _postRide : null, // UPDATED
+                          _formProgress > 0.99 ? _postRide : null, // UPDATED
                       child: const Text('Create Ride'),
                     ),
                   ],

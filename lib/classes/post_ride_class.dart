@@ -1,12 +1,36 @@
 //this is a class for submitting the ridedata 
 
+enum SeatsLabel {
+  one('1', 1),
+  two('2', 2),
+  three('3', 3),
+  four('4', 4),
+  five('5', 5);
+
+  const SeatsLabel(this.label, this.seats);
+  final String label;
+  final int seats;
+}
+
+enum RegionsLabel {
+  one('North West', 'North West'),
+  two('North East', 'North East'),
+  three('Yorkshire', 'Yorkshire'),
+  four('Midlands', 'Midlands'),
+  five('South', 'South');
+
+  const RegionsLabel(this.label, this.region);
+  final String label;
+  final String region;
+}
+
 class PostRideClass {
   final String? to;
-  final String? to_region;
+  final RegionsLabel? to_region;
   final String? from;
-  final String? from_region;
+  final RegionsLabel? from_region;
   final String? driver_username;
-  final int? available_seats;
+  final SeatsLabel? available_seats;
   final int? carbon_emissions;
   final int? distance;
   final int? price;
@@ -29,11 +53,11 @@ class PostRideClass {
 
   Map<String, dynamic> toJson() => {
         "to" : to,
-        "to_region": to_region,
+        "to_region": to_region?.region,
         "from" : from,
-        'from_region': from_region,
+        'from_region': from_region?.region,
         "driver_username" : driver_username,
-        "available_seats": available_seats,
+        "available_seats": available_seats?.seats,
         "carbon_emissions": carbon_emissions,
         "distance": distance,
         "price": price,
