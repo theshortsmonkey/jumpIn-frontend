@@ -4,6 +4,7 @@ import './classes/get_chat_class.dart';
 import './api.dart';
 import 'package:provider/provider.dart';
 import "./auth_provider.dart";
+import './appbar.dart';
 
 class GetRideChat extends StatefulWidget {
   const GetRideChat({super.key});
@@ -40,9 +41,10 @@ class _GetRideChatState extends State<GetRideChat> {
   Widget build(BuildContext context) {
     final userData = context.read<AuthState>().userInfo;
     return Scaffold(
-      appBar: AppBar(
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          title: const Text('jumpIn')),
+      appBar: CustomAppBar(
+              title: 'jumpIn - Messages',
+              context: context,
+            ),
       body: Column(children: [
         Row(
           children: [
@@ -61,7 +63,7 @@ class _GetRideChatState extends State<GetRideChat> {
             FilledButton(onPressed: () {
               final message = {
                 "from": userData.username,
-                "to": "testUSername2",
+                "to": "testUSername1",
                 "message": _msgTextController.text 
               };
               _postMessage(message, chatId,userData.username);

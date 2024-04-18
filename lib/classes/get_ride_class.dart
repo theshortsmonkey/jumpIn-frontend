@@ -1,6 +1,6 @@
 class Ride { 
   final String? id;
-  final String? driverUsername;
+  final String driverUsername;
   final String? to;
   final String? from;
   final List<dynamic>? riderUsernames;
@@ -13,7 +13,7 @@ class Ride {
   
   const Ride ({ 
     this.id,
-    this.driverUsername,
+    this.driverUsername = '',
     this.to,
     this.from,
     this.riderUsernames,

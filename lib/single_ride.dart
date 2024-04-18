@@ -1,5 +1,7 @@
 import 'package:fe/api.dart';
 import 'package:fe/appbar.dart';
+import 'package:fe/chat_history.dart';
+import 'package:fe/classes/get_chat_class.dart';
 import 'package:fe/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -19,6 +21,7 @@ class SingleRide extends StatefulWidget {
 
 class _SingleRideState extends State<SingleRide> {
   late Future<Ride> futureRide;
+  late Future<List<Chat>> futureRideChats;
   late String rideId = '';
 
   @override
@@ -32,6 +35,8 @@ class _SingleRideState extends State<SingleRide> {
         rideId = '';
       }
       futureRide = fetchRideById(rideId); //pass rideId
+      final currUser = context.read<AuthState>().userInfo;
+      futureRideChats = fetchMessagesByRideId(rideId, currUser.username);
     }
   }
 
@@ -42,7 +47,6 @@ class _SingleRideState extends State<SingleRide> {
             appBar: CustomAppBar(
               title: 'jumpIn - Ride Details',
               context: context,
-              disableProfileButton: true,
             ),
             body: Center(
               child: FutureBuilder<Ride>(
@@ -57,7 +61,13 @@ class _SingleRideState extends State<SingleRide> {
                       final String imgUrl =
                           'http://localhost:1337/users/${rideData?.driverUsername}/image';
                       String cost = '';
-                      if (rideData != null) cost = NumberFormat.currency(locale: "en_GB", symbol: '£').format(rideData.price/100);
+                      String driverUsername = '';
+                      if (rideData != null) {
+                        cost =
+                            NumberFormat.currency(locale: "en_GB", symbol: '£')
+                                .format(rideData.price / 100);
+                        driverUsername = rideData.driverUsername;
+                      }
                       return Column(
                         children: [
                           Padding(
@@ -90,9 +100,7 @@ class _SingleRideState extends State<SingleRide> {
                                             'Available Seats',
                                             '${rideData?.availableSeats}',
                                             CupertinoIcons.person_2),
-                                        itemProfile(
-                                            'Price',
-                                            cost,
+                                        itemProfile('Price', cost,
                                             CupertinoIcons.money_pound_circle),
                                         itemProfile(
                                             'Total Carbon',
@@ -116,6 +124,7 @@ class _SingleRideState extends State<SingleRide> {
                           ),
                           const SizedBox(width: 10),
                           driverProfile(imgUrl, rideData),
+                          ChatHistory(rideId: rideId, driverUsername: driverUsername, driverImgUrl: imgUrl)
                         ],
                       );
                     } else {
@@ -155,78 +164,82 @@ class _SingleRideState extends State<SingleRide> {
                 child: const Text('Delete Ride'))
             : const SizedBox();
 
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
-      clipBehavior: Clip.antiAliasWithSaveLayer,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(15),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Column(
-                  children: [
-                    CircleAvatar(
-                      radius: 50,
-                      backgroundImage: NetworkImage(imgURL),
-                    ),
-                    const SizedBox(height: 10),
-                    FilledButton(
-                        onPressed: () {
-                          Navigator.of(context)
-                              .pushNamed('/ridechat', arguments: rideId);
-                        },
-                        child: const Text('Message')),
-                    const SizedBox(height: 10),
-                    deleteButton
-                  ],
-                ),
-
-                // Add some spacing between the image and the text
-                Container(width: 20),
-                // Add an expanded widget to take up the remaining horizontal space
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Container(height: 5),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text("Driver:", style: theme.textTheme.headlineSmall),
-                          const SizedBox(width: 8),
-                          Text(
-                            '${rideData.driverUsername}',
-                            style: theme.textTheme.bodyLarge,
-                          ),
-                        ],
+    return Padding(
+      padding: const EdgeInsets.all(12.0),
+      child: Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        clipBehavior: Clip.antiAliasWithSaveLayer,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.all(15),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Column(
+                    children: [
+                      CircleAvatar(
+                        radius: 50,
+                        backgroundImage: NetworkImage(imgURL),
                       ),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            "Rating:",
-                            style: theme.textTheme.headlineSmall,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            "${rideData.driverRating}",
-                            style: theme.textTheme.bodyLarge,
-                          ),
-                        ],
-                      ),
-                      Container(height: 10),
+                      const SizedBox(height: 10),
+                      FilledButton(
+                          onPressed: () {
+                            Navigator.of(context)
+                                .pushNamed('/ridechat', arguments: rideId);
+                          },
+                          child: const Text('Messages')),
+                      const SizedBox(height: 10),
+                      deleteButton
                     ],
                   ),
-                ),
-              ],
+
+                  // Add some spacing between the image and the text
+                  Container(width: 20),
+                  // Add an expanded widget to take up the remaining horizontal space
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Container(height: 5),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text("Driver:",
+                                style: theme.textTheme.headlineSmall),
+                            const SizedBox(width: 8),
+                            Text(
+                              '${rideData.driverUsername}',
+                              style: theme.textTheme.bodyLarge,
+                            ),
+                          ],
+                        ),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              "Rating:",
+                              style: theme.textTheme.headlineSmall,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              "${rideData.driverRating}",
+                              style: theme.textTheme.bodyLarge,
+                            ),
+                          ],
+                        ),
+                        Container(height: 10),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
