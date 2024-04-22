@@ -36,7 +36,7 @@ class _SingleRideState extends State<SingleRide> {
       }
       futureRide = fetchRideById(rideId); //pass rideId
       final currUser = context.read<AuthState>().userInfo;
-      futureRideChats = fetchMessagesByRideId(rideId, currUser.username);
+      // futureRideChats = fetchMessagesByRideId(rideId, currUser.username);
     }
   }
 

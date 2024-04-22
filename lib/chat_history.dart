@@ -1,5 +1,5 @@
-import 'package:fe/classes/get_chat_class.dart';
-
+import 'package:fe/classes/chat_class.dart';
+import 'package:fe/classes/message_class.dart';
 import './api.dart';
 import 'package:provider/provider.dart';
 import "./auth_provider.dart";
@@ -21,7 +21,7 @@ class ChatHistory extends StatefulWidget {
 
 class _ChatHistoryState extends State<ChatHistory> {
   final _msgTextController = TextEditingController();
-  List<Chat> rideChats = [];
+  List<Chat> _rideChats = [];
 
   @override
   void initState() {
@@ -35,19 +35,24 @@ class _ChatHistoryState extends State<ChatHistory> {
     super.didChangeDependencies();
   }
 
-  void _postMessage(message, chatId, username) async {
-    await postMessage(message, chatId);
-    await fetchMessagesByRideId(chatId, username);
-    // setState((){
-    //   _chats = futureRideChats;
-    // });
+  void _postMessage(String from, String driver) async {
+    final newMessage = Message(
+                from: from,
+                text: _msgTextController.text,
+                driver: driver,
+                rider: from
+              );
+    final chat = await postMessageByRideId(widget.rideId,newMessage);
+    setState((){
+      _rideChats = chat;
+    });
   }
 
   Future<void> _getRideChats(currUser) async {
-    List<Chat> futureRideChats =
+    List<Chat> chats =
         await fetchMessagesByRideId(widget.rideId, currUser.username);
     setState(() {
-      rideChats = futureRideChats;
+      _rideChats = chats;
     });
   }
 
@@ -74,12 +79,7 @@ class _ChatHistoryState extends State<ChatHistory> {
               ),
               FilledButton(
                   onPressed: () {
-                    final message = {
-                      "from": userData.username,
-                      "to": widget.driverUsername,
-                      "message": _msgTextController.text
-                    };
-                    _postMessage(message, widget.rideId, userData.username);
+                    _postMessage(userData.username,widget.driverUsername);
                   },
                   child: const Text('Send'))
             ],
@@ -121,7 +121,7 @@ class _ChatHistoryState extends State<ChatHistory> {
           ),
           Column(
             children: [
-              for (var chat in rideChats) messageCard(chat, userData.username),
+              for (var message in _rideChats[0].messages) messageCard(message, userData.username),
             ],
           )
         ],
@@ -155,13 +155,14 @@ userCard(username, imgUrl, isDriver) {
   );
 }
 
-messageCard(chat, currUsername) {
+messageCard(message, currUsername) {
   String leftText = '';
   String rightText = '';
-  if (chat.from == currUsername) {
-    rightText = chat.message;
+  String displayText = '${message['text']} ${message['timeStamp'].substring(11, 16)} ${message['timeStamp'].substring(0, 10)}';
+  if (message['from'] == currUsername) {
+    rightText = displayText;
   } else {
-    leftText = chat.message;
+    leftText = displayText;
   }
   return Row(
     children: [

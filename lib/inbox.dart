@@ -21,7 +21,7 @@ class _GetMessageState extends State<GetMessage> {
     super.initState();
     final provider = Provider.of<AuthState>(context, listen: false);
     final currUser = provider.userInfo;
-    futureMessages = fetchMessagesByUsername(currUser.username);
+    // futureMessages = fetchMessagesByUsername(currUser.username);
   }
 
   @override

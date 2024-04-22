@@ -26,11 +26,11 @@ class _GetRideChatState extends State<GetRideChat> {
     final provider = Provider.of<AuthState>(context, listen: false);
     final currUser = provider.userInfo;
     chatId = ModalRoute.of(context)!.settings.arguments as String;
-    futureRideChats = fetchMessagesByRideId(chatId, currUser.username);
+    // futureRideChats = fetchMessagesByRideId(chatId, currUser.username);
     rideDetails = fetchRideById(chatId);
   }
   void _postMessage(message, chatId, username) async {
-    await postMessage(message, chatId);
+    // await postMessage(message, chatId);
     await fetchMessagesByRideId(chatId, username);
     setState((){
       _chats = futureRideChats;
@@ -63,7 +63,7 @@ class _GetRideChatState extends State<GetRideChat> {
             FilledButton(onPressed: () {
               final message = {
                 "from": userData.username,
-                "to": "testUSername1",
+                "to": "testUSername4",
                 "message": _msgTextController.text 
               };
               _postMessage(message, chatId,userData.username);

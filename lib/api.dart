@@ -1,10 +1,11 @@
 import 'dart:convert';
 import 'package:enhanced_http/enhanced_http.dart';
 import 'classes/get_ride_class.dart';
-import 'classes/get_message_class.dart';
+import 'classes/message_class.dart';
+import 'classes/chat_class.dart';
 import 'dart:async';
 import "./classes/get_user_class.dart";
-import './classes/get_chat_class.dart';
+// import './classes/get_chat_class.dart';
 import "package:http/http.dart" as http;
 
 EnhancedHttp httpEnhanced = EnhancedHttp(baseURL: 'http://localhost:1337');
@@ -216,25 +217,28 @@ Future<List<Message>> fetchMessagesByUsername(username) async {
   }
 }
 
-Future<List<Chat>> fetchMessagesByRideId(ride_id, username) async {
-  final response = await httpEnhanced.get('/rides/$ride_id/$username/messages');
+Future<List<Chat>> fetchMessagesByRideId(rideId,rider) async {
+  final response = await httpEnhanced.get('/rides/$rideId/messages/$rider');
   if (response.isNotEmpty) {
     List<Chat> chats = response.map<Chat>((item) {
       return Chat.fromJson(item as Map<String, dynamic>);
     }).toList();
     return chats;
   } else {
-    throw Exception('No users found');
+    throw Exception('Ride not found');
   }
 }
 
-Future<Message> postMessage(inputMessage, chatId) async {
-  String json = jsonEncode(inputMessage);
-  final response = await http.post(Uri.parse('http://localhost:1337/rides/$chatId/messages'),
-      headers: {"Content-Type": "application/json"}, body: json);
+Future<List<Chat>> postMessageByRideId(rideId, message) async {
+  String bodyJson = jsonEncode(message);
+  final response = await http.post(Uri.parse('http://localhost:1337/rides/$rideId/messages'),
+      headers: {"Content-Type": "application/json"}, body: bodyJson);
   if (response.statusCode == 200) {
-    var message = Message.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
-    return message;
+    final responseData = json.decode(response.body);
+    List<Chat> chats = responseData.map<Chat>((item) {
+      return Chat.fromJson(item as Map<String, dynamic>);
+    }).toList();
+    return chats;
   } else {
     throw Exception("Ride not found");
   }
