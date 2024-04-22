@@ -16,7 +16,7 @@ Widget build(BuildContext context) {
   return GestureDetector(
     onTap: () {
       //enable action upon tapping the card
-      Navigator.of(context).pushNamed('/singleridetest', arguments: ride.id);
+      Navigator.of(context).pushNamed('/singleride', arguments: ride.id);
     },
     child: Card(
     // Define the shape of the card

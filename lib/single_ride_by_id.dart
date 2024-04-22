@@ -1,28 +1,39 @@
-import 'package:fe/api.dart';
 import 'package:fe/appbar.dart';
 import 'package:fe/chat_history.dart';
-import 'package:fe/classes/get_chat_class.dart';
+import 'package:fe/classes/chat_class.dart';
+import 'package:fe/classes/get_ride_class.dart';
+import 'package:fe/classes/get_user_class.dart';
+import 'package:fe/classes/message_class.dart';
 import 'package:fe/login_page.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:intl/intl.dart';
-import './classes/get_ride_class.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
-import "./auth_provider.dart";
+import './api.dart';
 import 'package:provider/provider.dart';
+import "./auth_provider.dart";
+import 'package:flutter/material.dart';
 
-class SingleRide extends StatefulWidget {
-  const SingleRide({super.key});
+class SingleRideByID extends StatefulWidget {
+  const SingleRideByID({
+    super.key,
+  });
 
   @override
-  State<SingleRide> createState() => _SingleRideState();
+  State<SingleRideByID> createState() => _SingleRideByIDState();
 }
 
-class _SingleRideState extends State<SingleRide> {
-  late Future<Ride> futureRide;
-  late Future<List<Chat>> futureRideChats;
+class _SingleRideByIDState extends State<SingleRideByID> {
+  late User currUser;
+  late Ride _currRide = const Ride();
+  List<Chat> _rideChats = [];
   late String rideId = '';
+
+  @override
+  void initState() {
+    super.initState();
+    currUser = context.read<AuthState>().userInfo;
+  }
 
   @override
   void didChangeDependencies() {
@@ -34,14 +45,32 @@ class _SingleRideState extends State<SingleRide> {
       } else {
         rideId = '';
       }
-      futureRide = fetchRideById(rideId); //pass rideId
-      final currUser = context.read<AuthState>().userInfo;
-      // futureRideChats = fetchMessagesByRideId(rideId, currUser.username);
+    _getRideDetails();
+    _getRideChats();
     }
+  }
+
+  Future<void> _getRideChats() async {
+    List<Chat> chats = await fetchMessagesByRideId(rideId, currUser.username);
+    setState(() {
+      _rideChats = chats;
+    });
+  }
+
+  Future<void> _getRideDetails() async {
+    Ride ride = await fetchRideById(rideId);
+    setState(() {
+      _currRide = ride;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final String imgUrl =
+        'http://localhost:1337/users/${_currRide?.driverUsername}/image';
+    final String  cost = NumberFormat.currency(locale: "en_GB", symbol: '£')
+          .format(_currRide.price / 100);
+    final String  driverUsername = _currRide.driverUsername;
     return context.read<AuthState>().isAuthorized
         ? Scaffold(
             appBar: CustomAppBar(
@@ -49,88 +78,68 @@ class _SingleRideState extends State<SingleRide> {
               context: context,
             ),
             body: Center(
-              child: FutureBuilder<Ride>(
-                  future: futureRide,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const CircularProgressIndicator();
-                    } else if (snapshot.hasError) {
-                      return Text('Error: ${snapshot.error}');
-                    } else if (snapshot.hasData) {
-                      final rideData = snapshot.data;
-                      final String imgUrl =
-                          'http://localhost:1337/users/${rideData?.driverUsername}/image';
-                      String cost = '';
-                      String driverUsername = '';
-                      if (rideData != null) {
-                        cost =
-                            NumberFormat.currency(locale: "en_GB", symbol: '£')
-                                .format(rideData.price / 100);
-                        driverUsername = rideData.driverUsername;
-                      }
-                      return Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(12.0),
-                            child: Card(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              clipBehavior: Clip.antiAliasWithSaveLayer,
-                              child: Row(
-                                children: [
-                                  IntrinsicWidth(
-                                    child: Column(
-                                      children: [
-                                        itemProfile(
-                                            'Start',
-                                            '${rideData?.from}',
-                                            CupertinoIcons.arrow_right_circle),
-                                        itemProfile('End', '${rideData?.to}',
-                                            CupertinoIcons.flag_circle_fill),
-                                        itemProfile(
-                                            'Date',
-                                            '${rideData?.dateTime?.substring(0, 10)}',
-                                            CupertinoIcons.calendar_today),
-                                        itemProfile(
-                                            'Time',
-                                            '${rideData?.dateTime?.substring(11, 16)}',
-                                            CupertinoIcons.clock),
-                                        itemProfile(
-                                            'Available Seats',
-                                            '${rideData?.availableSeats}',
-                                            CupertinoIcons.person_2),
-                                        itemProfile('Price', cost,
-                                            CupertinoIcons.money_pound_circle),
-                                        itemProfile(
-                                            'Total Carbon',
-                                            '${rideData?.carbonEmissions}',
-                                            CupertinoIcons
-                                                .leaf_arrow_circlepath),
-                                      ],
-                                    ),
+              child: _currRide.driverUsername == ''
+                  ? const Text('No ride data')
+                  : Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: Card(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            clipBehavior: Clip.antiAliasWithSaveLayer,
+                            child: Row(
+                              children: [
+                                IntrinsicWidth(
+                                  child: Column(
+                                    children: [
+                                      itemProfile('Start', '${_currRide.from}',
+                                          CupertinoIcons.arrow_right_circle),
+                                      itemProfile('End', '${_currRide.to}',
+                                          CupertinoIcons.flag_circle_fill),
+                                      itemProfile(
+                                          'Date',
+                                          '${_currRide.dateTime?.substring(0, 10)}',
+                                          CupertinoIcons.calendar_today),
+                                      itemProfile(
+                                          'Time',
+                                          '${_currRide.dateTime?.substring(11, 16)}',
+                                          CupertinoIcons.clock),
+                                      itemProfile(
+                                          'Available Seats',
+                                          '${_currRide.availableSeats}',
+                                          CupertinoIcons.person_2),
+                                      itemProfile('Price', cost,
+                                          CupertinoIcons.money_pound_circle),
+                                      itemProfile(
+                                          'Total Carbon',
+                                          '${_currRide.carbonEmissions}',
+                                          CupertinoIcons.leaf_arrow_circlepath),
+                                    ],
                                   ),
-                                  Expanded(
-                                      child: Padding(
-                                    padding: const EdgeInsets.all(16),
-                                    child: SizedBox(height: 300, child: map()),
-                                  ))
-                                  // Expanded(
-                                  //   child:
-                                  // ),
-                                ],
-                              ),
+                                ),
+                                Expanded(
+                                    child: Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: SizedBox(height: 300, child: map()),
+                                ))
+                                // Expanded(
+                                //   child:
+                                // ),
+                              ],
                             ),
                           ),
-                          const SizedBox(width: 10),
-                          driverProfile(imgUrl, rideData),
-                          // ChatHistory(rideId: rideId, driverUsername: driverUsername, driverImgUrl: imgUrl)
-                        ],
-                      );
-                    } else {
-                      return const Text('No data');
-                    }
-                  }),
+                        ),
+                        const SizedBox(width: 10),
+                        driverProfile(imgUrl, _currRide),
+                        ChatHistory(
+                            rideId: rideId,
+                            driverUsername: driverUsername,
+                            driverImgUrl: imgUrl,
+                            currChats: [_rideChats[0]],)
+                      ],
+                    ),
             ),
           )
         : const LoginPage();

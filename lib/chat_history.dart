@@ -9,11 +9,13 @@ class ChatHistory extends StatefulWidget {
   final String rideId;
   final String driverUsername;
   final String driverImgUrl;
+  final List<Chat> currChats;
   const ChatHistory(
       {super.key,
       required this.rideId,
       required this.driverUsername,
-      required this.driverImgUrl});
+      required this.driverImgUrl,
+      required this.currChats});
 
   @override
   State<ChatHistory> createState() => _ChatHistoryState();
@@ -26,13 +28,7 @@ class _ChatHistoryState extends State<ChatHistory> {
   @override
   void initState() {
     super.initState();
-    final currUser = context.read<AuthState>().userInfo;
-    _getRideChats(currUser);
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
+    _rideChats = widget.currChats;
   }
 
   void _postMessage(String from, String driver) async {
@@ -45,14 +41,7 @@ class _ChatHistoryState extends State<ChatHistory> {
     final chat = await postMessageByRideId(widget.rideId,newMessage);
     setState((){
       _rideChats = chat;
-    });
-  }
-
-  Future<void> _getRideChats(currUser) async {
-    List<Chat> chats =
-        await fetchMessagesByRideId(widget.rideId, currUser.username);
-    setState(() {
-      _rideChats = chats;
+       _msgTextController.text = '';
     });
   }
 
@@ -65,25 +54,6 @@ class _ChatHistoryState extends State<ChatHistory> {
       padding: const EdgeInsets.all(12.0),
       child: Column(
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Form(
-                  child: TextFormField(
-                    controller: _msgTextController,
-                    decoration: InputDecoration(
-                        labelText: "Message to '${widget.driverUsername}'",
-                        hintText: "Type your message here..."),
-                  ),
-                ),
-              ),
-              FilledButton(
-                  onPressed: () {
-                    _postMessage(userData.username,widget.driverUsername);
-                  },
-                  child: const Text('Send'))
-            ],
-          ),
           Row(
             children: [
               Expanded(
@@ -123,7 +93,26 @@ class _ChatHistoryState extends State<ChatHistory> {
             children: [
               for (var message in _rideChats[0].messages) messageCard(message, userData.username),
             ],
-          )
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: Form(
+                  child: TextFormField(
+                    controller: _msgTextController,
+                    decoration: InputDecoration(
+                        labelText: "Message to '${widget.driverUsername}'",
+                        hintText: "Type your message here..."),
+                  ),
+                ),
+              ),
+              FilledButton(
+                  onPressed: () {
+                    _postMessage(userData.username,widget.driverUsername);
+                  },
+                  child: const Text('Send'))
+            ],
+          ),
         ],
       ),
     );

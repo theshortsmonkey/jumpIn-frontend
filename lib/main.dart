@@ -1,4 +1,5 @@
 import 'package:fe/edit_profile_page.dart';
+import 'package:fe/single_ride_by_id.dart';
 import 'package:fe/upload_profile_pic.dart';
 import './login_page.dart';
 import 'package:flutter/material.dart';
@@ -60,6 +61,7 @@ class MyApp extends StatelessWidget {
         "/postride" : (context) => const PostRidePage(),
         "/allrides": (context) => const GetRide(),
         '/singleridetest': (context) => const SingleRide(),
+        '/singleride': (context) => const SingleRideByID(),
         '/editprofile': (context) => const EditProfilePage(),
         '/inbox': (context) => const GetMessage(),
         '/ridechat': (context) => const GetRideChat(),
