@@ -82,7 +82,9 @@ class _ChatCardState extends State<ChatCard> {
         padding: const EdgeInsets.all(12.0),
         child: Column(
           children: [
-            Row(
+            _driver!.username == currUser!.username 
+            ? const Text('No Chats started for this ride')
+            : Row(
               children: [
                 Expanded(
                   child: Container(
@@ -122,7 +124,9 @@ class _ChatCardState extends State<ChatCard> {
                   messageCard(message, currUser!.username),
               ],
             ),
-            Row(
+            _driver!.username == currUser!.username 
+            ? const SizedBox(height: 20,)
+            : Row(
               children: [
                 Expanded(
                   child: Form(
@@ -153,7 +157,7 @@ class _ChatCardState extends State<ChatCard> {
       children: [
         Expanded(
           child: Center(
-            child: Text(user!.username),
+            child: Text(user.username),
           ),
         ),
         Center(

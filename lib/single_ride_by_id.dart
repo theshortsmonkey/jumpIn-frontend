@@ -207,13 +207,6 @@ class _SingleRideByIDState extends State<SingleRideByID> {
                         backgroundImage: NetworkImage(imgURL),
                       ),
                       const SizedBox(height: 10),
-                      FilledButton(
-                          onPressed: () {
-                            Navigator.of(context)
-                                .pushNamed('/ridechat', arguments: rideId);
-                          },
-                          child: const Text('Messages')),
-                      const SizedBox(height: 10),
                       deleteButton
                     ],
                   ),
