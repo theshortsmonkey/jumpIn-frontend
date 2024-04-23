@@ -8,7 +8,6 @@ import 'profile_page.dart';
 import './homepage.dart';
 import "post_ride_page.dart";
 import './all_rides.dart';
-import './single_ride.dart';
 import './inbox.dart';
 import 'package:google_fonts/google_fonts.dart';
 import "./auth_provider.dart";
@@ -59,7 +58,6 @@ class MyApp extends StatelessWidget {
         '/profile': (context) => const ProfileScreen(),
         "/postride" : (context) => const PostRidePage(),
         "/allrides": (context) => const GetRide(),
-        '/singleridetest': (context) => const SingleRide(),
         '/singleride': (context) => const SingleRideByID(),
         '/editprofile': (context) => const EditProfilePage(),
         '/inbox': (context) => const GetMessage(),

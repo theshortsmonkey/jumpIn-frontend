@@ -35,7 +35,8 @@ class PostRideClass {
   final int? distance;
   final int? price;
   final map;
-  final DateTime? date_and_time; //NB you are using calendar, are you inputting a DateTime? How are you handling that
+  final DateTime? date_and_time; 
+  final dynamic chats;
 
   PostRideClass({
     this.to,
@@ -48,7 +49,8 @@ class PostRideClass {
     this.distance,
     this.price,
     this.map = null,
-    this.date_and_time
+    this.date_and_time,
+    this.chats = const []
   });
 
   Map<String, dynamic> toJson() => {
@@ -62,6 +64,7 @@ class PostRideClass {
         "distance": distance,
         "price": price,
         "map": map,
-        "date_and_time": date_and_time?.toIso8601String()
+        "date_and_time": date_and_time?.toIso8601String(),
+        "chats": chats
       };
 }

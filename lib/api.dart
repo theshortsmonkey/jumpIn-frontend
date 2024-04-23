@@ -1,11 +1,10 @@
 import 'dart:convert';
 import 'package:enhanced_http/enhanced_http.dart';
-import 'classes/get_ride_class.dart';
+import 'classes/ride_class.dart';
 import 'classes/message_class.dart';
 import 'classes/chat_class.dart';
 import 'dart:async';
 import "./classes/get_user_class.dart";
-// import './classes/get_chat_class.dart';
 import "package:http/http.dart" as http;
 
 EnhancedHttp httpEnhanced = EnhancedHttp(baseURL: 'http://localhost:1337');
@@ -16,10 +15,10 @@ EnhancedHttp httpFuel = EnhancedHttp(baseURL: 'https://www.bp.com');
 Future<List<Ride>> fetchRides({
   String? to,
   String? from,
-  String? date_and_time,
+  String? getDateTime,
   int? price,
-  int? available_seats,
-  int? carbon_emissions
+  int? getAvailableSeats,
+  int? carbonEmissions
 }) async {
   final queryParams = <String, dynamic>{};
     if (to?.isNotEmpty ?? false) {
@@ -28,17 +27,17 @@ Future<List<Ride>> fetchRides({
     if (from?.isNotEmpty ?? false) {
       queryParams['from'] = from;
     }
-    if (date_and_time != null) {
-      queryParams['date_and_time'] = date_and_time;
+    if (getDateTime != null) {
+      queryParams['date_and_time'] = getDateTime;
     }
     if (price != null) {
       queryParams['price'] = price;
     }
-    if (available_seats != null) {
-      queryParams['available_seats'] = available_seats;
+    if (getAvailableSeats != null) {
+      queryParams['available_seats'] = getAvailableSeats;
     }
-    if (carbon_emissions != null) {
-      queryParams['carbon_emissions'] = carbon_emissions;
+    if (carbonEmissions != null) {
+      queryParams['carbon_emissions'] = carbonEmissions;
     }
 
 

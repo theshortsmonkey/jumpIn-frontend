@@ -73,11 +73,11 @@ Widget build(BuildContext context) {
                     Container(height: 10),
                     // Add a text widget to display some text
                     Text(
-                      "Date ${ride.dateTime.substring(0,10)}",
+                      "Date ${ride.getDateTime.substring(0,10)}",
                       style: titleStyleS
                     ),
                     Text(
-                      "Time ${ride.dateTime.substring(11,16)}",
+                      "Time ${ride.getDateTime.substring(11,16)}",
                       style: titleStyleS
                     )
                   ],

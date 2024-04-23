@@ -1,7 +1,7 @@
 import 'package:fe/appbar.dart';
 import 'package:fe/chat_card.dart';
 import 'package:fe/classes/chat_class.dart';
-import 'package:fe/classes/get_ride_class.dart';
+import 'package:fe/classes/ride_class.dart';
 import 'package:fe/classes/get_user_class.dart';
 import 'package:fe/login_page.dart';
 import 'package:flutter/cupertino.dart';
@@ -24,7 +24,7 @@ class SingleRideByID extends StatefulWidget {
 
 class _SingleRideByIDState extends State<SingleRideByID> {
   late User currUser;
-  late Ride _currRide = const Ride();
+  late Ride _currRide = Ride();
   List<Chat> _rideChats = [];
   late String rideId = '';
 
@@ -98,15 +98,15 @@ class _SingleRideByIDState extends State<SingleRideByID> {
                                             CupertinoIcons.flag_circle_fill),
                                         itemProfile(
                                             'Date',
-                                            '${_currRide.dateTime?.substring(0, 10)}',
+                                            '${_currRide.getDateTime?.substring(0, 10)}',
                                             CupertinoIcons.calendar_today),
                                         itemProfile(
                                             'Time',
-                                            '${_currRide.dateTime?.substring(11, 16)}',
+                                            '${_currRide.getDateTime?.substring(11, 16)}',
                                             CupertinoIcons.clock),
                                         itemProfile(
                                             'Available Seats',
-                                            '${_currRide.availableSeats}',
+                                            '${_currRide.getAvailableSeats}',
                                             CupertinoIcons.person_2),
                                         itemProfile('Price', cost,
                                             CupertinoIcons.money_pound_circle),
@@ -217,10 +217,7 @@ class _SingleRideByIDState extends State<SingleRideByID> {
                       deleteButton
                     ],
                   ),
-
-                  // Add some spacing between the image and the text
                   Container(width: 20),
-                  // Add an expanded widget to take up the remaining horizontal space
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -284,12 +281,6 @@ class _SingleRideByIDState extends State<SingleRideByID> {
             ], color: Colors.red, strokeWidth: 10),
           ],
         ),
-        // RichAttributionWidget(
-        //   attributions: [
-        //     TextSourceAttribution(
-        //       'OpenStreetMap contributors',
-        //       onTap: () => launchUrl(Uri.parse('https://openstreetmap.org/copyright')),
-        //     ),
       ],
     );
   }

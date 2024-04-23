@@ -2,7 +2,7 @@ import 'package:fe/appbar.dart';
 import 'package:fe/login_page.dart';
 import 'package:flutter/material.dart';
 import './ride_card.dart';
-import './classes/get_ride_class.dart';
+import './classes/ride_class.dart';
 import './api.dart';
 import 'package:provider/provider.dart';
 import "./auth_provider.dart";
@@ -28,9 +28,9 @@ class _GetRideState extends State<GetRide>{
   Future<void> _filterRides({
     String? to,
     String? from,
-    String? dateAndTime,
+    String? getDateTime,
     int? price,
-    int? availableSeats,
+    int? getAvailableSeats,
     int? carbonEmissions
   }) async {
     // Fetch rides based on the provided criteria
@@ -38,10 +38,10 @@ class _GetRideState extends State<GetRide>{
       futureRides = fetchRides(
         to: to,
         from: from,
-        date_and_time: dateAndTime,
+        getDateTime: getDateTime,
         price: price,
-        available_seats: availableSeats,
-        carbon_emissions: carbonEmissions
+        getAvailableSeats: getAvailableSeats,
+        carbonEmissions: carbonEmissions
       );
     });
   }
@@ -111,7 +111,6 @@ class _GetRideState extends State<GetRide>{
                   } else if (snapshot.hasError) {
                     return Text('Error: ${snapshot.error}');
                   } else if (snapshot.hasData) {
-                    // Use ListView.builder to loop through snapshot.data and render a card for each ride
                     return ListView.builder(
                       itemCount: snapshot.data!.length,
                       itemBuilder: (context, index) {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'classes/post_ride_class.dart';
+import 'classes/ride_class.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'dart:async';
 import 'api.dart';
@@ -22,7 +22,7 @@ class _PostRideFormState extends State<PostRideForm> {
   final _inputPriceTextController = TextEditingController();
   final _seatSelectionTextController = TextEditingController();
   final _dateSelectionTextController = TextEditingController();
-  dynamic _calculatedPrice; //in pence - to store calc'd result
+  dynamic _calculatedPrice;
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
   SeatsLabel? _selectedSeats;
@@ -45,23 +45,24 @@ class _PostRideFormState extends State<PostRideForm> {
   void _postRide() async {
     final co2 = carDetails['co2Emissions'];
 
-    final rideData = PostRideClass(
+    final rideData = Ride(
         to: _endPointTextController.text,
-        to_region: _endRegion,
+        toRegion: _endRegion,
         from: _startPointTextController.text,
-        from_region: _startRegion,
-        driver_username: context.read<AuthState>().userInfo.username,
-        available_seats: _selectedSeats,
-        carbon_emissions: co2,
+        fromRegion: _startRegion,
+        driverUsername: context.read<AuthState>().userInfo.username,
+        postAvailableSeats: _selectedSeats,
+        carbonEmissions: co2,
         distance: 0,
         price: int.parse(_inputPriceTextController.text),
         map: null,
-        date_and_time: _selectedDay);
+        setDateTime: _selectedDay,
+        );
 
     final postedRide = await postRide(rideData);
 
     Navigator.of(context)
-        .pushNamed('/singleridetest', arguments: postedRide.id);
+        .pushNamed('/singleride', arguments: postedRide.id);
   }
 
   Future calculatePrice() async {
@@ -131,8 +132,10 @@ class _PostRideFormState extends State<PostRideForm> {
           initialTime: TimeOfDay.now(),
         );
         if (picked != null) {
+          final dateTime = DateTime(_selectedDay!.year, _selectedDay!.month, _selectedDay!.day, picked.hour, picked.minute);
           setState(() {
             _rideTime = picked;
+            _selectedDay = dateTime;
           });
         }
       }
