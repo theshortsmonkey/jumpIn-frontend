@@ -13,7 +13,6 @@ import './inbox.dart';
 import 'package:google_fonts/google_fonts.dart';
 import "./auth_provider.dart";
 import 'package:provider/provider.dart';
-import './ride_chat.dart';
 import "./validate_licence.dart";
 import "./validate_car.dart";
 
@@ -64,7 +63,6 @@ class MyApp extends StatelessWidget {
         '/singleride': (context) => const SingleRideByID(),
         '/editprofile': (context) => const EditProfilePage(),
         '/inbox': (context) => const GetMessage(),
-        '/ridechat': (context) => const GetRideChat(),
         '/uploadProfilePic': (context) => const UploadProfilePic(),
         '/validatelicence': (context) => const ValidateLicencePage(),
         '/validatecar': (context) => const ValidateCarPage(),

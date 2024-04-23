@@ -1,6 +1,6 @@
 import 'package:fe/api.dart';
 import 'package:fe/appbar.dart';
-import 'package:fe/chat_history.dart';
+import 'package:fe/chat_card.dart';
 import 'package:fe/classes/get_chat_class.dart';
 import 'package:fe/login_page.dart';
 import 'package:flutter/material.dart';

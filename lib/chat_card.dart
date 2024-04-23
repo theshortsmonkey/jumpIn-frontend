@@ -1,75 +1,209 @@
+import 'package:fe/classes/chat_class.dart';
+import 'package:fe/classes/get_user_class.dart';
+import 'package:fe/classes/message_class.dart';
+import './api.dart';
+import 'package:provider/provider.dart';
+import "./auth_provider.dart";
 import 'package:flutter/material.dart';
 
-class ChatCard extends StatelessWidget {
-  final chat;
-  const ChatCard({super.key, required this.chat});
+class ChatCard extends StatefulWidget {
+  final String rideId;
+  final String driverUsername;
+  final List<Chat> currChats;
+  const ChatCard(
+      {super.key,
+      required this.rideId,
+      required this.driverUsername,
+      required this.currChats});
+
+  @override
+  State<ChatCard> createState() => _ChatCardState();
+}
+
+class _ChatCardState extends State<ChatCard> {
+  User? currUser;
+  final _msgTextController = TextEditingController();
+  List<Chat> _rideChats = [];
+  User? _driver;
+  User? _rider;
+  String _otherUsersName = '';
+
+  @override
+  void initState() {
+    super.initState();
+    currUser = context.read<AuthState>().userInfo;
+    _rideChats = widget.currChats;
+    _getUserDetails();
+  }
+
+  void _getUserDetails() async {
+    User? driver;
+    User? rider;
+    String otherUsersName;
+    if (_rideChats.isEmpty) {
+      driver = await fetchUserByUsername(widget.driverUsername);
+      rider = currUser;
+      _rideChats = const [Chat()];
+    } else {
+      driver = await fetchUserByUsername(_rideChats[0].driver);
+      rider = await fetchUserByUsername(_rideChats[0].rider);
+    }
+    if (driver.username == currUser!.username) {
+      otherUsersName = rider!.username;
+    } else {
+      otherUsersName = driver.username;
+    }
+    setState(() {
+      _driver = driver;
+      _rider = rider;
+      _otherUsersName = otherUsersName;
+    });
+  }
+
+  void _postMessage() async {
+    final newMessage = Message(
+        from: currUser!.username,
+        text: _msgTextController.text,
+        driver: _driver!.username,
+        rider: _rider!.username);
+    final chat = await postMessageByRideId(widget.rideId, newMessage);
+    setState(() {
+      _rideChats = chat;
+      _msgTextController.text = '';
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final titleStyleM = theme.textTheme.titleMedium;
-    return GestureDetector(
-      onTap: () {
-        //enable action upon tapping the card
-        Navigator.of(context).pushNamed('/ridechat', arguments: chat.id);
-      },
-      child: Card(
-        // Define the shape of the card
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-        // Define how the card's content should be clipped
-        clipBehavior: Clip.antiAliasWithSaveLayer,
-        // Define the child widget of the card
+    if (_driver == null || _rider == null) {
+      return const CircularProgressIndicator();
+    } else {
+      return Padding(
+        padding: const EdgeInsets.all(12.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            // Add padding around the row widget
-            Padding(
-              padding: const EdgeInsets.all(15),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  // Add an image widget to display an image
-                  Column(
-                    children: [
-                      const CircleAvatar(
-                        radius: 50,
-                        backgroundImage: AssetImage('assets/images/user.JPG'),
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        '${chat.message}',
-                        style: titleStyleM,
-                      ),
-                    ],
-                  ),
-                  // Add some spacing between the image and the text
-                  Container(width: 20),
-                  // Add an expanded widget to take up the remaining horizontal space
-                  Expanded(
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    color: Colors.red,
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        // Add some spacing between the top of the card and the title
-                        Container(height: 5),
-                        // Add a title widget
-                        Text("${chat.from}", style: titleStyleM),
-                        const Icon(Icons.arrow_circle_down_rounded),
-                        // Add a subtitle widget
-                        Text("${chat.to}", style: titleStyleM),
-                        // Add some spacing between the subtitle and the text
-                        Container(height: 10),
-                        // Add a text widget to display some text
+                      children: [
+                        const Text('Driver'),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        userCard(_driver),
                       ],
                     ),
                   ),
-                ],
-              ),
+                ),
+                Expanded(
+                  child: Container(
+                    color: Colors.green,
+                    child: Column(
+                      children: [
+                        const Text(
+                          'Rider',
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        userCard(_rider),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            Column(
+              children: [
+                for (var message in _rideChats[0].messages)
+                  messageCard(message, currUser!.username),
+              ],
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: Form(
+                    child: TextFormField(
+                      controller: _msgTextController,
+                      decoration: InputDecoration(
+                          labelText: 'Message to $_otherUsersName',
+                          hintText: "Type your message here..."),
+                    ),
+                  ),
+                ),
+                FilledButton(
+                    onPressed: () {
+                      _postMessage();
+                    },
+                    child: const Text('Send'))
+              ],
             ),
           ],
         ),
-      ),
+      );
+    }
+  }
+
+  userCard(User? user) {
+    final imgUrl = "http://localhost:1337/users/${user!.username}/image";
+    return Row(
+      children: [
+        Expanded(
+          child: Center(
+            child: Text(user!.username),
+          ),
+        ),
+        Center(
+          child: Container(
+            padding: const EdgeInsets.all(7),
+            decoration: BoxDecoration(
+              color: user.driver_verification_status
+                  ? Colors.green
+                  : Colors.amberAccent,
+              shape: BoxShape.circle,
+            ),
+            child: CircleAvatar(
+              radius: 30,
+              backgroundImage: NetworkImage(imgUrl),
+            ),
+          ),
+        )
+      ],
+    );
+  }
+
+  messageCard(message, currUsername) {
+    String leftText = '';
+    String rightText = '';
+    String displayText =
+        '${message['text']} ${message['timeStamp'].substring(11, 16)} ${message['timeStamp'].substring(0, 10)}';
+    if (message['from'] == _rider!.username) {
+      rightText = displayText;
+    } else {
+      leftText = displayText;
+    }
+    return Row(
+      children: [
+        Expanded(
+          child: Container(
+            color: leftText == '' ? null : Colors.red,
+            child: Center(
+              child: Text(leftText),
+            ),
+          ),
+        ),
+        Expanded(
+          child: Container(
+            color: rightText == '' ? null : Colors.green,
+            child: Center(
+              child: Text(rightText),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

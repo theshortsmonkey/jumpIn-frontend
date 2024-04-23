@@ -217,15 +217,18 @@ Future<List<Message>> fetchMessagesByUsername(username) async {
   }
 }
 
-Future<List<Chat>> fetchMessagesByRideId(rideId,rider) async {
-  final response = await httpEnhanced.get('/rides/$rideId/messages/$rider');
-  if (response.isNotEmpty) {
-    List<Chat> chats = response.map<Chat>((item) {
+Future<List<Chat>> fetchMessagesByRideId(rideId,rider,isDriver) async {
+  Uri url = Uri.parse('http://localhost:1337/rides/$rideId/messages/$rider');
+  if (isDriver) url = Uri.parse('http://localhost:1337/rides/$rideId/driverMessages/$rider');
+  final response = await http.get(url);
+  if (response.statusCode == 200) {
+    final responseData = json.decode(response.body);
+    List<Chat> chats = responseData.map<Chat>((item) {
       return Chat.fromJson(item as Map<String, dynamic>);
     }).toList();
     return chats;
   } else {
-    throw Exception('Ride not found');
+    throw Exception('No messages found');
   }
 }
 

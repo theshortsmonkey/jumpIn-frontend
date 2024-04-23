@@ -7,7 +7,7 @@ class Chat {
     {
       this.rider,
       this.driver,
-      this.messages
+      this.messages = const [],
     }
   );
 
