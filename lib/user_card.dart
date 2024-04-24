@@ -1,8 +1,9 @@
+import 'package:fe/classes/user_class.dart';
 import 'package:flutter/material.dart';
 
 
 class UserCard extends StatelessWidget {
-  final user;
+  final User user;
   const UserCard({
     super.key,
     required this.user
@@ -19,7 +20,7 @@ class UserCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                Text("${user.username}"),
+                Text(user.username),
               ]
             ),
           ]

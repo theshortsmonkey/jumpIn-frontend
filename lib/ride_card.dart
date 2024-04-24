@@ -1,7 +1,8 @@
+import 'package:fe/classes/ride_class.dart';
 import 'package:flutter/material.dart';
 
 class RideCard extends StatelessWidget {
-  final ride;
+  final Ride ride;
   const RideCard({
     super.key,
     required this.ride
@@ -12,7 +13,7 @@ Widget build(BuildContext context) {
   final theme = Theme.of(context);
   final titleStyleM = theme.textTheme.titleMedium;
   final titleStyleS = theme.textTheme.titleSmall;
-  final String imgUrl = 'http://localhost:1337/users/${ride?.driverUsername}/image';
+  final String imgUrl = 'http://localhost:1337/users/${ride.driverUsername}/image';
   return GestureDetector(
     onTap: () {
       //enable action upon tapping the card
@@ -44,7 +45,7 @@ Widget build(BuildContext context) {
                     ),
                   const SizedBox(height: 10),
                   Text(
-                    '${ride.driverUsername}',
+                    ride.driverUsername,
                     style: titleStyleM,
                   ),
                 ],
@@ -73,11 +74,11 @@ Widget build(BuildContext context) {
                     Container(height: 10),
                     // Add a text widget to display some text
                     Text(
-                      "Date ${ride.getDateTime.substring(0,10)}",
+                      "Date ${ride.getDateTime?.substring(0,10)}",
                       style: titleStyleS
                     ),
                     Text(
-                      "Time ${ride.getDateTime.substring(11,16)}",
+                      "Time ${ride.getDateTime?.substring(11,16)}",
                       style: titleStyleS
                     )
                   ],

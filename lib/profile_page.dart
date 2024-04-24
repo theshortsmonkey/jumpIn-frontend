@@ -110,7 +110,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                           const SizedBox(height: 20),
                           Container(
-                            padding: EdgeInsets.all(7),
+                            padding: const EdgeInsets.all(7),
                             decoration: BoxDecoration(
                               color:
                                   isDriver ? Colors.green : Colors.amberAccent,
@@ -201,7 +201,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           borderRadius: BorderRadius.circular(10),
           boxShadow: [
             BoxShadow(
-                offset: Offset(0, 5),
+                offset: const Offset(0, 5),
                 color: Colors.lightGreen.withOpacity(.2),
                 spreadRadius: 2,
                 blurRadius: 10)
@@ -246,7 +246,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           borderRadius: BorderRadius.circular(10),
           boxShadow: [
             BoxShadow(
-                offset: Offset(0, 5),
+                offset: const Offset(0, 5),
                 color: Colors.lightGreen.withOpacity(.2),
                 spreadRadius: 2,
                 blurRadius: 10)

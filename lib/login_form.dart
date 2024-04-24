@@ -166,7 +166,7 @@ itemProfile(String title, String subtitle, IconData iconData) {
           borderRadius: BorderRadius.circular(10),
           boxShadow: [
             BoxShadow(
-                offset: Offset(0, 5),
+                offset: const Offset(0, 5),
                 color: Colors.deepOrange.withOpacity(.2),
                 spreadRadius: 2,
                 blurRadius: 10

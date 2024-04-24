@@ -1,7 +1,6 @@
 import 'package:fe/classes/chat_class.dart';
 import 'package:fe/classes/user_class.dart';
 import 'package:fe/classes/message_class.dart';
-import 'package:flutter/widgets.dart';
 import './api.dart';
 import 'package:provider/provider.dart';
 import "./auth_provider.dart";
