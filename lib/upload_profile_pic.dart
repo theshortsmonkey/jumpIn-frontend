@@ -1,4 +1,5 @@
 import 'package:fe/appbar.dart';
+import 'package:fe/background.dart';
 import 'package:fe/login_page.dart';
 import 'package:fe/upload_image_form.dart';
 import 'package:flutter/material.dart';
@@ -11,20 +12,22 @@ class UploadProfilePic extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return context.read<AuthState>().isAuthorized
-    ? Scaffold(
-      appBar: CustomAppBar(
+        ? Scaffold(
+            appBar: CustomAppBar(
               title: 'jumpIn - Your Account',
               context: context,
             ),
-      body: const Center(
-        child: SizedBox(
-          width: 400,
-          child: Card(
-            child: (UploadImageForm()),
-          ),
-        ),
-      ),
-    )
-    : const LoginPage();
+            body: const ContainerWithBackgroundImage(
+              child: Center(
+                child: SizedBox(
+                  width: 400,
+                  child: Card(
+                    child: (UploadImageForm()),
+                  ),
+                ),
+              ),
+            ),
+          )
+        : const LoginPage();
   }
 }

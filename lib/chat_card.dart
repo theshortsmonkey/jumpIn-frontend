@@ -1,6 +1,7 @@
 import 'package:fe/classes/chat_class.dart';
-import 'package:fe/classes/get_user_class.dart';
+import 'package:fe/classes/user_class.dart';
 import 'package:fe/classes/message_class.dart';
+import 'package:flutter/widgets.dart';
 import './api.dart';
 import 'package:provider/provider.dart';
 import "./auth_provider.dart";
@@ -80,73 +81,53 @@ class _ChatCardState extends State<ChatCard> {
     } else {
       return Padding(
         padding: const EdgeInsets.all(12.0),
-        child: Column(
-          children: [
-            _driver!.username == currUser!.username 
+        child: (_driver!.username == currUser!.username && _rideChats[0].driver == null)
             ? const Text('No Chats started for this ride')
-            : Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    color: Colors.red,
-                    child: Column(
-                      children: [
-                        const Text('Driver'),
-                        const SizedBox(
-                          height: 20,
+            : Column(
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          color: Colors.red,
+                          child: Column(
+                            children: [
+                              const Text('Driver'),
+                              const SizedBox(
+                                height: 20,
+                              ),
+                              userCard(_driver),
+                            ],
+                          ),
                         ),
-                        userCard(_driver),
-                      ],
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Container(
-                    color: Colors.green,
-                    child: Column(
-                      children: [
-                        const Text(
-                          'Rider',
+                      ),
+                      Expanded(
+                        child: Container(
+                          color: Colors.green,
+                          child: Column(
+                            children: [
+                              const Text(
+                                'Rider',
+                              ),
+                              const SizedBox(
+                                height: 20,
+                              ),
+                              userCard(_rider),
+                            ],
+                          ),
                         ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        userCard(_rider),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
-            ),
-            Column(
-              children: [
-                for (var message in _rideChats[0].messages)
-                  messageCard(message, currUser!.username),
-              ],
-            ),
-            _driver!.username == currUser!.username 
-            ? const SizedBox(height: 20,)
-            : Row(
-              children: [
-                Expanded(
-                  child: Form(
-                    child: TextFormField(
-                      controller: _msgTextController,
-                      decoration: InputDecoration(
-                          labelText: 'Message to $_otherUsersName',
-                          hintText: "Type your message here..."),
-                    ),
+                  Column(
+                    children: [
+                      for (var message in _rideChats[0].messages)
+                        messageCard(message, currUser!.username),
+                    ],
                   ),
-                ),
-                FilledButton(
-                    onPressed: () {
-                      _postMessage();
-                    },
-                    child: const Text('Send'))
-              ],
-            ),
-          ],
-        ),
+                  sendMessageCard(),
+                ],
+              ),
       );
     }
   }
@@ -155,11 +136,6 @@ class _ChatCardState extends State<ChatCard> {
     final imgUrl = "http://localhost:1337/users/${user!.username}/image";
     return Row(
       children: [
-        Expanded(
-          child: Center(
-            child: Text(user.username),
-          ),
-        ),
         Center(
           child: Container(
             padding: const EdgeInsets.all(7),
@@ -174,7 +150,12 @@ class _ChatCardState extends State<ChatCard> {
               backgroundImage: NetworkImage(imgUrl),
             ),
           ),
-        )
+        ),
+        Expanded(
+          child: Center(
+            child: Text(user.username),
+          ),
+        ),
       ],
     );
   }
@@ -208,6 +189,51 @@ class _ChatCardState extends State<ChatCard> {
           ),
         ),
       ],
+    );
+  }
+
+  sendMessageCard() {
+    final inputBox = Row(
+      children: [
+        Expanded(
+          child: Form(
+            child: TextFormField(
+              controller: _msgTextController,
+              decoration: InputDecoration(
+                filled: true,
+                labelText: 'Message to $_otherUsersName',
+                hintText: "Type your message here...",
+                border: const OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(20)),
+                ),
+              ),
+            ),
+          ),
+        ),
+        FilledButton(
+            onPressed: () {
+              _postMessage();
+            },
+            child: const Text('Send'))
+      ],
+    );
+    const blankBox = Center(
+      child: Text(''),
+    );
+    return Container(
+      padding: const EdgeInsets.all(10),
+      child: Row(
+        children: [
+          Expanded(
+            child:
+                _driver!.username == currUser!.username ? inputBox : blankBox,
+          ),
+          Expanded(
+            child:
+                _driver!.username == currUser!.username ? blankBox : inputBox,
+          ),
+        ],
+      ),
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:fe/appbar.dart';
+import 'package:fe/background.dart';
 import 'package:fe/login_page.dart';
 import 'package:flutter/material.dart';
 import "./validate_licence_form.dart";
@@ -17,18 +18,19 @@ class ValidateLicencePage extends StatelessWidget {
               context: context,
               disablePostRideButton: true,
             ),
-      body: const Center(
-        child: SingleChildScrollView(
-        child: SizedBox(
-          width: 400,
-          child: Card(
-            child: (ValidateLicenceForm(submitType: 'patch')),
-            
-          ),
-        ),
-        ),
-      ),
-    )
-    : const LoginPage();
+            body: const ContainerWithBackgroundImage(
+              child: Center(
+                child: SingleChildScrollView(
+                  child: SizedBox(
+                    width: 400,
+                    child: Card(
+                      child: (ValidateLicenceForm(submitType: 'patch')),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          )
+        : const LoginPage();
   }
 }

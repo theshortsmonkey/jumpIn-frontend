@@ -4,7 +4,7 @@ import 'classes/ride_class.dart';
 import 'classes/message_class.dart';
 import 'classes/chat_class.dart';
 import 'dart:async';
-import "./classes/get_user_class.dart";
+import "classes/user_class.dart";
 import "package:http/http.dart" as http;
 
 EnhancedHttp httpEnhanced = EnhancedHttp(baseURL: 'http://localhost:1337');

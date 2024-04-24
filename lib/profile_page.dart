@@ -1,3 +1,5 @@
+import 'package:fe/background.dart';
+
 import './login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -13,169 +15,183 @@ class ProfileScreen extends StatefulWidget {
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen>{
-bool isDriver = false;
-bool _isDeleted = false;
-bool _areYouSure = false;
-String _deleteButtonText ='Delete your account';
-dynamic userData;
-String imgUrl = '';
-@override
-void initState() {
-  super.initState();
-    final provider = Provider.of<AuthState>(context, listen:false);
+class _ProfileScreenState extends State<ProfileScreen> {
+  bool isDriver = false;
+  bool _isDeleted = false;
+  bool _areYouSure = false;
+  String _deleteButtonText = 'Delete your account';
+  dynamic userData;
+  String imgUrl = '';
+  @override
+  void initState() {
+    super.initState();
+    final provider = Provider.of<AuthState>(context, listen: false);
     userData = provider.userInfo;
-    if (userData.identity_verification_status && userData.driver_verification_status) {
+    if (userData.identity_verification_status &&
+        userData.driver_verification_status) {
       isDriver = true;
     }
 
-      userData = context.read<AuthState>().userInfo;
-      imgUrl = "http://localhost:1337/users/${userData.username}/image";
-      
-}
+    userData = context.read<AuthState>().userInfo;
+    imgUrl = "http://localhost:1337/users/${userData.username}/image";
+  }
 
-void _handleDelete () async {
-  if(_areYouSure){
-    deleteUser(userData);
-  setState(() {
-    _isDeleted = true;
-  });
-  await Future.delayed(const Duration(seconds: 5), () {
-    context.read<AuthState>().logout();
-    Navigator.of(context).pushNamed('/');
-  });
-  }else{
-  setState(() {
-  _areYouSure = true;
-  _deleteButtonText = 'Your account is going to be destroyed! Are you sure?';
-});}
-  
-}
+  void _handleDelete() async {
+    if (_areYouSure) {
+      deleteUser(userData);
+      setState(() {
+        _isDeleted = true;
+      });
+      await Future.delayed(const Duration(seconds: 5), () {
+        context.read<AuthState>().logout();
+        Navigator.of(context).pushNamed('/');
+      });
+    } else {
+      setState(() {
+        _areYouSure = true;
+        _deleteButtonText =
+            'Your account is going to be destroyed! Are you sure?';
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return context.read<AuthState>().isAuthorized
-    ? Scaffold(
-      appBar: CustomAppBar(
+        ? Scaffold(
+            appBar: CustomAppBar(
               title: 'jumpIn - Your Account',
               context: context,
               disableProfileButton: true,
             ),
-      body: 
-       _isDeleted
-       ?
-      Center(
-        child: SingleChildScrollView(
-        child: SizedBox(
-          width: 400,
-          child: Column(
-            children: [itemProfile('Account Deleted','' ,CupertinoIcons.person_badge_minus)],
-          ),
-        ),
-        ),
-      )
-       :
-      Padding(
-        padding: const EdgeInsets.all(20),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(context).pushNamed('/editprofile');
-                    },
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.all(15),
-                    ),
-                    child: const Text('Edit Profile')
-                ),
-              ),
-              const SizedBox(height: 10),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(context).pushNamed('/uploadProfilePic');
-                    },
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.all(15),
-                    ),
-                    child: const Text('Upload Profile Picture')
-                ),
-              ),
-              const SizedBox(height: 20),
-              Container(
-                padding: EdgeInsets.all(7),
-                decoration: BoxDecoration(
-                  color: isDriver ? Colors.green : Colors.amberAccent,
-                  shape: BoxShape.circle,
-                  ),
-                child:  CircleAvatar(
-                    radius: 70,
-                    backgroundImage: NetworkImage(imgUrl),
-                  ),
-              ),
-              const SizedBox(height: 20),
-              itemProfile('Name Lastname', '${userData.firstName} ${userData.lastName}', CupertinoIcons.person),
-              const SizedBox(height: 10),
-              itemProfile('Username', '${userData.username}', CupertinoIcons.location),
-              const SizedBox(height: 10),
-              itemProfile('Email', '${userData.email}', CupertinoIcons.mail),
-              const SizedBox(height: 20,),
-              itemProfile('Phone', '${userData.phoneNumber}', CupertinoIcons.phone),
-              const SizedBox(height: 20,),
-              itemProfile('Bio', '${userData.bio}', CupertinoIcons.profile_circled),
-              const SizedBox(height: 20),
-              userData.identity_verification_status ? 
-              itemProfile('Licence valid: ', '${userData.identity_verification_status}', CupertinoIcons.check_mark)
-              :
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(context).pushNamed('/validatelicence');
-                    },
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.all(15),
-                    ),
-                    child: const Text('Validate Licence')
-                ),
-              ),
-              const SizedBox(height: 20,),
-              userData.car != null ?
-              carBox(userData.car)
-                          :
+            body: ContainerWithBackgroundImage(
+              child: _isDeleted
+                  ? Center(
+                      child: SingleChildScrollView(
+                        child: SizedBox(
+                          width: 400,
+                          child: Column(
+                            children: [
+                              itemProfile('Account Deleted', '',
+                                  CupertinoIcons.person_badge_minus)
+                            ],
+                          ),
+                        ),
+                      ),
+                    )
+                  : Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: SingleChildScrollView(
+                        child: Column(children: [
                           SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(context).pushNamed('/validatecar');
-                    },
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.all(15),
+                            width: double.infinity,
+                            child: ElevatedButton(
+                                onPressed: () {
+                                  Navigator.of(context)
+                                      .pushNamed('/editprofile');
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  padding: const EdgeInsets.all(15),
+                                ),
+                                child: const Text('Edit Profile')),
+                          ),
+                          const SizedBox(height: 10),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                                onPressed: () {
+                                  Navigator.of(context)
+                                      .pushNamed('/uploadProfilePic');
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  padding: const EdgeInsets.all(15),
+                                ),
+                                child: const Text('Upload Profile Picture')),
+                          ),
+                          const SizedBox(height: 20),
+                          Container(
+                            padding: EdgeInsets.all(7),
+                            decoration: BoxDecoration(
+                              color:
+                                  isDriver ? Colors.green : Colors.amberAccent,
+                              shape: BoxShape.circle,
+                            ),
+                            child: CircleAvatar(
+                              radius: 70,
+                              backgroundImage: NetworkImage(imgUrl),
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          itemProfile(
+                              'Name Lastname',
+                              '${userData.firstName} ${userData.lastName}',
+                              CupertinoIcons.person),
+                          const SizedBox(height: 10),
+                          itemProfile('Username', '${userData.username}',
+                              CupertinoIcons.location),
+                          const SizedBox(height: 10),
+                          itemProfile('Email', '${userData.email}',
+                              CupertinoIcons.mail),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          itemProfile('Phone', '${userData.phoneNumber}',
+                              CupertinoIcons.phone),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          itemProfile('Bio', '${userData.bio}',
+                              CupertinoIcons.profile_circled),
+                          const SizedBox(height: 20),
+                          userData.identity_verification_status
+                              ? itemProfile(
+                                  'Licence valid: ',
+                                  '${userData.identity_verification_status}',
+                                  CupertinoIcons.check_mark)
+                              : SizedBox(
+                                  width: double.infinity,
+                                  child: ElevatedButton(
+                                      onPressed: () {
+                                        Navigator.of(context)
+                                            .pushNamed('/validatelicence');
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        padding: const EdgeInsets.all(15),
+                                      ),
+                                      child: const Text('Validate Licence')),
+                                ),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          userData.car != null
+                              ? carBox(userData.car)
+                              : SizedBox(
+                                  width: double.infinity,
+                                  child: ElevatedButton(
+                                      onPressed: () {
+                                        Navigator.of(context)
+                                            .pushNamed('/validatecar');
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        padding: const EdgeInsets.all(15),
+                                      ),
+                                      child: const Text('Validate vehicle')),
+                                ),
+                          const SizedBox(height: 20),
+                          SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                  onPressed: _handleDelete,
+                                  style: ElevatedButton.styleFrom(
+                                    padding: const EdgeInsets.all(15),
+                                  ),
+                                  child: Text(_deleteButtonText))),
+                        ]),
+                      ),
                     ),
-                    child: const Text('Validate vehicle')
-                ),
-          ),
-              const SizedBox(height: 20),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                    onPressed: _handleDelete,
-                    style:ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.all(15),
-                    ),
-                    child: Text(_deleteButtonText)
-                )
-              ),
-          ]
-          ),
-        )
-      ),
-    )
-    : const LoginPage();
+            ),
+          )
+        : const LoginPage();
   }
 
   carBox(car) {
@@ -188,26 +204,38 @@ void _handleDelete () async {
                 offset: Offset(0, 5),
                 color: Colors.lightGreen.withOpacity(.2),
                 spreadRadius: 2,
-                blurRadius: 10
-            )
-          ]
-      ),
-      child: Column (
-        children: [
-          const SizedBox(height: 20,),
-          itemProfile('Registration number: ', '${car["reg"]}', CupertinoIcons.check_mark),
-          const SizedBox(height: 20,),
-          itemProfile('Make: ', '${car["make"]}', CupertinoIcons.check_mark),
-          const SizedBox(height: 20,),
-          itemProfile('Colour: ', '${car["colour"]}', CupertinoIcons.check_mark),
-          const SizedBox(height: 20,),
-          itemProfile('Tax Due Date: ', '${car["tax_due_date"]}', CupertinoIcons.check_mark),
-          const SizedBox(height: 20,),
-          itemProfile('Fuel Type: ', '${car["fuelType"]}', CupertinoIcons.check_mark),
-          const SizedBox(height: 20,),
-          itemProfile('CO2 Emissions: ', '${car["co2Emissions"]}', CupertinoIcons.check_mark),
-        ]
-      ),
+                blurRadius: 10)
+          ]),
+      child: Column(children: [
+        const SizedBox(
+          height: 20,
+        ),
+        itemProfile('Registration number: ', '${car["reg"]}',
+            CupertinoIcons.check_mark),
+        const SizedBox(
+          height: 20,
+        ),
+        itemProfile('Make: ', '${car["make"]}', CupertinoIcons.check_mark),
+        const SizedBox(
+          height: 20,
+        ),
+        itemProfile('Colour: ', '${car["colour"]}', CupertinoIcons.check_mark),
+        const SizedBox(
+          height: 20,
+        ),
+        itemProfile('Tax Due Date: ', '${car["tax_due_date"]}',
+            CupertinoIcons.check_mark),
+        const SizedBox(
+          height: 20,
+        ),
+        itemProfile(
+            'Fuel Type: ', '${car["fuelType"]}', CupertinoIcons.check_mark),
+        const SizedBox(
+          height: 20,
+        ),
+        itemProfile('CO2 Emissions: ', '${car["co2Emissions"]}',
+            CupertinoIcons.check_mark),
+      ]),
     );
   }
 
@@ -221,10 +249,8 @@ void _handleDelete () async {
                 offset: Offset(0, 5),
                 color: Colors.lightGreen.withOpacity(.2),
                 spreadRadius: 2,
-                blurRadius: 10
-            )
-          ]
-      ),
+                blurRadius: 10)
+          ]),
       child: ListTile(
         title: Text(title),
         subtitle: Text(subtitle),
@@ -232,8 +258,5 @@ void _handleDelete () async {
         tileColor: Colors.white,
       ),
     );
-
   }
 }
-
-

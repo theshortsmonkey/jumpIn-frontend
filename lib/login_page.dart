@@ -1,4 +1,5 @@
 import 'package:fe/appbar.dart';
+import 'package:fe/background.dart';
 import 'package:fe/profile_page.dart';
 import 'package:flutter/material.dart';
 import './login_form.dart';
@@ -11,21 +12,23 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return context.read<AuthState>().isAuthorized
-    ? const ProfileScreen()
-    : Scaffold(
-      appBar: CustomAppBar(
-            title: 'jumpIn: Login',
-            context: context,
-            disableLoginButton: true,
-          ),
-      body: const Center(
-        child: SizedBox(
-          width: 400,
-          child: Card(
-            child: (LoginForm()),
-          ),
-        ),
-      ),
-    );
+        ? const ProfileScreen()
+        : Scaffold(
+            appBar: CustomAppBar(
+              title: 'jumpIn: Login',
+              context: context,
+              disableLoginButton: true,
+            ),
+            body: const ContainerWithBackgroundImage(
+              child: Center(
+                child: SizedBox(
+                  width: 400,
+                  child: Card(
+                    child: (LoginForm()),
+                  ),
+                ),
+              ),
+            ),
+          );
   }
 }

@@ -1,6 +1,6 @@
 import 'package:fe/api.dart';
 import 'package:flutter/material.dart';
-import 'classes/get_user_class.dart';
+import 'classes/user_class.dart';
 import 'package:email_validator/email_validator.dart';
 import "./auth_provider.dart";
 import 'package:provider/provider.dart';

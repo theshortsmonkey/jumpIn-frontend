@@ -1,4 +1,5 @@
 import 'package:fe/appbar.dart';
+import 'package:fe/background.dart';
 import 'package:flutter/material.dart';
 import './sign_up_form.dart';
 
@@ -9,17 +10,19 @@ class SignUpPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(
-              title: 'jumpIn - Sign Up',
-              context: context,
+        title: 'jumpIn - Sign Up',
+        context: context,
+      ),
+      body: const ContainerWithBackgroundImage(
+        child: Center(
+          child: SingleChildScrollView(
+            child: SizedBox(
+              width: 400,
+              child: Card(
+                child: (SignUpForm(submitType: 'post')),
+              ),
             ),
-      body: const Center(
-        child: SingleChildScrollView(
-        child: SizedBox(
-          width: 400,
-          child: Card(
-            child: (SignUpForm(submitType: 'post')),
           ),
-        ),
         ),
       ),
     );

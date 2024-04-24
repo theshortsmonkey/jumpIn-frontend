@@ -1,6 +1,6 @@
 
 import 'package:flutter/material.dart';
-import "./classes/get_user_class.dart";
+import "classes/user_class.dart";
 
 
 class AuthState extends ChangeNotifier {

@@ -1,4 +1,5 @@
 import 'package:fe/appbar.dart';
+import 'package:fe/background.dart';
 import 'package:fe/login_page.dart';
 import 'package:flutter/material.dart';
 import "./post_ride_form.dart";
@@ -17,12 +18,14 @@ class PostRidePage extends StatelessWidget {
               context: context,
               disablePostRideButton: true,
             ),
-            body: Center(
-              child: SizedBox(
-                height: MediaQuery.of(context).size.height,
-                width: 400,
-                child: const Card(
-                  child: (PostRideForm()),
+            body: ContainerWithBackgroundImage(
+              child: Center(
+                child: SizedBox(
+                  height: MediaQuery.of(context).size.height,
+                  width: 600,
+                  child: const Card(
+                    child: (PostRideForm()),
+                  ),
                 ),
               ),
             ),
