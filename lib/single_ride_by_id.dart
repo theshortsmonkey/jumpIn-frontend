@@ -28,6 +28,8 @@ class _SingleRideByIDState extends State<SingleRideByID> {
   late Ride _currRide = Ride();
   List<Chat> _rideChats = [];
   late String rideId = '';
+  late List _startLatLong = [];
+  late List _endLatLong = [];
 
   @override
   void initState() {
@@ -55,9 +57,13 @@ class _SingleRideByIDState extends State<SingleRideByID> {
     if (currUser.username == ride.driverUsername) isDriver = true;
     List<Chat> chats =
         await fetchMessagesByRideId(rideId, currUser.username, isDriver);
+    final List startLatLong =  await fetchLatLong(ride.from);
+    final List endLatLong = await fetchLatLong(ride.to);
     setState(() {
       _currRide = ride;
       _rideChats = chats;
+      _startLatLong = startLatLong;
+      _endLatLong = endLatLong;
     });
   }
 
@@ -78,7 +84,7 @@ class _SingleRideByIDState extends State<SingleRideByID> {
               child: SingleChildScrollView(
                 child: Center(
                   child: _currRide.driverUsername == ''
-                      ? const Text('No ride data')
+                      ? const CircularProgressIndicator()
                       : Column(
                           children: [
                             Padding(
@@ -129,7 +135,7 @@ class _SingleRideByIDState extends State<SingleRideByID> {
                                         child: Padding(
                                       padding: const EdgeInsets.all(16),
                                       child:
-                                          SizedBox(height: 300, child: map()),
+                                          SizedBox(height: 300, child: map(_startLatLong,_endLatLong)),
                                     ))
                                     // Expanded(
                                     //   child:
@@ -268,11 +274,11 @@ class _SingleRideByIDState extends State<SingleRideByID> {
     );
   }
 
-  map() {
+  map(startLatLong,endLatLong) {
     return FlutterMap(
-      options: const MapOptions(
-        initialCenter: LatLng(51.509364, -0.128928),
-        initialZoom: 3.4,
+      options: MapOptions(
+        initialCenter: LatLng((startLatLong[0]+endLatLong[0])/2, (startLatLong[1]+endLatLong[1])/2),
+        initialZoom: 6,
       ),
       children: [
         TileLayer(
@@ -282,9 +288,9 @@ class _SingleRideByIDState extends State<SingleRideByID> {
         PolylineLayer(
           polylines: [
             Polyline(points: [
-              const LatLng(53.47764, -2.23892),
-              const LatLng(51.51408, -0.10648)
-            ], color: Colors.red, strokeWidth: 10),
+              LatLng(startLatLong[0], startLatLong[1]),
+              LatLng(endLatLong[0], endLatLong[1])
+            ], color: Colors.red, strokeWidth: 5),
           ],
         ),
       ],

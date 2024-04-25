@@ -111,11 +111,15 @@ Future<User> patchUser(user) async {
     throw Exception("User not found");
   }
 }
-Future fetchLatLong(city) async {
-  final response = await httpGeocode.get('/search?text=$city&lang=en&limit=10&type=city&filter=countrycode:gb&apiKey=9ac318b7da314e00b462f8801c758396');
-  final List longLat = response['features'][0]['geometry']['coordinates'];
-  return longLat;
+
+Future<List> fetchLatLong(place) async {
+  final response = await httpGeocode.get('/search?text=$place&filter=countrycode:gb&format=json&apiKey=9ac318b7da314e00b462f8801c758396');
+  final List latLong = [response['results'][0]['lat'],response['results'][0]['lon']];
+  return latLong;
 }
+
+// https://api.geoapify.com/v1/geocode/search?text=West%20Street%2C%20Huddersfield&format=json&apiKey=YOUR_API_KEY
+
 
 Future<User?>deleteUser(user) async {
   final uri = Uri.parse("http://localhost:1337/users/${user.username}");
@@ -128,7 +132,6 @@ Future<User?>deleteUser(user) async {
   }
 }
 
-//upload image for user
 Future<String?> uploadUserProfilePic(String username, String filePath) async {
   final response = await http.post(Uri.parse('http://localhost:1337/users/$username/image'), body: jsonEncode({'filePath':filePath}));
   if (response.statusCode == 201) {
