@@ -70,18 +70,24 @@ class _SingleRideByIDState extends State<SingleRideByID> {
     });
   }
 
-  void sendRequest(Ride rideData) {
+  void sendRequest(Ride rideData) async {
+    // setState(() {
+    //   _requestText = 'jumpIn Request Sent';
+    //   _isRequestButtonActive = false;
+    // });
+    // final newMessage = Message(
+    //     from: currUser.username,
+    //     text: '${currUser.username} would like to jumpIn',
+    //     driver: rideData.driverUsername,
+    //     rider: currUser.username);
+    // postMessageByRideId(rideData.id, newMessage);
+    final patchDetails = {
+      'requestJumpin': currUser.username,
+    };
+    final updatedRide = await patchRideById(rideData.id, patchDetails);
     setState(() {
-      _requestText = 'jumpIn Request Sent';
-      _isRequestButtonActive = false;
+      _currRide = updatedRide;
     });
-    final newMessage = Message(
-        from: currUser.username,
-        text: '${currUser.username} would like to jumpIn',
-        driver: rideData.driverUsername,
-        rider: currUser.username);
-    postMessageByRideId(rideData.id, newMessage);
-    
   }
 
   @override
@@ -271,7 +277,11 @@ class _SingleRideByIDState extends State<SingleRideByID> {
                         backgroundImage: NetworkImage(imgURL),
                       ),
                       const SizedBox(height: 10),
-                      deleteButton
+                      deleteButton,
+                      itemProfile(
+                          'Waiting jumpIn requests from:', '', CupertinoIcons.person_3),
+                      for (var rider in _currRide.jumpInRequests)
+                        Text('$rider'),
                     ],
                   ),
                   Container(width: 20),

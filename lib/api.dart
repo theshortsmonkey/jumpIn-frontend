@@ -8,38 +8,38 @@ import "classes/user_class.dart";
 import "package:http/http.dart" as http;
 
 EnhancedHttp httpEnhanced = EnhancedHttp(baseURL: 'http://localhost:1337');
-EnhancedHttp httpGeoapify = EnhancedHttp(baseURL: 'https://api.geoapify.com/v1/routing');
-EnhancedHttp httpGeocode = EnhancedHttp(baseURL: 'https://api.geoapify.com/v1/geocode');
+EnhancedHttp httpGeoapify =
+    EnhancedHttp(baseURL: 'https://api.geoapify.com/v1/routing');
+EnhancedHttp httpGeocode =
+    EnhancedHttp(baseURL: 'https://api.geoapify.com/v1/geocode');
 EnhancedHttp httpFuel = EnhancedHttp(baseURL: 'https://www.bp.com');
 
-Future<List<Ride>> fetchRides({
-  String? to,
-  String? from,
-  String? getDateTime,
-  int? price,
-  int? getAvailableSeats,
-  int? carbonEmissions
-}) async {
+Future<List<Ride>> fetchRides(
+    {String? to,
+    String? from,
+    String? getDateTime,
+    int? price,
+    int? getAvailableSeats,
+    int? carbonEmissions}) async {
   final queryParams = <String, dynamic>{};
-    if (to?.isNotEmpty ?? false) {
+  if (to?.isNotEmpty ?? false) {
     queryParams['to'] = to;
-    }
-    if (from?.isNotEmpty ?? false) {
-      queryParams['from'] = from;
-    }
-    if (getDateTime != null) {
-      queryParams['date_and_time'] = getDateTime;
-    }
-    if (price != null) {
-      queryParams['price'] = price;
-    }
-    if (getAvailableSeats != null) {
-      queryParams['available_seats'] = getAvailableSeats;
-    }
-    if (carbonEmissions != null) {
-      queryParams['carbon_emissions'] = carbonEmissions;
-    }
-
+  }
+  if (from?.isNotEmpty ?? false) {
+    queryParams['from'] = from;
+  }
+  if (getDateTime != null) {
+    queryParams['date_and_time'] = getDateTime;
+  }
+  if (price != null) {
+    queryParams['price'] = price;
+  }
+  if (getAvailableSeats != null) {
+    queryParams['available_seats'] = getAvailableSeats;
+  }
+  if (carbonEmissions != null) {
+    queryParams['carbon_emissions'] = carbonEmissions;
+  }
 
   final url = Uri.http('localhost:1337', '/rides', queryParams);
   final response = await http.get(url);
@@ -55,7 +55,7 @@ Future<List<Ride>> fetchRides({
 }
 
 Future<Ride> fetchRideById(rideId) async {
-  final response = await httpEnhanced.get('/rides/$rideId'); 
+  final response = await httpEnhanced.get('/rides/$rideId');
   if (response.isNotEmpty) {
     return Ride.fromJson(response as Map<String, dynamic>);
   } else {
@@ -76,10 +76,10 @@ Future<List<User>> fetchUsers() async {
 }
 
 Future<User> fetchUserByUsername(username) async {
-  try{
-  final response = await httpEnhanced.get('/users/$username');
-   var user = User.fromJson(response as Map<String, dynamic>);
-      return user;
+  try {
+    final response = await httpEnhanced.get('/users/$username');
+    var user = User.fromJson(response as Map<String, dynamic>);
+    return user;
   } catch (e) {
     throw Exception('No users found');
   }
@@ -92,17 +92,17 @@ Future<User> postUser(user) async {
   if (response.statusCode == 200) {
     var user = User.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
     return user;
-  }
-  else{
-  throw Exception(response.body);
+  } else {
+    throw Exception(response.body);
   }
 }
 
 Future<User> patchUser(user) async {
   String json = jsonEncode(user);
   String uri = 'http://localhost:1337/users/${user.username}';
-  final response = await http.patch(Uri.parse(uri), headers: {"Content-Type": "application/json"},body: json);
-  if(response.statusCode == 200) {
+  final response = await http.patch(Uri.parse(uri),
+      headers: {"Content-Type": "application/json"}, body: json);
+  if (response.statusCode == 200) {
     List<User> users = jsonDecode(response.body).map<User>((item) {
       return User.fromJson(item as Map<String, dynamic>);
     }).toList();
@@ -113,16 +113,20 @@ Future<User> patchUser(user) async {
 }
 
 Future<List> fetchLatLong(place) async {
-  final response = await httpGeocode.get('/search?text=$place&filter=countrycode:gb&format=json&apiKey=9ac318b7da314e00b462f8801c758396');
-  final List latLong = [response['results'][0]['lat'],response['results'][0]['lon']];
+  final response = await httpGeocode.get(
+      '/search?text=$place&filter=countrycode:gb&format=json&apiKey=9ac318b7da314e00b462f8801c758396');
+  final List latLong = [
+    response['results'][0]['lat'],
+    response['results'][0]['lon']
+  ];
   return latLong;
 }
 
-Future<User?>deleteUser(user) async {
+Future<User?> deleteUser(user) async {
   final uri = Uri.parse("http://localhost:1337/users/${user.username}");
   final response = await http.delete(uri);
 
-  if(response.statusCode == 200) {
+  if (response.statusCode == 200) {
     return null;
   } else {
     throw Exception("Failed to delete user account");
@@ -130,7 +134,9 @@ Future<User?>deleteUser(user) async {
 }
 
 Future<String?> uploadUserProfilePic(String username, String filePath) async {
-  final response = await http.post(Uri.parse('http://localhost:1337/users/$username/image'), body: jsonEncode({'filePath':filePath}));
+  final response = await http.post(
+      Uri.parse('http://localhost:1337/users/$username/image'),
+      body: jsonEncode({'filePath': filePath}));
   if (response.statusCode == 201) {
     return 'good';
   } else {
@@ -141,7 +147,7 @@ Future<String?> uploadUserProfilePic(String username, String filePath) async {
 Future deleteRide(rideId) async {
   final url = Uri.parse('http://localhost:1337/rides/$rideId');
   final response = await http.delete(url);
-  if(response.statusCode == 200) {
+  if (response.statusCode == 200) {
     return null;
   } else {
     throw Exception("Failed to delete user account");
@@ -149,7 +155,8 @@ Future deleteRide(rideId) async {
 }
 
 Future fetchDistance(waypoints) async {
-  final response = await httpGeoapify.get('?waypoints=$waypoints&mode=drive&apiKey=9ac318b7da314e00b462f8801c758396');
+  final response = await httpGeoapify.get(
+      '?waypoints=$waypoints&mode=drive&apiKey=9ac318b7da314e00b462f8801c758396');
   final distance = response['features'][0]['properties']['distance'];
   return distance;
 }
@@ -183,7 +190,7 @@ Future fetchCarDetails(carReg) async {
         "Access-Control-Allow-Methods": "POST, GET, OPTIONS, PUT, DELETE, HEAD"
       },
       body: jsonEncode({'registrationNumber': carReg}),
-    ); 
+    );
     return (json.decode(response.body));
   } catch (e) {
     throw Exception("Error fetching car details: $e");
@@ -192,27 +199,33 @@ Future fetchCarDetails(carReg) async {
 
 Future<Ride> postRide(ride) async {
   String json = jsonEncode(ride);
-  final response = await http.post(Uri.parse('http://localhost:1337/rides'), headers: {"Content-Type": "application/json"},body: json);
-  if(response.statusCode == 200) {
-   var rideResponse = Ride.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
-  
+  final response = await http.post(Uri.parse('http://localhost:1337/rides'),
+      headers: {"Content-Type": "application/json"}, body: json);
+  if (response.statusCode == 200) {
+    var rideResponse =
+        Ride.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+
     return rideResponse;
-  }
-  else{
-  throw Exception("Ride could not be posted");
+  } else {
+    throw Exception("Ride could not be posted");
   }
 }
 
-Future<Ride> patchRideById(rideId,patchDetails) async {
+Future<Ride> patchRideById(rideId, patchDetails) async {
   String bodyJson = jsonEncode(patchDetails);
-  final response = await http.patch(Uri.parse('http://localhost:1337/rides/$rideId'), headers: {"Content-Type": "application/json"},body: bodyJson);
-  if(response.statusCode == 200) {
-   var rideResponse = Ride.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
-  
+  final response = await http.patch(
+      Uri.parse('http://localhost:1337/rides/$rideId'),
+      headers: {"Content-Type": "application/json"},
+      body: bodyJson);
+  if (response.statusCode == 200) {
+    var rideResponse =
+        Ride.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+
     return rideResponse;
-  }
-  else{
-  throw Exception("Ride could not be patched");
+  } else if (response.statusCode == 400) {
+    throw Exception('User already requested to JumpIn');
+    } else {
+    throw Exception("Ride could not be patched");
   }
 }
 
@@ -229,9 +242,11 @@ Future<List<Message>> fetchMessagesByUsername(username) async {
   }
 }
 
-Future<List<Chat>> fetchMessagesByRideId(rideId,rider,isDriver) async {
+Future<List<Chat>> fetchMessagesByRideId(rideId, rider, isDriver) async {
   Uri url = Uri.parse('http://localhost:1337/rides/$rideId/messages/$rider');
-  if (isDriver) url = Uri.parse('http://localhost:1337/rides/$rideId/driverMessages/$rider');
+  if (isDriver)
+    url =
+        Uri.parse('http://localhost:1337/rides/$rideId/driverMessages/$rider');
   final response = await http.get(url);
   if (response.statusCode == 200) {
     final responseData = json.decode(response.body);
@@ -246,8 +261,10 @@ Future<List<Chat>> fetchMessagesByRideId(rideId,rider,isDriver) async {
 
 Future<List<Chat>> postMessageByRideId(rideId, message) async {
   String bodyJson = jsonEncode(message);
-  final response = await http.post(Uri.parse('http://localhost:1337/rides/$rideId/messages'),
-      headers: {"Content-Type": "application/json"}, body: bodyJson);
+  final response = await http.post(
+      Uri.parse('http://localhost:1337/rides/$rideId/messages'),
+      headers: {"Content-Type": "application/json"},
+      body: bodyJson);
   if (response.statusCode == 200) {
     final responseData = json.decode(response.body);
     List<Chat> chats = responseData.map<Chat>((item) {
