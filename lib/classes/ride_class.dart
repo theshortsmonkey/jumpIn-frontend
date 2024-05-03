@@ -29,9 +29,10 @@ class Ride {
   final String? from;
   final RegionsLabel? fromRegion;
   final String driverUsername;
-  final List<dynamic>? riderUsernames;
+  final List<dynamic> riderUsernames;
+  final List<dynamic> jumpInRequests;
   final SeatsLabel? postAvailableSeats;
-  final int? getAvailableSeats;
+  final int getAvailableSeats;
   final int? carbonEmissions;
   final int? distance;
   final int price;
@@ -50,8 +51,9 @@ class Ride {
     this.driverUsername = '',
     this.driverRating,
     this.riderUsernames = const [],
+    this.jumpInRequests = const [],
     this.postAvailableSeats,
-    this.getAvailableSeats,
+    this.getAvailableSeats = 0,
     this.carbonEmissions,
     this.distance,
     this.price = 0,
@@ -83,7 +85,8 @@ class Ride {
       driverUsername: json['driver_username'] as String,
       to: json['to'] as String,
       from: json['from'] as String,
-      riderUsernames: json['rider_usernames'] as List<dynamic>?,
+      riderUsernames: json['rider_usernames'] as List<dynamic>,
+      jumpInRequests: json['jumpin_requests'] as List<dynamic>,
       carbonEmissions: json['carbon_emissions'] as int,
       distance: json['distance'] as int,
       price: json['price'] as int,

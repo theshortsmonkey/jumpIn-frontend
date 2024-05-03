@@ -2,6 +2,7 @@ import 'package:fe/appbar.dart';
 import 'package:fe/background.dart';
 import 'package:fe/chat_card.dart';
 import 'package:fe/classes/chat_class.dart';
+import 'package:fe/classes/message_class.dart';
 import 'package:fe/classes/ride_class.dart';
 import 'package:fe/classes/user_class.dart';
 import 'package:fe/login_page.dart';
@@ -30,6 +31,8 @@ class _SingleRideByIDState extends State<SingleRideByID> {
   late String rideId = '';
   late List _startLatLong = [];
   late List _endLatLong = [];
+  String _requestText = 'Request to jumpIn';
+  bool _isRequestButtonActive = true;
 
   @override
   void initState() {
@@ -57,7 +60,7 @@ class _SingleRideByIDState extends State<SingleRideByID> {
     if (currUser.username == ride.driverUsername) isDriver = true;
     List<Chat> chats =
         await fetchMessagesByRideId(rideId, currUser.username, isDriver);
-    final List startLatLong =  await fetchLatLong(ride.from);
+    final List startLatLong = await fetchLatLong(ride.from);
     final List endLatLong = await fetchLatLong(ride.to);
     setState(() {
       _currRide = ride;
@@ -67,6 +70,20 @@ class _SingleRideByIDState extends State<SingleRideByID> {
     });
   }
 
+  void sendRequest(Ride rideData) {
+    setState(() {
+      _requestText = 'jumpIn Request Sent';
+      _isRequestButtonActive = false;
+    });
+    final newMessage = Message(
+        from: currUser.username,
+        text: '${currUser.username} would like to jumpIn',
+        driver: rideData.driverUsername,
+        rider: currUser.username);
+    postMessageByRideId(rideData.id, newMessage);
+    
+  }
+
   @override
   Widget build(BuildContext context) {
     final String imgUrl =
@@ -74,6 +91,8 @@ class _SingleRideByIDState extends State<SingleRideByID> {
     final String cost = NumberFormat.currency(locale: "en_GB", symbol: '£')
         .format(_currRide.price / 100);
     final String driverUsername = _currRide.driverUsername;
+    final seatsLeft =
+        _currRide.getAvailableSeats - _currRide.riderUsernames.length;
     return context.read<AuthState>().isAuthorized
         ? Scaffold(
             appBar: CustomAppBar(
@@ -114,9 +133,17 @@ class _SingleRideByIDState extends State<SingleRideByID> {
                                               'Time',
                                               '${_currRide.getDateTime?.substring(11, 16)}',
                                               CupertinoIcons.clock),
+                                          (currUser.username ==
+                                                  _currRide.driverUsername)
+                                              ? riderList(
+                                                  _currRide.riderUsernames)
+                                              : itemProfile(
+                                                  'Accepted Riders',
+                                                  '${_currRide.riderUsernames.length}',
+                                                  CupertinoIcons.person_3),
                                           itemProfile(
-                                              'Available Seats',
-                                              '${_currRide.getAvailableSeats}',
+                                              'Spaces Left',
+                                              '$seatsLeft',
                                               CupertinoIcons.person_2),
                                           itemProfile(
                                               'Price',
@@ -134,8 +161,10 @@ class _SingleRideByIDState extends State<SingleRideByID> {
                                     Expanded(
                                         child: Padding(
                                       padding: const EdgeInsets.all(16),
-                                      child:
-                                          SizedBox(height: 300, child: map(_startLatLong,_endLatLong)),
+                                      child: SizedBox(
+                                          height: 300,
+                                          child:
+                                              map(_startLatLong, _endLatLong)),
                                     ))
                                     // Expanded(
                                     //   child:
@@ -176,6 +205,15 @@ class _SingleRideByIDState extends State<SingleRideByID> {
         : const LoginPage();
   }
 
+  riderList(riderList) {
+    return Column(
+      children: [
+        itemProfile('Accepted Riders:', '', CupertinoIcons.person_3),
+        for (var rider in riderList) Center(child: Text('$rider')),
+      ],
+    );
+  }
+
   itemProfile(String title, String subtitle, IconData iconData) {
     final theme = Theme.of(context);
     return ListTile(
@@ -201,8 +239,15 @@ class _SingleRideByIDState extends State<SingleRideByID> {
                   deleteRide(rideData.id);
                   Navigator.of(context).pushNamed('/allrides');
                 },
-                child: const Text('Delete Ride'))
-            : const SizedBox();
+                child: const Text('Delete Ride'),
+              )
+            : ElevatedButton(
+                onPressed: _isRequestButtonActive
+                    ? () {
+                        sendRequest(rideData);
+                      }
+                    : null,
+                child: Text(_requestText));
 
     return Padding(
       padding: const EdgeInsets.all(12.0),
@@ -274,10 +319,11 @@ class _SingleRideByIDState extends State<SingleRideByID> {
     );
   }
 
-  map(startLatLong,endLatLong) {
+  map(startLatLong, endLatLong) {
     return FlutterMap(
       options: MapOptions(
-        initialCenter: LatLng((startLatLong[0]+endLatLong[0])/2, (startLatLong[1]+endLatLong[1])/2),
+        initialCenter: LatLng((startLatLong[0] + endLatLong[0]) / 2,
+            (startLatLong[1] + endLatLong[1]) / 2),
         initialZoom: 6,
       ),
       children: [

@@ -118,9 +118,6 @@ Future<List> fetchLatLong(place) async {
   return latLong;
 }
 
-// https://api.geoapify.com/v1/geocode/search?text=West%20Street%2C%20Huddersfield&format=json&apiKey=YOUR_API_KEY
-
-
 Future<User?>deleteUser(user) async {
   final uri = Uri.parse("http://localhost:1337/users/${user.username}");
   final response = await http.delete(uri);
@@ -203,6 +200,19 @@ Future<Ride> postRide(ride) async {
   }
   else{
   throw Exception("Ride could not be posted");
+  }
+}
+
+Future<Ride> patchRideById(rideId,patchDetails) async {
+  String bodyJson = jsonEncode(patchDetails);
+  final response = await http.patch(Uri.parse('http://localhost:1337/rides/$rideId'), headers: {"Content-Type": "application/json"},body: bodyJson);
+  if(response.statusCode == 200) {
+   var rideResponse = Ride.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+  
+    return rideResponse;
+  }
+  else{
+  throw Exception("Ride could not be patched");
   }
 }
 
