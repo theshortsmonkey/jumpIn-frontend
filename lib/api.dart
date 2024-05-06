@@ -223,7 +223,7 @@ Future<Ride> patchRideById(rideId, patchDetails) async {
 
     return rideResponse;
   } else if (response.statusCode == 400) {
-    throw Exception('User already requested to JumpIn');
+    throw Exception(response);
     } else {
     throw Exception("Ride could not be patched");
   }

@@ -71,16 +71,16 @@ class _SingleRideByIDState extends State<SingleRideByID> {
   }
 
   void sendRequest(Ride rideData) async {
-    // setState(() {
-    //   _requestText = 'jumpIn Request Sent';
-    //   _isRequestButtonActive = false;
-    // });
-    // final newMessage = Message(
-    //     from: currUser.username,
-    //     text: '${currUser.username} would like to jumpIn',
-    //     driver: rideData.driverUsername,
-    //     rider: currUser.username);
-    // postMessageByRideId(rideData.id, newMessage);
+    setState(() {
+      _requestText = 'jumpIn Request Sent';
+      _isRequestButtonActive = false;
+    });
+    final newMessage = Message(
+        from: currUser.username,
+        text: '${currUser.username} would like to jumpIn',
+        driver: rideData.driverUsername,
+        rider: currUser.username);
+    postMessageByRideId(rideData.id, newMessage);
     final patchDetails = {
       'requestJumpin': currUser.username,
     };
@@ -88,6 +88,46 @@ class _SingleRideByIDState extends State<SingleRideByID> {
     setState(() {
       _currRide = updatedRide;
     });
+  }
+
+  void acceptRequest(Ride rideData, requestFrom) async {
+    final seatsLeft =
+        _currRide.getAvailableSeats - _currRide.riderUsernames.length;
+    if (seatsLeft > 0) {
+      final patchDetails = {
+        'acceptRider': requestFrom,
+      };
+      final updatedRide = await patchRideById(rideData.id, patchDetails);
+    final newMessage = Message(
+        from: currUser.username,
+        text: 'Request from $requestFrom accepted',
+        driver: rideData.driverUsername,
+        rider: requestFrom);
+    postMessageByRideId(rideData.id, newMessage);
+      setState(() {
+        _currRide = updatedRide;
+      });
+    _getRideDetails();
+    } else {
+      print('no seats left');
+    }
+  }
+
+  void rejectRequest(Ride rideData, requestFrom) async {
+      final patchDetails = {
+        'rejectRider': requestFrom,
+      };
+      final updatedRide = await patchRideById(rideData.id, patchDetails);
+    final newMessage = Message(
+        from: currUser.username,
+        text: 'Request from $requestFrom rejected',
+        driver: rideData.driverUsername,
+        rider: requestFrom);
+    postMessageByRideId(rideData.id, newMessage);
+      setState(() {
+        _currRide = updatedRide;
+      });
+    _getRideDetails();
   }
 
   @override
@@ -238,7 +278,7 @@ class _SingleRideByIDState extends State<SingleRideByID> {
 
   driverProfile(imgURL, rideData) {
     final theme = Theme.of(context);
-    Widget deleteButton =
+    Widget optionButton =
         context.read<AuthState>().userInfo.username == rideData.driverUsername
             ? ElevatedButton(
                 onPressed: () {
@@ -253,7 +293,8 @@ class _SingleRideByIDState extends State<SingleRideByID> {
                         sendRequest(rideData);
                       }
                     : null,
-                child: Text(_requestText));
+                child: Text(_requestText),
+              );
 
     return Padding(
       padding: const EdgeInsets.all(12.0),
@@ -269,20 +310,37 @@ class _SingleRideByIDState extends State<SingleRideByID> {
               padding: const EdgeInsets.all(15),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Column(
-                    children: [
-                      CircleAvatar(
-                        radius: 50,
-                        backgroundImage: NetworkImage(imgURL),
-                      ),
-                      const SizedBox(height: 10),
-                      deleteButton,
-                      itemProfile(
-                          'Waiting jumpIn requests from:', '', CupertinoIcons.person_3),
-                      for (var rider in _currRide.jumpInRequests)
-                        Text('$rider'),
-                    ],
+                children: [
+                  Expanded(
+                    child: Column(
+                      children: [
+                        CircleAvatar(
+                          radius: 50,
+                          backgroundImage: NetworkImage(imgURL),
+                        ),
+                        const SizedBox(height: 10),
+                        optionButton,
+                        const Text('Pending jumpIn requests from:'),
+                        for (var rider in _currRide.jumpInRequests)
+                          Wrap(
+                            children: [
+                              Text('Request from: $rider'),
+                              ElevatedButton(
+                                onPressed: () {
+                                  acceptRequest(rideData, rider);
+                                },
+                                child: Text('Accept request from: $rider'),
+                              ),
+                              ElevatedButton(
+                                onPressed: () {
+                                  rejectRequest(rideData, rider);
+                                },
+                                child: Text('Reject request from: $rider'),
+                              ),
+                            ],
+                          ),
+                      ],
+                    ),
                   ),
                   Container(width: 20),
                   Expanded(
