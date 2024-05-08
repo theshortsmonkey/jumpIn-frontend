@@ -84,10 +84,8 @@ class _SingleRideByIDState extends State<SingleRideByID> {
     final patchDetails = {
       'requestJumpin': currUser.username,
     };
-    final updatedRide = await patchRideById(rideData.id, patchDetails);
-    setState(() {
-      _currRide = updatedRide;
-    });
+    await patchRideById(rideData.id, patchDetails);    
+    await _getRideDetails();
   }
 
   void acceptRequest(Ride rideData, requestFrom) async {
@@ -97,37 +95,31 @@ class _SingleRideByIDState extends State<SingleRideByID> {
       final patchDetails = {
         'acceptRider': requestFrom,
       };
-      final updatedRide = await patchRideById(rideData.id, patchDetails);
-    final newMessage = Message(
-        from: currUser.username,
-        text: 'Request from $requestFrom accepted',
-        driver: rideData.driverUsername,
-        rider: requestFrom);
-    postMessageByRideId(rideData.id, newMessage);
-      setState(() {
-        _currRide = updatedRide;
-      });
-    _getRideDetails();
+      patchRideById(rideData.id, patchDetails);
+      final newMessage = Message(
+          from: currUser.username,
+          text: 'Request from $requestFrom accepted',
+          driver: rideData.driverUsername,
+          rider: requestFrom);
+      postMessageByRideId(rideData.id, newMessage);
+      await _getRideDetails();
     } else {
       print('no seats left');
     }
   }
 
   void rejectRequest(Ride rideData, requestFrom) async {
-      final patchDetails = {
-        'rejectRider': requestFrom,
-      };
-      final updatedRide = await patchRideById(rideData.id, patchDetails);
+    final patchDetails = {
+      'rejectRider': requestFrom,
+    };
+    patchRideById(rideData.id, patchDetails);
     final newMessage = Message(
         from: currUser.username,
         text: 'Request from $requestFrom rejected',
         driver: rideData.driverUsername,
         rider: requestFrom);
     postMessageByRideId(rideData.id, newMessage);
-      setState(() {
-        _currRide = updatedRide;
-      });
-    _getRideDetails();
+    await _getRideDetails();
   }
 
   @override
@@ -179,14 +171,6 @@ class _SingleRideByIDState extends State<SingleRideByID> {
                                               'Time',
                                               '${_currRide.getDateTime?.substring(11, 16)}',
                                               CupertinoIcons.clock),
-                                          (currUser.username ==
-                                                  _currRide.driverUsername)
-                                              ? riderList(
-                                                  _currRide.riderUsernames)
-                                              : itemProfile(
-                                                  'Accepted Riders',
-                                                  '${_currRide.riderUsernames.length}',
-                                                  CupertinoIcons.person_3),
                                           itemProfile(
                                               'Spaces Left',
                                               '$seatsLeft',
@@ -221,6 +205,7 @@ class _SingleRideByIDState extends State<SingleRideByID> {
                             ),
                             const SizedBox(width: 10),
                             driverProfile(imgUrl, _currRide),
+                            actionsCard(_currRide),
                             Column(
                               children: [
                                 _rideChats.isEmpty
@@ -276,117 +261,6 @@ class _SingleRideByIDState extends State<SingleRideByID> {
     );
   }
 
-  driverProfile(imgURL, rideData) {
-    final theme = Theme.of(context);
-    Widget optionButton =
-        context.read<AuthState>().userInfo.username == rideData.driverUsername
-            ? ElevatedButton(
-                onPressed: () {
-                  deleteRide(rideData.id);
-                  Navigator.of(context).pushNamed('/allrides');
-                },
-                child: const Text('Delete Ride'),
-              )
-            : ElevatedButton(
-                onPressed: _isRequestButtonActive
-                    ? () {
-                        sendRequest(rideData);
-                      }
-                    : null,
-                child: Text(_requestText),
-              );
-
-    return Padding(
-      padding: const EdgeInsets.all(12.0),
-      child: Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-        clipBehavior: Clip.antiAliasWithSaveLayer,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(15),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Column(
-                      children: [
-                        CircleAvatar(
-                          radius: 50,
-                          backgroundImage: NetworkImage(imgURL),
-                        ),
-                        const SizedBox(height: 10),
-                        optionButton,
-                        const Text('Pending jumpIn requests from:'),
-                        for (var rider in _currRide.jumpInRequests)
-                          Wrap(
-                            children: [
-                              Text('Request from: $rider'),
-                              ElevatedButton(
-                                onPressed: () {
-                                  acceptRequest(rideData, rider);
-                                },
-                                child: Text('Accept request from: $rider'),
-                              ),
-                              ElevatedButton(
-                                onPressed: () {
-                                  rejectRequest(rideData, rider);
-                                },
-                                child: Text('Reject request from: $rider'),
-                              ),
-                            ],
-                          ),
-                      ],
-                    ),
-                  ),
-                  Container(width: 20),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Container(height: 5),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text("Driver:",
-                                style: theme.textTheme.headlineSmall),
-                            const SizedBox(width: 8),
-                            Text(
-                              '${rideData.driverUsername}',
-                              style: theme.textTheme.bodyLarge,
-                            ),
-                          ],
-                        ),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text(
-                              "Rating:",
-                              style: theme.textTheme.headlineSmall,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              "${rideData.driverRating}",
-                              style: theme.textTheme.bodyLarge,
-                            ),
-                          ],
-                        ),
-                        Container(height: 10),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   map(startLatLong, endLatLong) {
     return FlutterMap(
       options: MapOptions(
@@ -408,6 +282,194 @@ class _SingleRideByIDState extends State<SingleRideByID> {
           ],
         ),
       ],
+    );
+  }
+
+  driverProfile(imgURL, rideData) {
+    final theme = Theme.of(context);
+
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+      ),
+      clipBehavior: Clip.antiAliasWithSaveLayer,
+      margin: const EdgeInsets.all(12.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(15),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    children: [
+                      CircleAvatar(
+                        radius: 50,
+                        backgroundImage: NetworkImage(imgURL),
+                      ),
+                      const SizedBox(height: 10),
+                    ],
+                  ),
+                ),
+                Container(width: 20),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Container(height: 5),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text("Driver:", style: theme.textTheme.headlineSmall),
+                          const SizedBox(width: 8),
+                          Text(
+                            '${rideData.driverUsername}',
+                            style: theme.textTheme.bodyLarge,
+                          ),
+                        ],
+                      ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            "Rating:",
+                            style: theme.textTheme.headlineSmall,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            "${rideData.driverRating}",
+                            style: theme.textTheme.bodyLarge,
+                          ),
+                        ],
+                      ),
+                      Container(height: 10),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  actionsCard(Ride rideData) {
+    final theme = Theme.of(context);
+    bool isDriver = (rideData.driverUsername == currUser.username);
+    int spacesLeft =
+        rideData.getAvailableSeats - rideData.riderUsernames.length;
+    final Widget driverRequestsView = Expanded(
+      child: Column(
+        children: [
+          Text(
+            'jumpIn Requests',
+            style: theme.textTheme.headlineSmall,
+          ),
+          for (var rider in rideData.riderUsernames)
+            Center(
+              child: Text(
+                '$rider - accepted',
+                style: theme.textTheme.bodyLarge,
+              ),
+            ),
+          for (var rider in rideData.jumpInRequests)
+            Wrap(
+              children: [
+                Text(
+                  rider,
+                  style: theme.textTheme.bodyLarge,
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    acceptRequest(rideData, rider);
+                  },
+                  child: const Text('Accept request'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    rejectRequest(rideData, rider);
+                  },
+                  child: const Text('Reject request'),
+                ),
+              ],
+            ),
+        ],
+      ),
+    );
+    final Widget riderRequestsView = Expanded(
+      child: Column(
+        children: [
+          Text(
+            'jumpIn Requests:',
+            style: theme.textTheme.headlineSmall,
+          ),
+          rideData.riderUsernames.contains(currUser.username)
+              ? Text(
+                  'Request accepted',
+                  style: theme.textTheme.bodyLarge,
+                )
+              : rideData.jumpInRequests.contains(currUser.username)
+                  ? Text(
+                      'Request pending',
+                      style: theme.textTheme.bodyLarge,
+                    )
+                  : (spacesLeft > 0)
+                      ? ElevatedButton(
+                          onPressed: _isRequestButtonActive
+                              ? () {
+                                  sendRequest(rideData);
+                                }
+                              : null,
+                          child: Text(_requestText),
+                        )
+                      : Text(
+                          'No spaces left on this ride',
+                          style: theme.textTheme.bodyLarge,
+                        )
+        ],
+      ),
+    );
+    final Widget driverActionsView = Column(
+      children: [
+        Text(
+          'Ride Actions',
+          style: theme.textTheme.headlineSmall,
+        ),
+        ElevatedButton(
+          onPressed: () {
+            deleteRide(rideData.id);
+            Navigator.of(context).pushNamed('/allrides');
+          },
+          child: const Text('Delete Ride'),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            print('edit ride');
+            // Navigator.of(context).pushNamed('/editride');
+          },
+          child: const Text('Edit Ride'),
+        ),
+      ],
+    );
+
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+      ),
+      clipBehavior: Clip.antiAliasWithSaveLayer,
+      margin: const EdgeInsets.all(8.0),
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Row(
+          children: [
+            isDriver ? driverActionsView : const SizedBox.shrink(),
+            isDriver ? driverRequestsView : riderRequestsView,
+          ],
+        ),
+      ),
     );
   }
 }
