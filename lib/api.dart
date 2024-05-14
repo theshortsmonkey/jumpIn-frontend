@@ -112,6 +112,32 @@ Future<User> patchUser(user) async {
   }
 }
 
+Future<User> postLogin(String username, String password) async {
+  final bodyJson = jsonEncode({'password': password});
+  String uri = 'http://localhost:1337/users/$username/login';
+  final response = await http.post(Uri.parse(uri),
+      headers: {"Content-Type": "application/json"}, body: bodyJson);
+  if (response.statusCode == 200) {
+    final user = User.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+    return user;
+  } else if (response.statusCode == 401) {
+    throw Exception('Unauthorised');
+  } else {
+    throw Exception("User not found");
+  }
+}
+
+Future<String> postLogout(String username) async {
+  String uri = 'http://localhost:1337/users/$username/logout';
+  final response = await http.post(Uri.parse(uri),);
+  if (response.statusCode == 200) {
+    return 'Logout successful';
+  } else {
+    throw Exception("Logout failed");
+  }
+
+}
+
 Future<List> fetchLatLong(place) async {
   final response = await httpGeocode.get(
       '/search?text=$place&filter=countrycode:gb&format=json&apiKey=9ac318b7da314e00b462f8801c758396');
@@ -224,7 +250,7 @@ Future<Ride> patchRideById(rideId, patchDetails) async {
     return rideResponse;
   } else if (response.statusCode == 400) {
     throw Exception(response);
-    } else {
+  } else {
     throw Exception("Ride could not be patched");
   }
 }

@@ -48,6 +48,7 @@ dependencies:
   email_validator: ^2.1.16
   dio: ^5.4.2+1
   intl: ^0.19.0
+  dbcrypt: ^2.0.0
 
 dev_dependencies:
   flutter_test:
