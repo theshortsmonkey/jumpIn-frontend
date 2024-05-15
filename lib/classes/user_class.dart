@@ -56,7 +56,7 @@ Map<String, dynamic> toJson() => {
         'email': email,
         "phoneNumber" : phoneNumber,
         "bio": bio,
-        "password": password,
+        // "password": password,
         "identity_verification_status" : identity_verification_status,
         "driver_verification_status" : driver_verification_status,
         "car" : car,

@@ -14,6 +14,8 @@ EnhancedHttp httpGeocode =
     EnhancedHttp(baseURL: 'https://api.geoapify.com/v1/geocode');
 EnhancedHttp httpFuel = EnhancedHttp(baseURL: 'https://www.bp.com');
 
+const baseUrl = 'http://localhost:1337';
+
 Future<List<Ride>> fetchRides(
     {String? to,
     String? from,
@@ -77,15 +79,25 @@ Future<List<User>> fetchUsers() async {
 
 Future<User> fetchUserByUsername(username) async {
   try {
-    final response = await httpEnhanced.get('/users/$username');
-    var user = User.fromJson(response as Map<String, dynamic>);
+    String uri = 'http://localhost:1337/users/$username';
+    final response = await http.get(Uri.parse(uri));
+    var user = User.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
     return user;
   } catch (e) {
     throw Exception('No users found');
   }
 }
 
+Future<User> getCurrentUser() async {
+  final response =
+      await http.get(Uri.parse('http://localhost:1337/users/currentUser'));
+      print(response.statusCode);
+    var user = User.fromJson(jsonDecode(processResponse(response)) as Map<String, dynamic>);
+    return user;
+}
+
 Future<User> postUser(user) async {
+  print('test');
   String json = jsonEncode(user);
   final response = await http.post(Uri.parse('http://localhost:1337/users'),
       headers: {"Content-Type": "application/json"}, body: json);
@@ -99,26 +111,23 @@ Future<User> postUser(user) async {
 
 Future<User> patchUser(user) async {
   String json = jsonEncode(user);
-  String uri = 'http://localhost:1337/users/${user.username}';
-  final response = await http.patch(Uri.parse(uri),
+  Uri url = Uri.parse('$baseUrl/users/${user.username}');
+  final response = await http.patch(url,
       headers: {"Content-Type": "application/json"}, body: json);
-  if (response.statusCode == 200) {
-    List<User> users = jsonDecode(response.body).map<User>((item) {
-      return User.fromJson(item as Map<String, dynamic>);
-    }).toList();
-    return users[0];
-  } else {
-    throw Exception("User not found");
-  }
+  List<User> result = jsonDecode(processResponse(response)).map<User>((item) {
+    return User.fromJson(item as Map<String, dynamic>);
+  }).toList();
+  return result[0];
 }
 
 Future<User> postLogin(String username, String password) async {
   final bodyJson = jsonEncode({'password': password});
-  String uri = 'http://localhost:1337/users/$username/login';
+  String uri = '$baseUrl/users/$username/login';
   final response = await http.post(Uri.parse(uri),
       headers: {"Content-Type": "application/json"}, body: bodyJson);
   if (response.statusCode == 200) {
-    final user = User.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+    final user =
+        User.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
     return user;
   } else if (response.statusCode == 401) {
     throw Exception('Unauthorised');
@@ -128,14 +137,15 @@ Future<User> postLogin(String username, String password) async {
 }
 
 Future<String> postLogout(String username) async {
-  String uri = 'http://localhost:1337/users/$username/logout';
-  final response = await http.post(Uri.parse(uri),);
+  String uri = '$baseUrl/users/$username/logout';
+  final response = await http.post(
+    Uri.parse(uri),
+  );
   if (response.statusCode == 200) {
     return 'Logout successful';
   } else {
     throw Exception("Logout failed");
   }
-
 }
 
 Future<List> fetchLatLong(place) async {
@@ -171,7 +181,7 @@ Future<String?> uploadUserProfilePic(String username, String filePath) async {
 }
 
 Future deleteRide(rideId) async {
-  final url = Uri.parse('http://localhost:1337/rides/$rideId');
+  final url = Uri.parse('$baseUrl/rides/$rideId');
   final response = await http.delete(url);
   if (response.statusCode == 200) {
     return null;
@@ -183,6 +193,7 @@ Future deleteRide(rideId) async {
 Future fetchDistance(waypoints) async {
   final response = await httpGeoapify.get(
       '?waypoints=$waypoints&mode=drive&apiKey=9ac318b7da314e00b462f8801c758396');
+  print(response);
   final distance = response['features'][0]['properties']['distance'];
   return distance;
 }
@@ -206,9 +217,10 @@ Future fetchFuelPrice(fuelType) async {
 
 Future fetchCarDetails(carReg) async {
   try {
+    Uri url = Uri.parse(
+        'https://driver-vehicle-licensing.api.gov.uk/vehicle-enquiry/v1/vehicles');
     final response = await http.post(
-      Uri.parse(
-          'https://driver-vehicle-licensing.api.gov.uk/vehicle-enquiry/v1/vehicles'),
+      url,
       headers: {
         'x-api-key': '1gZwZ4vfFN1TbScqIP7FG4ccTa8SkB95aJN9wHBs',
         "accept": '*/*',
@@ -217,87 +229,83 @@ Future fetchCarDetails(carReg) async {
       },
       body: jsonEncode({'registrationNumber': carReg}),
     );
-    return (json.decode(response.body));
+    final result = json.decode(processResponse(response));
+    return result;
   } catch (e) {
     throw Exception("Error fetching car details: $e");
   }
 }
 
 Future<Ride> postRide(ride) async {
+  Uri url = Uri.parse('$baseUrl/rides');
   String json = jsonEncode(ride);
-  final response = await http.post(Uri.parse('http://localhost:1337/rides'),
+  final response = await http.post(url,
       headers: {"Content-Type": "application/json"}, body: json);
-  if (response.statusCode == 200) {
-    var rideResponse =
-        Ride.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
-
-    return rideResponse;
-  } else {
-    throw Exception("Ride could not be posted");
-  }
+  final result = Ride.fromJson(
+      jsonDecode(processResponse(response)) as Map<String, dynamic>);
+  return result;
 }
 
 Future<Ride> patchRideById(rideId, patchDetails) async {
+  Uri url = Uri.parse('$baseUrl/rides/$rideId');
   String bodyJson = jsonEncode(patchDetails);
-  final response = await http.patch(
-      Uri.parse('http://localhost:1337/rides/$rideId'),
-      headers: {"Content-Type": "application/json"},
-      body: bodyJson);
-  if (response.statusCode == 200) {
-    var rideResponse =
-        Ride.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
-
-    return rideResponse;
-  } else if (response.statusCode == 400) {
-    throw Exception(response);
-  } else {
-    throw Exception("Ride could not be patched");
-  }
-}
-
-Future<List<Message>> fetchMessagesByUsername(username) async {
-  final response = await httpEnhanced.get('/rides/$username/messages');
-
-  if (response.isNotEmpty) {
-    List<Message> messages = response.map<Message>((item) {
-      return Message.fromJson(item as Map<String, dynamic>);
-    }).toList();
-    return messages;
-  } else {
-    throw Exception('No users found');
-  }
+  final response = await http.patch(url,
+      headers: {"Content-Type": "application/json"}, body: bodyJson);
+  final result = Ride.fromJson(
+      jsonDecode(processResponse(response)) as Map<String, dynamic>);
+  return result;
 }
 
 Future<List<Chat>> fetchMessagesByRideId(rideId, rider, isDriver) async {
-  Uri url = Uri.parse('http://localhost:1337/rides/$rideId/messages/$rider');
-  if (isDriver)
-    url =
-        Uri.parse('http://localhost:1337/rides/$rideId/driverMessages/$rider');
-  final response = await http.get(url);
-  if (response.statusCode == 200) {
-    final responseData = json.decode(response.body);
-    List<Chat> chats = responseData.map<Chat>((item) {
-      return Chat.fromJson(item as Map<String, dynamic>);
-    }).toList();
-    return chats;
-  } else {
-    throw Exception('No messages found');
+  Uri url = Uri.parse('$baseUrl/rides/$rideId/messages/$rider');
+  if (isDriver) {
+    url = Uri.parse('$baseUrl/rides/$rideId/driverMessages/$rider');
   }
+  final response = await http.get(url);
+  final responseData = json.decode(processResponse(response));
+  List<Chat> result = responseData.map<Chat>((item) {
+    return Chat.fromJson(item as Map<String, dynamic>);
+  }).toList();
+  return result;
 }
 
 Future<List<Chat>> postMessageByRideId(rideId, message) async {
+  Uri url = Uri.parse('$baseUrl/rides/$rideId/messages');
   String bodyJson = jsonEncode(message);
-  final response = await http.post(
-      Uri.parse('http://localhost:1337/rides/$rideId/messages'),
-      headers: {"Content-Type": "application/json"},
-      body: bodyJson);
-  if (response.statusCode == 200) {
-    final responseData = json.decode(response.body);
-    List<Chat> chats = responseData.map<Chat>((item) {
-      return Chat.fromJson(item as Map<String, dynamic>);
-    }).toList();
-    return chats;
-  } else {
-    throw Exception("Ride not found");
+  final response = await http.post(url,
+      headers: {"Content-Type": "application/json"}, body: bodyJson);
+  final responseData = json.decode(processResponse(response));
+  List<Chat> result = responseData.map<Chat>((item) {
+    return Chat.fromJson(item as Map<String, dynamic>);
+  }).toList();
+  return result;
+}
+
+processResponse(Response response) {
+  switch (response.statusCode) {
+    case 200:
+      {
+        return response.body;
+      }
+    case 201:
+      {
+        return response.body;
+      }
+    case 400:
+      {
+        throw Exception('Bad Request');
+      }
+    case 401:
+      {
+        throw Exception('Unauthorised');
+      }
+      case 403: { }
+    case 404:
+      {
+        throw Exception("Not Found");
+      }
+
+    default:
+      {}
   }
 }

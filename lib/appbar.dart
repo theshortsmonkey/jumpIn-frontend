@@ -14,9 +14,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool disableMainPageButton;
   final bool disablePostRideButton;
   final bool disableAllRidesButton;
+  final bool isLoggedIn;
 
   const CustomAppBar({
-    Key? key,
+    super.key,
     required this.title,
     required this.context,
     this.disableDefaultUserButton = false,
@@ -26,10 +27,13 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.disableMainPageButton = false,
     this.disablePostRideButton = false,
     this.disableAllRidesButton = false,
-  }) : super(key: key);
+    this.isLoggedIn = false
+  });
 
   void _setDefaultUser() async {
-    final futureUser = await fetchUserByUsername('testUsername4');
+    
+      final futureUser = await postLogin(
+          'testUsername4', 'testPassword4');
     final userState = Provider.of<AuthState>(context, listen:false);
     userState.setUser(futureUser);
     Navigator.of(context).pushNamed('/profile');

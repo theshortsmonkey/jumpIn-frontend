@@ -55,7 +55,7 @@ class _PostRideFormState extends State<PostRideForm> {
         carbonEmissions: co2,
         distance: 0,
         price: int.parse(_inputPriceTextController.text),
-        map: null,
+        map: [],
         setDateTime: _selectedDay,
         );
 

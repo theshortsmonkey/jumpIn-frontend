@@ -19,12 +19,15 @@ class AuthState extends ChangeNotifier {
   bool get isAuthorized {
     return _user.username.isNotEmpty;
   }
-  // Future<bool> tryLogin(username) async {
-  //   final user = await fetchUserByUsername(username);
-  //   if (user != null) {
-  //   _user = user;
-  //   return true; // has a login record.
-  // }
-  // return false;
-  // }
+
+  Future<bool> checkActiveSession() async {
+    try {
+      final user = await getCurrentUser();
+      _user = user;
+      notifyListeners();
+      return true; // has a login record.
+    } catch (e) {
+      return false;
+    }
+  }
 }

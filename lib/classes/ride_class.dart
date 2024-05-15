@@ -70,6 +70,7 @@ class Ride {
         'from_region': fromRegion?.region,
         "driver_username" : driverUsername,
         "rider_usernames": riderUsernames,
+        "jumpin_requests": jumpInRequests,
         "available_seats": postAvailableSeats?.seats,
         "carbon_emissions": carbonEmissions,
         "distance": distance,

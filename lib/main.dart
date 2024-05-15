@@ -15,21 +15,26 @@ import "./validate_licence.dart";
 import "./validate_car.dart";
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => AuthState()),
+        // other providers
+      ],
+      child: const MyApp()
+      ),
+  );
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (context) => AuthState()),
-        // other providers
-      ],
-      builder: (context, child) => MaterialApp(
-        debugShowCheckedModeBanner: false,
+    context.read<AuthState>().checkActiveSession();
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'jumpIn',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.green.shade900),
@@ -63,7 +68,6 @@ class MyApp extends StatelessWidget {
         '/validatelicence': (context) => const ValidateLicencePage(),
         '/validatecar': (context) => const ValidateCarPage(),
         }
-    )
-   );
+    );
   }
 } 
