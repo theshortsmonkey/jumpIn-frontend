@@ -4,7 +4,6 @@ import 'package:fe/chat_card.dart';
 import 'package:fe/classes/chat_class.dart';
 import 'package:fe/classes/message_class.dart';
 import 'package:fe/classes/ride_class.dart';
-import 'package:fe/classes/user_class.dart';
 import 'package:fe/login_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -25,7 +24,7 @@ class SingleRideByID extends StatefulWidget {
 }
 
 class _SingleRideByIDState extends State<SingleRideByID> {
-  late User currUser;
+  late ActiveSession currUser;
   late Ride _currRide = Ride();
   List<Chat> _rideChats = [];
   late String rideId = '';

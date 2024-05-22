@@ -13,11 +13,11 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  bool isLoggedIn = false;
 
   @override
   void initState() {
     super.initState();
-    // context.read<AuthState>().checkActiveSession();
   }
 
   void _showLoginPage() {
@@ -42,6 +42,7 @@ class _MyHomePageState extends State<MyHomePage> {
         title: 'jumpIn',
         context: context,
         disableMainPageButton: true,
+        isLoggedIn: isLoggedIn,
       ),
       body: Container(
         alignment: Alignment.topCenter,
@@ -57,7 +58,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 width: 500,
                 child: Column(
                   children: [
-                    ContainerWithBackgroundColor (
+                    ContainerWithBackgroundColor(
                       child: Text(
                         'Trust who you travel with',
                         textAlign: TextAlign.center,
@@ -67,8 +68,8 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       ),
                     ),
-                    SizedBox(height: 40),                    
-                    ContainerWithBackgroundColor (
+                    SizedBox(height: 40),
+                    ContainerWithBackgroundColor(
                       child: Text(
                         'We take the time to get to know each of our members. We check reviews, profiles and IDs, so you know who you’re travelling with and can book your ride at ease on our platform.',
                         textAlign: TextAlign.center,

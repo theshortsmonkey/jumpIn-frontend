@@ -23,7 +23,7 @@ class _UploadImageForm extends State<UploadImageForm> {
       await uploadUserProfilePic(currUser.username,_imageUrlController.text);
       await Future.delayed(const Duration(seconds: 1), () async {
         final futureUser = await fetchUserByUsername(currUser.username);
-        context.read<AuthState>().setUser(futureUser);
+        // context.read<AuthState>().setUser(futureUser);
         imageCache.clear();
         imageCache.clearLiveImages();
         Navigator.of(context).pushNamed('/profile');

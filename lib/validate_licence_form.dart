@@ -31,7 +31,7 @@ class _ValidateLicenceFormState extends State<ValidateLicenceForm> {
 
   void _showWelcomeScreen() async {
     final provider = Provider.of<AuthState>(context, listen:false);
-    final currUser = provider.userInfo;
+    final currUser = await fetchUserByUsername(provider.userInfo.username);
     final userData = User(
       firstName: currUser.firstName,
       lastName: currUser.lastName,
@@ -44,21 +44,10 @@ class _ValidateLicenceFormState extends State<ValidateLicenceForm> {
       driver_verification_status: currUser.driver_verification_status,
       car:currUser.car
     );
-    if (widget.submitType == 'post') {
-    final postedUser = await postUser(userData);
-    final futureUser = fetchUserByUsername(postedUser.username);
-    futureUser.then((user) {
-      context.read<AuthState>().setUser(user);
-      Navigator.of(context).pushNamed('/');
-    });
-    } else {
       final patchedUser = await patchUser(userData);
-      final futureUser = fetchUserByUsername(patchedUser.username);
-      futureUser.then((user) {
-        context.read<AuthState>().setUser(user);
+      // final futureUser = await fetchUserByUsername(patchedUser.username);
+      //   context.read<AuthState>().setUser(futureUser);
         Navigator.of(context).pushNamed('/profile');
-      });      
-    }
   }
 
   void _updateFormProgress() {

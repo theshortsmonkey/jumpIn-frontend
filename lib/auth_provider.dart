@@ -1,18 +1,35 @@
 import 'package:fe/api.dart';
 import 'package:flutter/material.dart';
-import "classes/user_class.dart";
+
+class ActiveSession {
+  final String username;
+  final bool isDriver;
+
+  const ActiveSession ({
+    this.username = '',
+    this.isDriver = false,
+  });
+
+  factory ActiveSession.fromJson(Map<String, dynamic> json) {
+    return ActiveSession(
+      username: json['username'] as String,
+      isDriver: json['isDriver'] as bool
+    );
+  }
+}
 
 class AuthState extends ChangeNotifier {
-  User _user = const User();
-  User get userInfo => _user;
-  void setUser(User user) {
+  ActiveSession _user = const ActiveSession();
+  // User _user = const User();
+  ActiveSession get userInfo => _user;
+  void setActiveSession(ActiveSession user) {
     _user = user;
     notifyListeners();
   }
 
   void logout() async {
     await postLogout(_user.username);
-    _user = const User();
+    _user = const ActiveSession();
     notifyListeners();
   }
 
@@ -20,14 +37,16 @@ class AuthState extends ChangeNotifier {
     return _user.username.isNotEmpty;
   }
 
-  Future<bool> checkActiveSession() async {
+  void checkActiveSession() async {
     try {
-      final user = await getCurrentUser();
+      final user = await getCurrentSession();
+      print('active session');
       _user = user;
       notifyListeners();
-      return true; // has a login record.
     } catch (e) {
-      return false;
+      print('no active user');
+      _user = const ActiveSession();
+      notifyListeners();
     }
   }
 }

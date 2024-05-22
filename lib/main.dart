@@ -1,20 +1,25 @@
-import 'package:fe/edit_profile_page.dart';
-import 'package:fe/single_ride_by_id.dart';
-import 'package:fe/upload_profile_pic.dart';
-import './login_page.dart';
+// import 'package:fe/edit_profile_page.dart';
+import 'package:fe/navigation_service.dart';
+import 'package:fe/route_generator.dart';
+import 'package:fe/service_locator.dart';
+// import 'package:fe/single_ride_by_id.dart';
+// import 'package:fe/upload_profile_pic.dart';
+// import 'package:get_it/get_it.dart';
+// import './login_page.dart';
 import 'package:flutter/material.dart';
-import './sign_up_page.dart';
-import 'profile_page.dart';
-import './homepage.dart';
-import "post_ride_page.dart";
-import './all_rides.dart';
+// import './sign_up_page.dart';
+// import 'profile_page.dart';
+// import './homepage.dart';
+// import "post_ride_page.dart";
+// import './all_rides.dart';
 import 'package:google_fonts/google_fonts.dart';
 import "./auth_provider.dart";
 import 'package:provider/provider.dart';
-import "./validate_licence.dart";
-import "./validate_car.dart";
+// import "./validate_licence.dart";
+// import "./validate_car.dart";
 
 void main() {
+  setupLocator();
   runApp(
     MultiProvider(
       providers: [
@@ -33,6 +38,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     context.read<AuthState>().checkActiveSession();
+    
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'jumpIn',
@@ -55,19 +61,21 @@ class MyApp extends StatelessWidget {
           bodyMedium: GoogleFonts.merriweather(),
         )
       ),
-      home: const MyHomePage(title:"jumpIn"),
-      routes: {
-        "/signup" : (context) => const SignUpPage(),
-        "/login" : (context) => const LoginPage(),
-        '/profile': (context) => const ProfileScreen(),
-        "/postride" : (context) => const PostRidePage(),
-        "/allrides": (context) => const GetRide(),
-        '/singleride': (context) => const SingleRideByID(),
-        '/editprofile': (context) => const EditProfilePage(),
-        '/uploadProfilePic': (context) => const UploadProfilePic(),
-        '/validatelicence': (context) => const ValidateLicencePage(),
-        '/validatecar': (context) => const ValidateCarPage(),
-        }
+      // home: const MyHomePage(title:"jumpIn"),
+      // routes: {
+      //   "/signup" : (context) => const SignUpPage(),
+      //   "/login" : (context) => const LoginPage(),
+      //   '/profile': (context) => const ProfileScreen(),
+      //   "/postride" : (context) => const PostRidePage(),
+      //   "/allrides": (context) => const GetRide(),
+      //   '/singleride': (context) => const SingleRideByID(),
+      //   '/editprofile': (context) => const EditProfilePage(),
+      //   '/uploadProfilePic': (context) => const UploadProfilePic(),
+      //   '/validatelicence': (context) => const ValidateLicencePage(),
+      //   '/validatecar': (context) => const ValidateCarPage(),
+      //   },
+      navigatorKey: NavigationService().navigatorKey,
+      onGenerateRoute: RouteGenerator.generateRoutes,
     );
   }
 } 

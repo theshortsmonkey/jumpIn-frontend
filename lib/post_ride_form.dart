@@ -1,10 +1,11 @@
+import 'package:fe/classes/user_class.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'classes/ride_class.dart';
+import 'package:fe/classes/ride_class.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'dart:async';
-import 'api.dart';
-import "./auth_provider.dart";
+import 'package:fe/api.dart';
+import "package:fe/auth_provider.dart";
 import 'package:provider/provider.dart';
 
 class PostRideForm extends StatefulWidget {
@@ -33,36 +34,36 @@ class _PostRideFormState extends State<PostRideForm> {
   double _priceProgress = 0;
   bool isPriceLoading = false;
   TimeOfDay _rideTime = TimeOfDay.now();
+  ActiveSession? _currUser;
   dynamic carDetails;
 
   @override
   void initState() {
     super.initState();
     final provider = Provider.of<AuthState>(context, listen: false);
-    carDetails = provider.userInfo.car;
+    _currUser = provider.userInfo;
   }
 
   void _postRide() async {
     final co2 = carDetails['co2Emissions'];
 
     final rideData = Ride(
-        to: _endPointTextController.text,
-        toRegion: _endRegion,
-        from: _startPointTextController.text,
-        fromRegion: _startRegion,
-        driverUsername: context.read<AuthState>().userInfo.username,
-        postAvailableSeats: _selectedSeats,
-        carbonEmissions: co2,
-        distance: 0,
-        price: int.parse(_inputPriceTextController.text),
-        map: [],
-        setDateTime: _selectedDay,
-        );
+      to: _endPointTextController.text,
+      toRegion: _endRegion,
+      from: _startPointTextController.text,
+      fromRegion: _startRegion,
+      driverUsername: context.read<AuthState>().userInfo.username,
+      postAvailableSeats: _selectedSeats,
+      carbonEmissions: co2,
+      distance: 0,
+      price: int.parse(_inputPriceTextController.text),
+      map: [],
+      setDateTime: _selectedDay,
+    );
 
     final postedRide = await postRide(rideData);
 
-    Navigator.of(context)
-        .pushNamed('/singleride', arguments: postedRide.id);
+    Navigator.of(context).pushNamed('/singleride', arguments: postedRide.id);
   }
 
   Future calculatePrice() async {
@@ -127,18 +128,19 @@ class _PostRideFormState extends State<PostRideForm> {
   }
 
   Future<void> _selectTime() async {
-        final TimeOfDay? picked = await showTimePicker(
-          context: context,
-          initialTime: TimeOfDay.now(),
-        );
-        if (picked != null) {
-          final dateTime = DateTime(_selectedDay!.year, _selectedDay!.month, _selectedDay!.day, picked.hour, picked.minute);
-          setState(() {
-            _rideTime = picked;
-            _selectedDay = dateTime;
-          });
-        }
-      }
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+    if (picked != null) {
+      final dateTime = DateTime(_selectedDay!.year, _selectedDay!.month,
+          _selectedDay!.day, picked.hour, picked.minute);
+      setState(() {
+        _rideTime = picked;
+        _selectedDay = dateTime;
+      });
+    }
+  }
 
   void _updateFormProgress() {
     double progress = 0.0;
@@ -176,26 +178,23 @@ class _PostRideFormState extends State<PostRideForm> {
 
   @override
   Widget build(BuildContext context) {
-    final userData = context.read<AuthState>().userInfo;
-    Widget priceWidget = 
-        Text(
-            _calculatedPrice != null 
-            ? 'We recommend a price of £$_calculatedPrice'
-            :'We recommend a price based on the supplied start and end points',
-            textAlign: TextAlign.center,
-          );
+    Widget priceWidget = Text(
+      _calculatedPrice != null
+          ? 'We recommend a price of £$_calculatedPrice'
+          : 'We recommend a price based on the supplied start and end points',
+      textAlign: TextAlign.center,
+    );
     final screenWidth = MediaQuery.of(context).size.width;
     final pixelRatio = MediaQuery.of(context).devicePixelRatio;
     final viewWidth = screenWidth * pixelRatio;
 
     return Scaffold(
-      body: userData.car != null
+      body: _currUser!.isDriver
           ? Form(
               onChanged: _updateFormProgress, // NEW
               child: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
-                  
                   children: [
                     Text(
                       'Complete the form to post a ride',
@@ -208,7 +207,7 @@ class _PostRideFormState extends State<PostRideForm> {
                       child: DropdownMenu<RegionsLabel>(
                         controller: _startRegionTextController,
                         requestFocusOnTap: true,
-                        width: viewWidth*0.5,
+                        width: viewWidth * 0.5,
                         label: const Text('Start Region'),
                         onSelected: (RegionsLabel? region) {
                           setState(() {
@@ -241,7 +240,7 @@ class _PostRideFormState extends State<PostRideForm> {
                       child: DropdownMenu<RegionsLabel>(
                         controller: _endRegionTextController,
                         requestFocusOnTap: true,
-                        width: viewWidth*0.5,
+                        width: viewWidth * 0.5,
                         label: const Text('End Region'),
                         onSelected: (RegionsLabel? region) {
                           setState(() {
@@ -281,10 +280,10 @@ class _PostRideFormState extends State<PostRideForm> {
                             isSameDay(_selectedDay, day),
                         onDaySelected: (selectedDay, focusedDay) {
                           setState(() {
-                            _dateSelectionTextController.text = DateFormat('dd-MM-yyyy').format(selectedDay);
+                            _dateSelectionTextController.text =
+                                DateFormat('dd-MM-yyyy').format(selectedDay);
                             _selectedDay = selectedDay;
-                            _focusedDay =
-                                focusedDay; 
+                            _focusedDay = focusedDay;
                           });
                         },
                         onPageChanged: (focusedDay) {
@@ -297,15 +296,15 @@ class _PostRideFormState extends State<PostRideForm> {
                       child: const Text('Set Ride Time'),
                     ),
                     Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: Text('Ride Time: ${_rideTime.hour.toString()}:${_rideTime.minute.toString()}')
-                      ),
+                        padding: const EdgeInsets.all(8),
+                        child: Text(
+                            'Ride Time: ${_rideTime.hour.toString()}:${_rideTime.minute.toString()}')),
                     Padding(
                       padding: const EdgeInsets.all(8),
                       child: DropdownMenu<SeatsLabel>(
                         controller: _seatSelectionTextController,
                         requestFocusOnTap: true,
-                        width: viewWidth*0.5,
+                        width: viewWidth * 0.5,
                         label: const Text('Set Available Seats'),
                         onSelected: (SeatsLabel? seats) {
                           setState(() {

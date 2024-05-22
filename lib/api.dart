@@ -1,5 +1,10 @@
 import 'dart:convert';
 import 'package:enhanced_http/enhanced_http.dart';
+import 'package:fe/auth_provider.dart';
+import 'package:fe/main.dart';
+import 'package:fe/navigation_service.dart';
+import 'package:fe/service_locator.dart';
+import 'package:flutter/material.dart';
 import 'classes/ride_class.dart';
 import 'classes/message_class.dart';
 import 'classes/chat_class.dart';
@@ -45,15 +50,11 @@ Future<List<Ride>> fetchRides(
 
   final url = Uri.http('localhost:1337', '/rides', queryParams);
   final response = await http.get(url);
-  if (response.body.isNotEmpty) {
-    final responseData = json.decode(response.body);
-    List<Ride> rides = responseData.map<Ride>((item) {
-      return Ride.fromJson(item as Map<String, dynamic>);
-    }).toList();
-    return rides;
-  } else {
-    throw Exception('No rides found');
-  }
+  final responseData = json.decode(processResponse(response));
+  List<Ride> result = responseData.map<Ride>((item) {
+    return Ride.fromJson(item as Map<String, dynamic>);
+  }).toList();
+  return result;
 }
 
 Future<Ride> fetchRideById(rideId) async {
@@ -88,25 +89,13 @@ Future<User> fetchUserByUsername(username) async {
   }
 }
 
-Future<User> getCurrentUser() async {
-  final response =
-      await http.get(Uri.parse('http://localhost:1337/users/currentUser'));
-      print(response.statusCode);
-    var user = User.fromJson(jsonDecode(processResponse(response)) as Map<String, dynamic>);
-    return user;
-}
-
 Future<User> postUser(user) async {
   print('test');
   String json = jsonEncode(user);
   final response = await http.post(Uri.parse('http://localhost:1337/users'),
       headers: {"Content-Type": "application/json"}, body: json);
-  if (response.statusCode == 200) {
-    var user = User.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
-    return user;
-  } else {
-    throw Exception(response.body);
-  }
+  var result = User.fromJson(jsonDecode(processResponse(response)) as Map<String, dynamic>);
+  return result;
 }
 
 Future<User> patchUser(user) async {
@@ -120,14 +109,22 @@ Future<User> patchUser(user) async {
   return result[0];
 }
 
-Future<User> postLogin(String username, String password) async {
+Future<ActiveSession> getCurrentSession() async {
+  Uri url = Uri.parse('$baseUrl/users/currentUser');
+  final response = await http.get(url);
+  print(response.statusCode);
+  final user = ActiveSession.fromJson(jsonDecode(processResponse(response)) as Map<String, dynamic>);
+  return user;
+}
+
+Future<ActiveSession> postLogin(String username, String password) async {
   final bodyJson = jsonEncode({'password': password});
-  String uri = '$baseUrl/users/$username/login';
-  final response = await http.post(Uri.parse(uri),
+  Uri url = Uri.parse('$baseUrl/users/$username/login');
+  final response = await http.post(url,
       headers: {"Content-Type": "application/json"}, body: bodyJson);
   if (response.statusCode == 200) {
-    final user =
-        User.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+    final user = ActiveSession.fromJson(
+        jsonDecode(response.body) as Map<String, dynamic>);
     return user;
   } else if (response.statusCode == 401) {
     throw Exception('Unauthorised');
@@ -137,10 +134,8 @@ Future<User> postLogin(String username, String password) async {
 }
 
 Future<String> postLogout(String username) async {
-  String uri = '$baseUrl/users/$username/logout';
-  final response = await http.post(
-    Uri.parse(uri),
-  );
+  Uri url = Uri.parse('$baseUrl/users/$username/logout');
+  final response = await http.post(url);
   if (response.statusCode == 200) {
     return 'Logout successful';
   } else {
@@ -282,6 +277,7 @@ Future<List<Chat>> postMessageByRideId(rideId, message) async {
 }
 
 processResponse(Response response) {
+  NavigationService navigationService = NavigationService();
   switch (response.statusCode) {
     case 200:
       {
@@ -299,7 +295,13 @@ processResponse(Response response) {
       {
         throw Exception('Unauthorised');
       }
-      case 403: { }
+    case 403:
+      {
+        print(response.body);
+        print('Login session not active');
+        // getIt<AuthState>().logout();
+        navigationService.routeTo('/login');
+      }
     case 404:
       {
         throw Exception("Not Found");

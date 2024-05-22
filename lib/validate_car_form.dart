@@ -1,7 +1,7 @@
 import 'package:fe/api.dart';
 import 'package:flutter/material.dart';
 import 'classes/user_class.dart';
-import "./auth_provider.dart";
+import "package:fe/auth_provider.dart";
 import 'package:provider/provider.dart';
 
 class ValidateCarFrom extends StatefulWidget {
@@ -27,7 +27,7 @@ class _ValidateCarFormState extends State<ValidateCarFrom> {
   void _validateVehicleDetails() async {
     var regNumber = _regNumberController.text;
     final provider = Provider.of<AuthState>(context, listen: false);
-    final currUser = provider.userInfo;
+    final currUser = await fetchUserByUsername(provider.userInfo.username);
     dynamic carData;
     await fetchCarDetails(regNumber).then((res) {
       carData = res;
@@ -53,11 +53,9 @@ class _ValidateCarFormState extends State<ValidateCarFrom> {
           driver_verification_status: true,
           car: carDetails);
       final patchedUser = await patchUser(userData);
-      final futureUser = fetchUserByUsername(patchedUser.username);
-      futureUser.then((user) {
-        context.read<AuthState>().setUser(user);
+      // final futureUser = await fetchUserByUsername(patchedUser.username);
+      //   context.read<AuthState>().setUser(futureUser);
         Navigator.of(context).pushNamed('/profile');
-      });
     } else {
       Navigator.of(context).pushNamed('/');
     }

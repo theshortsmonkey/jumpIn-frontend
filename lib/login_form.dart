@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import './api.dart';
-import "./auth_provider.dart";
+import 'package:fe/api.dart';
+import "package:fe/auth_provider.dart";
 import 'package:provider/provider.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -29,7 +29,7 @@ class _LoginFormState extends State<LoginForm> {
       final futureUser = await postLogin(
           _usernameTextController.text, _passwordTextController.text);
       final provider = Provider.of<AuthState>(context, listen: false);
-      provider.setUser(futureUser);
+      provider.setActiveSession(futureUser);
       setState(() {
         _isLoginSuccesful = true;
       });

@@ -21,7 +21,7 @@ class ChatCard extends StatefulWidget {
 }
 
 class _ChatCardState extends State<ChatCard> {
-  User? currUser;
+  ActiveSession? currUser;
   final _msgTextController = TextEditingController();
   List<Chat> _rideChats = [];
   User? _driver;
@@ -42,14 +42,14 @@ class _ChatCardState extends State<ChatCard> {
     String otherUsersName;
     if (_rideChats.isEmpty) {
       driver = await fetchUserByUsername(widget.driverUsername);
-      rider = currUser;
+      rider = await fetchUserByUsername(currUser!.username);
       _rideChats = const [Chat()];
     } else {
       driver = await fetchUserByUsername(_rideChats[0].driver);
       rider = await fetchUserByUsername(_rideChats[0].rider);
     }
     if (driver.username == currUser!.username) {
-      otherUsersName = rider!.username;
+      otherUsersName = rider.username;
     } else {
       otherUsersName = driver.username;
     }

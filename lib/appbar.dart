@@ -1,7 +1,8 @@
-// import 'dart:ffi';
 import 'package:fe/api.dart';
+import 'package:fe/navigation_service.dart';
+import 'package:fe/service_locator.dart';
 import 'package:flutter/material.dart';
-import "./auth_provider.dart";
+import "package:fe/auth_provider.dart";
 import 'package:provider/provider.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -16,35 +17,36 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool disableAllRidesButton;
   final bool isLoggedIn;
 
-  const CustomAppBar({
-    super.key,
-    required this.title,
-    required this.context,
-    this.disableDefaultUserButton = false,
-    this.disableProfileButton = false,
-    this.disableLoginButton = false,
-    this.disableMailboxButton = false,
-    this.disableMainPageButton = false,
-    this.disablePostRideButton = false,
-    this.disableAllRidesButton = false,
-    this.isLoggedIn = false
-  });
+  const CustomAppBar(
+      {super.key,
+      required this.title,
+      required this.context,
+      this.disableDefaultUserButton = false,
+      this.disableProfileButton = false,
+      this.disableLoginButton = false,
+      this.disableMailboxButton = false,
+      this.disableMainPageButton = false,
+      this.disablePostRideButton = false,
+      this.disableAllRidesButton = false,
+      this.isLoggedIn = false});
 
   void _setDefaultUser() async {
-    
-      final futureUser = await postLogin(
-          'testUsername4', 'testPassword4');
-    final userState = Provider.of<AuthState>(context, listen:false);
-    userState.setUser(futureUser);
+    final futureUser = await postLogin('testUsername4', 'testPassword4');
+    final userState = Provider.of<AuthState>(context, listen: false);
+    userState.setActiveSession(futureUser);
+    // final locator = NavigationService();
+    // locator.routeTo('/profile');
     Navigator.of(context).pushNamed('/profile');
   }
 
   void _navigateToPage(String page) {
     Navigator.of(context).pushNamed('/$page');
+    // locator<NavigationService>().routeTo('/$page');
   }
 
   void _handleLogout() {
     context.read<AuthState>().logout();
+    // locator<NavigationService>().routeTo('/login');
     Navigator.of(context).pushNamed('/');
   }
 
@@ -73,7 +75,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 ),
               ),
             ),
-          ), 
+          ),
         ),
       ),
       title: Text(title),
@@ -85,49 +87,46 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             tooltip: 'Login default user',
           ),
         isLoggedIn
-          ? Row(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.drive_eta),
-                onPressed: disableAllRidesButton
-                  ? null
-                  : () => _navigateToPage('allrides'),
+            ? Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.drive_eta),
+                    onPressed: disableAllRidesButton
+                        ? null
+                        : () => _navigateToPage('allrides'),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.navigation_rounded),
+                    onPressed: disablePostRideButton
+                        ? null
+                        : () => _navigateToPage('postride'),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.account_box_outlined),
+                    onPressed: disableProfileButton
+                        ? null
+                        : () => _navigateToPage('profile'),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.mail),
+                    onPressed: disableMailboxButton
+                        ? null
+                        : () => _navigateToPage('inbox'),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.logout),
+                    onPressed: _handleLogout,
+                  ),
+                ],
+              )
+            : IconButton(
+                icon: const Icon(Icons.login),
+                onPressed:
+                    disableLoginButton ? null : () => _navigateToPage('login'),
               ),
-              IconButton(
-                icon: const Icon(Icons.navigation_rounded),
-                onPressed: disablePostRideButton
-                  ? null
-                  : () => _navigateToPage('postride'),
-              ),
-              IconButton(
-                icon: const Icon(Icons.account_box_outlined),
-                onPressed: disableProfileButton 
-                  ? null
-                  : () => _navigateToPage('profile'),
-              ),
-              IconButton (
-                icon: const Icon(Icons.mail),
-                onPressed: disableMailboxButton
-                  ? null
-                  : () => _navigateToPage('inbox'),
-              ),
-              IconButton(
-                icon: const Icon(Icons.logout),
-                onPressed: _handleLogout,
-              ),
-            ],
-          )
-          : IconButton(
-              icon: const Icon(Icons.login),
-              onPressed: disableLoginButton 
-              ? null
-              : () => _navigateToPage('login'),
-            ),
         IconButton(
           icon: const Icon(Icons.home_outlined),
-          onPressed: disableMainPageButton 
-          ? null
-          : () => _navigateToPage(''),
+          onPressed: disableMainPageButton ? null : () => _navigateToPage(''),
         ),
       ],
     );
@@ -136,4 +135,3 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
-
