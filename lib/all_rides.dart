@@ -1,10 +1,10 @@
 import 'package:fe/appbar.dart';
-import 'package:fe/background.dart';
+import 'package:fe/utils/background.dart';
 import 'package:fe/login_page.dart';
 import 'package:flutter/material.dart';
 import './ride_card.dart';
 import './classes/ride_class.dart';
-import './api.dart';
+import 'utils/api.dart';
 import 'package:provider/provider.dart';
 import "./auth_provider.dart";
 

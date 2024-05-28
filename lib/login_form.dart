@@ -1,9 +1,9 @@
-import 'package:fe/animated_progress_indicator.dart';
 import 'package:flutter/material.dart';
-import 'package:fe/api.dart';
-import "package:fe/auth_provider.dart";
-import 'package:provider/provider.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
+import "package:fe/auth_provider.dart";
+import 'package:fe/utils/animated_progress_indicator.dart';
+import 'package:fe/utils/api.dart';
 
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});

@@ -1,5 +1,5 @@
 import 'package:fe/appbar.dart';
-import 'package:fe/background.dart';
+import 'package:fe/utils/background.dart';
 import 'package:fe/chat_card.dart';
 import 'package:fe/classes/chat_class.dart';
 import 'package:fe/classes/message_class.dart';
@@ -9,7 +9,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
-import './api.dart';
+import 'utils/api.dart';
 import 'package:provider/provider.dart';
 import "./auth_provider.dart";
 import 'package:flutter/material.dart';

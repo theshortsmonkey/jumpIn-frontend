@@ -1,5 +1,5 @@
 import 'package:fe/appbar.dart';
-import 'package:fe/background.dart';
+import 'package:fe/utils/background.dart';
 import 'package:flutter/material.dart';
 import "./auth_provider.dart";
 import 'package:provider/provider.dart';

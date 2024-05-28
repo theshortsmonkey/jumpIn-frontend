@@ -1,69 +1,72 @@
-
 import 'package:flutter/material.dart';
-import './api.dart';
-import "./auth_provider.dart";
 import 'package:provider/provider.dart';
+import "package:fe/auth_provider.dart";
+import 'package:fe/utils/api.dart';
 
-class UploadImageForm extends StatefulWidget {
-  const UploadImageForm({super.key});
+class UploadProfilePicForm extends StatefulWidget {
+  const UploadProfilePicForm({super.key});
 
   @override
-  State<UploadImageForm> createState() => _UploadImageForm();
+  State<UploadProfilePicForm> createState() => _UploadProfilePicForm();
 }
 
-class _UploadImageForm extends State<UploadImageForm> {
+class _UploadProfilePicForm extends State<UploadProfilePicForm> {
   final _imageUrlController = TextEditingController();
   String _imageUrl = '';
   bool _isWebImage = false;
-  
-  void _handleUploadPic() async {  
+
+  void _handleUploadPic() async {
     try {
-    final currUser = context.read<AuthState>().userInfo;
-      await uploadUserProfilePic(currUser.username,_imageUrlController.text);
+      final currUser = context.read<AuthState>().userInfo;
+      await uploadUserProfilePic(currUser.username, _imageUrlController.text);
       await Future.delayed(const Duration(seconds: 1), () async {
         imageCache.clear();
         imageCache.clearLiveImages();
         Navigator.of(context).pushNamed('/profile');
-    });
+      });
     } catch (e) {
       print(e);
     }
   }
-  ImageProvider? _setImage () {
+
+  ImageProvider? _setImage() {
     ImageProvider? profilePic;
-    _isWebImage 
-                  ? _imageUrl != '' ? profilePic = NetworkImage(_imageUrl): null
-                  : _imageUrl != '' ? profilePic = AssetImage(_imageUrl): null;
+    _isWebImage
+        ? _imageUrl != ''
+            ? profilePic = NetworkImage(_imageUrl)
+            : null
+        : _imageUrl != ''
+            ? profilePic = AssetImage(_imageUrl)
+            : null;
     return profilePic;
   }
+
   @override
   Widget build(BuildContext context) {
-    return 
-    Form(
+    return Form(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text('Upload a new profile picture', style: Theme.of(context).textTheme.headlineMedium),
+          Text('Upload a new profile picture',
+              style: Theme.of(context).textTheme.headlineMedium),
           Padding(
             padding: const EdgeInsets.all(8),
             child: TextFormField(
               controller: _imageUrlController,
-              decoration: const InputDecoration(labelText: 'image url/filepath'),
+              decoration:
+                  const InputDecoration(labelText: 'image url/filepath'),
               onChanged: (value) {
-              setState(() {
-                _imageUrlController.text.startsWith('http') 
-                ? _isWebImage = true 
-                : _isWebImage = false;
-                _imageUrl = _imageUrlController.text;
-              });
+                setState(() {
+                  _imageUrlController.text.startsWith('http')
+                      ? _isWebImage = true
+                      : _isWebImage = false;
+                  _imageUrl = _imageUrlController.text;
+                });
               },
             ),
           ),
-              const SizedBox(height: 40),
-              CircleAvatar(
-                radius: 70,
-                backgroundImage: _setImage()
-              ),
+          const SizedBox(height: 40),
+          CircleAvatar(radius: 70, backgroundImage: _setImage()),
           TextButton(
             style: ButtonStyle(
               foregroundColor: MaterialStateProperty.resolveWith((states) {

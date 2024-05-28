@@ -1,15 +1,15 @@
+import 'package:flutter/material.dart';
 import 'package:fe/all_rides.dart';
-import 'package:fe/edit_profile_page.dart';
+import 'package:fe/user/edit_profile_page.dart';
 import 'package:fe/homepage.dart';
 import 'package:fe/login_page.dart';
 import 'package:fe/post_ride_page.dart';
-import 'package:fe/profile_page.dart';
-import 'package:fe/sign_up_page.dart';
+import 'package:fe/user/profile_page.dart';
+import 'package:fe/user/sign_up_page.dart';
 import 'package:fe/single_ride_by_id.dart';
-import 'package:fe/upload_profile_pic.dart';
-import 'package:fe/validate_car.dart';
-import 'package:fe/validate_licence.dart';
-import 'package:flutter/material.dart';
+import 'package:fe/user/upload_profile_pic_page.dart';
+import 'package:fe/user/validate_car_page.dart';
+import 'package:fe/user/validate_licence_page.dart';
 
 class RouteGenerator {
 
@@ -39,7 +39,7 @@ class RouteGenerator {
         return MaterialPageRoute(builder: (context) => const EditProfilePage());
         
       case '/uploadProfilePic':
-        return MaterialPageRoute(builder: (context) => const UploadProfilePic());
+        return MaterialPageRoute(builder: (context) => const UploadProfilePicPage());
         
       case '/validatelicence':
         return MaterialPageRoute(builder: (context) => const ValidateLicencePage());

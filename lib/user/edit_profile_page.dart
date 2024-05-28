@@ -1,10 +1,10 @@
-import 'package:fe/background.dart';
-import 'package:fe/login_page.dart';
 import 'package:flutter/material.dart';
-import './sign_up_form.dart';
-import "./appbar.dart";
 import 'package:provider/provider.dart';
-import "./auth_provider.dart";
+import 'package:fe/auth_provider.dart';
+import 'package:fe/appbar.dart';
+import 'package:fe/utils/background.dart';
+import 'package:fe/user/profile_details_form.dart';
+import 'package:fe/login_page.dart';
 
 class EditProfilePage extends StatelessWidget {
   const EditProfilePage({super.key});
@@ -25,7 +25,7 @@ class EditProfilePage extends StatelessWidget {
                   child: SizedBox(
                     width: 400,
                     child: Card(
-                      child: (SignUpForm(submitType: 'patch')),
+                      child: (ProfileDetailsForm(submitType: 'patch')),
                     ),
                   ),
                 ),

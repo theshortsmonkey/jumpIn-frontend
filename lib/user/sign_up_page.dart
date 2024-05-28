@@ -1,7 +1,7 @@
-import 'package:fe/appbar.dart';
-import 'package:fe/background.dart';
 import 'package:flutter/material.dart';
-import './sign_up_form.dart';
+import 'package:fe/appbar.dart';
+import 'package:fe/utils/background.dart';
+import 'package:fe/user/profile_details_form.dart';
 
 class SignUpPage extends StatelessWidget {
   const SignUpPage({super.key});
@@ -19,7 +19,7 @@ class SignUpPage extends StatelessWidget {
             child: SizedBox(
               width: 400,
               child: Card(
-                child: (SignUpForm(submitType: 'post')),
+                child: (ProfileDetailsForm(submitType: 'post')),
               ),
             ),
           ),

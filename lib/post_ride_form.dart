@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:fe/classes/ride_class.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'dart:async';
-import 'package:fe/api.dart';
+import 'package:fe/utils/api.dart';
 import "package:fe/auth_provider.dart";
 import 'package:provider/provider.dart';
 
@@ -34,18 +34,27 @@ class _PostRideFormState extends State<PostRideForm> {
   double _priceProgress = 0;
   bool isPriceLoading = false;
   TimeOfDay _rideTime = TimeOfDay.now();
-  ActiveSession? _currUser;
-  dynamic carDetails;
+  ActiveSession _currUser = const ActiveSession();
+  dynamic _carDetails;
 
   @override
   void initState() {
     super.initState();
-    final provider = Provider.of<AuthState>(context, listen: false);
-    _currUser = provider.userInfo;
+    final userState = Provider.of<AuthState>(context, listen: false);
+    _currUser = userState.userInfo;
+    if (userState.isAuthorized) {_getCarDetails();}
+  }
+
+  Future<void> _getCarDetails() async {
+    final userData = await fetchUserByUsername(_currUser.username);
+    setState(() {
+      _carDetails = userData.car;
+    });
+
   }
 
   void _postRide() async {
-    final co2 = carDetails['co2Emissions'];
+    final co2 = _carDetails['co2Emissions'];
 
     final rideData = Ride(
       to: _endPointTextController.text,
@@ -79,13 +88,13 @@ class _PostRideFormState extends State<PostRideForm> {
     ]).then((results) {
       final startPoint = results[0];
       final endPoint = results[1];
-      if (carDetails == null) {
+      if (_carDetails == null) {
         throw Exception('Car details not found');
       }
-      final fuelType = carDetails["fuelType"];
+      final fuelType = _carDetails["fuelType"];
 
       final co2 =
-          carDetails["co2Emissions"]; // I AM AN INTEGER emissions in g/km
+          _carDetails["co2Emissions"]; // I AM AN INTEGER emissions in g/km
       final fuelPriceFuture = fetchFuelPrice(fuelType);
 
       // Handle the results of all completed futures
@@ -189,7 +198,7 @@ class _PostRideFormState extends State<PostRideForm> {
     final viewWidth = screenWidth * pixelRatio;
 
     return Scaffold(
-      body: _currUser!.isDriver
+      body: _currUser.isDriver
           ? Form(
               onChanged: _updateFormProgress, // NEW
               child: SingleChildScrollView(

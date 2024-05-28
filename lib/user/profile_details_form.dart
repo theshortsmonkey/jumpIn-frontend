@@ -1,20 +1,20 @@
-import 'package:fe/animated_progress_indicator.dart';
-import 'package:fe/api.dart';
 import 'package:flutter/material.dart';
-import 'classes/user_class.dart';
-import 'package:email_validator/email_validator.dart';
-import "package:fe/auth_provider.dart";
 import 'package:provider/provider.dart';
+import "package:fe/auth_provider.dart";
+import 'package:fe/classes/user_class.dart';
+import 'package:fe/utils/animated_progress_indicator.dart';
+import 'package:fe/utils/api.dart';
+import 'package:email_validator/email_validator.dart';
 
-class SignUpForm extends StatefulWidget {
+class ProfileDetailsForm extends StatefulWidget {
   final String submitType;
-  const SignUpForm({super.key, required this.submitType});
+  const ProfileDetailsForm({super.key, required this.submitType});
 
   @override
-  State<SignUpForm> createState() => _SignUpFormState();
+  State<ProfileDetailsForm> createState() => _ProfileDetailsFormState();
 }
 
-class _SignUpFormState extends State<SignUpForm> {
+class _ProfileDetailsFormState extends State<ProfileDetailsForm> {
   TextEditingController _firstNameTextController = TextEditingController(text: '');
   TextEditingController _lastNameTextController = TextEditingController(text: '');
   TextEditingController _usernameTextController = TextEditingController(text: '');

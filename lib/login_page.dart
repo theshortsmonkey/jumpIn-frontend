@@ -1,10 +1,10 @@
-import 'package:fe/appbar.dart';
-import 'package:fe/background.dart';
-import 'package:fe/profile_page.dart';
 import 'package:flutter/material.dart';
-import './login_form.dart';
 import 'package:provider/provider.dart';
-import "./auth_provider.dart";
+import "package:fe/auth_provider.dart";
+import 'package:fe/appbar.dart';
+import 'package:fe/utils/background.dart';
+import 'package:fe/user/profile_page.dart';
+import 'package:fe/login_form.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});

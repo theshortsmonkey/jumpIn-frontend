@@ -1,8 +1,8 @@
-import 'package:fe/background.dart';
+import 'package:fe/utils/background.dart';
 import 'package:flutter/material.dart';
 import './user_card.dart';
 import 'classes/user_class.dart';
-import './api.dart';
+import 'utils/api.dart';
 
 class GetUser extends StatefulWidget {
   const GetUser({super.key});

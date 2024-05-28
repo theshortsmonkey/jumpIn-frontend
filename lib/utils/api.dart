@@ -1,15 +1,14 @@
 import 'dart:convert';
 import 'package:enhanced_http/enhanced_http.dart';
 import 'package:fe/auth_provider.dart';
-import 'package:fe/main.dart';
 import 'package:fe/navigation_service.dart';
 import 'package:fe/service_locator.dart';
 import 'package:flutter/material.dart';
-import 'classes/ride_class.dart';
-import 'classes/message_class.dart';
-import 'classes/chat_class.dart';
+import '../classes/ride_class.dart';
+import '../classes/message_class.dart';
+import '../classes/chat_class.dart';
 import 'dart:async';
-import "classes/user_class.dart";
+import "../classes/user_class.dart";
 import "package:http/http.dart" as http;
 
 EnhancedHttp httpEnhanced = EnhancedHttp(baseURL: 'http://localhost:1337');

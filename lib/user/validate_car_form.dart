@@ -1,24 +1,21 @@
-import 'package:fe/animated_progress_indicator.dart';
-import 'package:fe/api.dart';
 import 'package:flutter/material.dart';
-import 'classes/user_class.dart';
-import "./auth_provider.dart";
 import 'package:provider/provider.dart';
+import "package:fe/auth_provider.dart";
+import 'package:fe/classes/user_class.dart';
+import 'package:fe/utils/animated_progress_indicator.dart';
+import 'package:fe/utils/api.dart';
 
-class ValidateLicenceForm extends StatefulWidget {
-  const ValidateLicenceForm({super.key});
+class ValidateCarForm extends StatefulWidget {
+  const ValidateCarForm({super.key});
 
   @override
-  State<ValidateLicenceForm> createState() => _ValidateLicenceFormState();
+  State<ValidateCarForm> createState() => _ValidateCarFormState();
 }
 
-class _ValidateLicenceFormState extends State<ValidateLicenceForm> {
-  final _licenceNumberController = TextEditingController(text: '');
-  final _codeController = TextEditingController(text: '');
+class _ValidateCarFormState extends State<ValidateCarForm> {
+  final _regNumberController = TextEditingController(text: '');
   final _passwordTextController = TextEditingController(text: '');
   User _currUser = const User();
-  bool _isCodeValid = true;
-  bool _isLicenceValid = true;
   double _formProgress = 0;
   bool _isPasswordValid = true;
   bool _isPasswordObscured = true;
@@ -37,26 +34,44 @@ class _ValidateLicenceFormState extends State<ValidateLicenceForm> {
     }
   }
 
-  void _handleFormSubmit() async {
-    final userData = User(
-        firstName: _currUser.firstName,
-        lastName: _currUser.lastName,
-        username: _currUser.username,
-        email: _currUser.email,
-        password: _passwordTextController.text,
-        phoneNumber: _currUser.phoneNumber,
-        bio: _currUser.bio,
-        identity_verification_status: true,
-        driver_verification_status: _currUser.driver_verification_status,
-        car: _currUser.car,
-        reports: _currUser.reports);
-    await patchUser(userData);
-    Navigator.of(context).pushNamed('/profile');
+  void _validateVehicleDetails() async {
+    dynamic carData;
+    await fetchCarDetails(_regNumberController.text).then((res) {
+      carData = res;
+    });
+    if (carData["taxStatus"] == "Taxed") {
+      final carDetails = {
+        "make": carData["make"],
+        "reg": carData["registrationNumber"],
+        "colour": carData["colour"],
+        "tax_due_date": carData["taxDueDate"],
+        "fuelType": carData["fuelType"],
+        "co2Emissions": carData["co2Emissions"]
+      };
+      var userData = User(
+          firstName: _currUser.firstName,
+          lastName: _currUser.lastName,
+          username: _currUser.username,
+          email: _currUser.email,
+          password: _passwordTextController.text,
+          phoneNumber: _currUser.phoneNumber,
+          bio: _currUser.bio,
+          identity_verification_status: _currUser.identity_verification_status,
+          driver_verification_status: true,
+          car: carDetails,
+          reports: _currUser.reports);
+      await patchUser(userData);
+      Navigator.of(context).pushNamed('/profile');
+    } else {
+      Navigator.of(context).pushNamed('/');
+    }
   }
 
   void _updateFormProgress() {
     var progress = 0.0;
-    final controllers = [_licenceNumberController, _codeController];
+    final controllers = [
+      _regNumberController,
+    ];
 
     for (final controller in controllers) {
       if (controller.value.text.isNotEmpty) {
@@ -74,17 +89,17 @@ class _ValidateLicenceFormState extends State<ValidateLicenceForm> {
       _isPasswordObscured = !_isPasswordObscured;
     });
   }
-  
+
   @override
   Widget build(BuildContext context) {
-    String titleText = 'Validate Licence';
+    String titleText = 'Validate Your Car';
     return Form(
       onChanged: _updateFormProgress,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            'Enter your license details to validate your license',
+            'Enter your car registration to validate your vehicle',
             style: Theme.of(context).textTheme.headlineMedium,
             textAlign: TextAlign.center,
           ),
@@ -92,36 +107,10 @@ class _ValidateLicenceFormState extends State<ValidateLicenceForm> {
           Padding(
             padding: const EdgeInsets.all(8),
             child: TextFormField(
-              controller: _licenceNumberController,
-              decoration: InputDecoration(
-                labelText: 'Licence Number',
-                errorText:
-                    _isLicenceValid ? null : 'Enter a valid UK licence number',
+              controller: _regNumberController,
+              decoration: const InputDecoration(
+                labelText: 'Reg Number',
               ),
-              onChanged: (value) {
-                final RegExp regex = RegExp(
-                    r'[A-Z0-9]{5}\d[0156]\d([0][1-9]|[12]\d|3[01])\d[A-Z0-9]{3}[A-Z]{2}');
-                setState(() {
-                  _isLicenceValid = regex.hasMatch(value);
-                });
-              },
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8),
-            child: TextFormField(
-              controller: _codeController,
-              decoration: InputDecoration(
-                labelText: 'Verification code',
-                errorText:
-                    _isCodeValid ? null : 'Enter a valid verification code',
-              ),
-              onChanged: (value) {
-                final RegExp regex = RegExp(r'[a-zA-Z0-9]{1,8}');
-                setState(() {
-                  _isCodeValid = regex.hasMatch(value);
-                });
-              },
             ),
           ),
           Padding(
@@ -159,10 +148,10 @@ class _ValidateLicenceFormState extends State<ValidateLicenceForm> {
               backgroundColor: MaterialStateProperty.resolveWith((states) {
                 return states.contains(MaterialState.disabled)
                     ? null
-                    : const Color.fromARGB(255, 129, 142, 153);
+                    : Colors.blue;
               }),
             ),
-            onPressed: _formProgress > 0.99 ? _handleFormSubmit : null,
+            onPressed: _formProgress > 0.99 ? _validateVehicleDetails : null,
             child: Text(titleText),
           ),
         ],
@@ -170,4 +159,3 @@ class _ValidateLicenceFormState extends State<ValidateLicenceForm> {
     );
   }
 }
-
