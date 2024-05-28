@@ -22,21 +22,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
   ActiveSession _currUser = const ActiveSession();
   User _userData = const User();
   String _imgUrl = '';
+  bool _loading = true;
 
   @override
   void initState() {
     super.initState();
-    final userState = Provider.of<AuthState>(context, listen: false);
-    _currUser = userState.userInfo;
-    _imgUrl = "http://localhost:1337/users/${_currUser.username}/image";
-    if (userState.isAuthorized) { _getUserInfo(); }
+    _getUserInfo();
   }
 
   Future<void> _getUserInfo() async {
-    final userData = await fetchUserByUsername(_currUser.username);
-    setState(() {
-      _userData = userData;
-    });
+    try {
+      final userState = Provider.of<AuthState>(context, listen: false);
+      final activeUser = await userState.checkActiveSession();
+      userState.setActiveSession(activeUser);
+      _currUser = userState.userInfo;
+      _imgUrl = "http://localhost:1337/users/${_currUser.username}/image";
+      final userData = await fetchUserByUsername(_currUser.username);
+      setState(() {
+        _userData = userData;
+        _loading = false;
+      });
+    } catch (e) {
+      debugPrint(e.toString());
+      setState(() {
+        _loading = false;
+      });
+    }
   }
 
   void _handleDelete() async {
@@ -60,141 +71,161 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return context.read<AuthState>().isAuthorized
+    return _loading
         ? Scaffold(
             appBar: CustomAppBar(
               title: 'jumpIn - Your Account',
               context: context,
               disableProfileButton: true,
             ),
-            body: ContainerWithBackgroundImage(
-              child: _isDeleted
-                  ? Center(
-                      child: SingleChildScrollView(
-                        child: SizedBox(
-                          width: 400,
-                          child: Column(
-                            children: [
-                              itemProfile('Account Deleted', '',
-                                  CupertinoIcons.person_badge_minus)
-                            ],
-                          ),
-                        ),
-                      ),
-                    )
-                  : Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: SingleChildScrollView(
-                        child: Column(children: [
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                                onPressed: () {
-                                  Navigator.of(context)
-                                      .pushNamed('/editprofile');
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  padding: const EdgeInsets.all(15),
-                                ),
-                                child: const Text('Edit Profile')),
-                          ),
-                          const SizedBox(height: 10),
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                                onPressed: () {
-                                  Navigator.of(context)
-                                      .pushNamed('/uploadProfilePic');
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  padding: const EdgeInsets.all(15),
-                                ),
-                                child: const Text('Upload Profile Picture')),
-                          ),
-                          const SizedBox(height: 20),
-                          Container(
-                            padding: const EdgeInsets.all(7),
-                            decoration: BoxDecoration(
-                              color:
-                                  _currUser.isDriver ? Colors.green : Colors.amberAccent,
-                              shape: BoxShape.circle,
-                            ),
-                            child: CircleAvatar(
-                              radius: 70,
-                              backgroundImage: NetworkImage(_imgUrl),
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          itemProfile('Username', _userData.username,
-                              CupertinoIcons.location),
-                          const SizedBox(height: 10),
-                          itemProfile(
-                              'First Name, Last Name',
-                              '${_userData.firstName}, ${_userData.lastName}',
-                              CupertinoIcons.person),
-                          const SizedBox(height: 10),
-                          itemProfile('Email', '${_userData.email}',
-                              CupertinoIcons.mail),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          itemProfile('Phone', '${_userData.phoneNumber}',
-                              CupertinoIcons.phone),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          itemProfile('Bio', '${_userData.bio}',
-                              CupertinoIcons.profile_circled),
-                          const SizedBox(height: 20),
-                          _userData.identity_verification_status
-                              ? itemProfile(
-                                  'Licence valid: ',
-                                  '${_userData.identity_verification_status}',
-                                  CupertinoIcons.check_mark)
-                              : SizedBox(
-                                  width: double.infinity,
-                                  child: ElevatedButton(
-                                      onPressed: () {
-                                        Navigator.of(context)
-                                            .pushNamed('/validatelicence');
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        padding: const EdgeInsets.all(15),
-                                      ),
-                                      child: const Text('Validate Licence')),
-                                ),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          _userData.car.isNotEmpty
-                              ? carBox(_userData.car)
-                              : SizedBox(
-                                  width: double.infinity,
-                                  child: ElevatedButton(
-                                      onPressed: () {
-                                        Navigator.of(context)
-                                            .pushNamed('/validatecar');
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        padding: const EdgeInsets.all(15),
-                                      ),
-                                      child: const Text('Validate vehicle')),
-                                ),
-                          const SizedBox(height: 20),
-                          SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton(
-                                  onPressed: _handleDelete,
-                                  style: ElevatedButton.styleFrom(
-                                    padding: const EdgeInsets.all(15),
+            body: const CircularProgressIndicator())
+        : context.read<AuthState>().isAuthorized
+            ? Scaffold(
+                appBar: CustomAppBar(
+                  title: 'jumpIn - Your Account',
+                  context: context,
+                  disableProfileButton: true,
+                ),
+                body: _loading
+                    ? const CircularProgressIndicator()
+                    : ContainerWithBackgroundImage(
+                        child: _isDeleted
+                            ? Center(
+                                child: SingleChildScrollView(
+                                  child: SizedBox(
+                                    width: 400,
+                                    child: Column(
+                                      children: [
+                                        itemProfile('Account Deleted', '',
+                                            CupertinoIcons.person_badge_minus)
+                                      ],
+                                    ),
                                   ),
-                                  child: Text(_deleteButtonText))),
-                        ]),
+                                ),
+                              )
+                            : Padding(
+                                padding: const EdgeInsets.all(20),
+                                child: SingleChildScrollView(
+                                  child: Column(children: [
+                                    SizedBox(
+                                      width: double.infinity,
+                                      child: ElevatedButton(
+                                          onPressed: () {
+                                            Navigator.of(context)
+                                                .pushNamed('/editprofile');
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            padding: const EdgeInsets.all(15),
+                                          ),
+                                          child: const Text('Edit Profile')),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    SizedBox(
+                                      width: double.infinity,
+                                      child: ElevatedButton(
+                                          onPressed: () {
+                                            Navigator.of(context)
+                                                .pushNamed('/uploadProfilePic');
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            padding: const EdgeInsets.all(15),
+                                          ),
+                                          child: const Text(
+                                              'Upload Profile Picture')),
+                                    ),
+                                    const SizedBox(height: 20),
+                                    Container(
+                                      padding: const EdgeInsets.all(7),
+                                      decoration: BoxDecoration(
+                                        color: _currUser.isDriver
+                                            ? Colors.green
+                                            : Colors.amberAccent,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: CircleAvatar(
+                                        radius: 70,
+                                        backgroundImage: NetworkImage(_imgUrl),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 20),
+                                    itemProfile('Username', _userData.username,
+                                        CupertinoIcons.location),
+                                    const SizedBox(height: 10),
+                                    itemProfile(
+                                        'First Name, Last Name',
+                                        '${_userData.firstName}, ${_userData.lastName}',
+                                        CupertinoIcons.person),
+                                    const SizedBox(height: 10),
+                                    itemProfile('Email', '${_userData.email}',
+                                        CupertinoIcons.mail),
+                                    const SizedBox(
+                                      height: 20,
+                                    ),
+                                    itemProfile(
+                                        'Phone',
+                                        '${_userData.phoneNumber}',
+                                        CupertinoIcons.phone),
+                                    const SizedBox(
+                                      height: 20,
+                                    ),
+                                    itemProfile('Bio', '${_userData.bio}',
+                                        CupertinoIcons.profile_circled),
+                                    const SizedBox(height: 20),
+                                    _userData.identity_verification_status
+                                        ? itemProfile(
+                                            'Licence valid: ',
+                                            '${_userData.identity_verification_status}',
+                                            CupertinoIcons.check_mark)
+                                        : SizedBox(
+                                            width: double.infinity,
+                                            child: ElevatedButton(
+                                                onPressed: () {
+                                                  Navigator.of(context)
+                                                      .pushNamed(
+                                                          '/validatelicence');
+                                                },
+                                                style: ElevatedButton.styleFrom(
+                                                  padding:
+                                                      const EdgeInsets.all(15),
+                                                ),
+                                                child: const Text(
+                                                    'Validate Licence')),
+                                          ),
+                                    const SizedBox(
+                                      height: 20,
+                                    ),
+                                    _userData.car != null
+                                        ? carBox(_userData.car)
+                                        : SizedBox(
+                                            width: double.infinity,
+                                            child: ElevatedButton(
+                                                onPressed: () {
+                                                  Navigator.of(context)
+                                                      .pushNamed(
+                                                          '/validatecar');
+                                                },
+                                                style: ElevatedButton.styleFrom(
+                                                  padding:
+                                                      const EdgeInsets.all(15),
+                                                ),
+                                                child: const Text(
+                                                    'Validate vehicle')),
+                                          ),
+                                    const SizedBox(height: 20),
+                                    SizedBox(
+                                        width: double.infinity,
+                                        child: ElevatedButton(
+                                            onPressed: _handleDelete,
+                                            style: ElevatedButton.styleFrom(
+                                              padding: const EdgeInsets.all(15),
+                                            ),
+                                            child: Text(_deleteButtonText))),
+                                  ]),
+                                ),
+                              ),
                       ),
-                    ),
-            ),
-          )
-        : const LoginPage();
+              )
+            : const LoginPage();
   }
 
   carBox(car) {

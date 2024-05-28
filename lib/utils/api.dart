@@ -3,7 +3,6 @@ import 'package:enhanced_http/enhanced_http.dart';
 import 'package:fe/auth_provider.dart';
 import 'package:fe/navigation_service.dart';
 import 'package:fe/service_locator.dart';
-import 'package:flutter/material.dart';
 import '../classes/ride_class.dart';
 import '../classes/message_class.dart';
 import '../classes/chat_class.dart';
@@ -112,7 +111,6 @@ Future<User> patchUser(user) async {
 Future<ActiveSession> getCurrentSession() async {
   Uri url = Uri.parse('$baseUrl/users/currentUser');
   final response = await http.get(url);
-  print(response.statusCode);
   final user = ActiveSession.fromJson(
       jsonDecode(processResponse(response)) as Map<String, dynamic>);
   return user;

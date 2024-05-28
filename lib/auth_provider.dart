@@ -36,16 +36,14 @@ class AuthState extends ChangeNotifier {
     return _user.username.isNotEmpty;
   }
 
-  void checkActiveSession() async {
+  Future<ActiveSession> checkActiveSession() async {
     try {
       final user = await getCurrentSession();
       print('active session');
-      _user = user;
-      notifyListeners();
+      return user;
     } catch (e) {
       print('no active user');
-      _user = const ActiveSession();
-      notifyListeners();
+      return const ActiveSession();
     }
-  }
+  } 
 }

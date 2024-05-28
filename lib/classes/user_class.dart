@@ -23,7 +23,7 @@ class User {
   this.bio,
   this.identity_verification_status = false,
   this.driver_verification_status = false,
-  this.car = const [],
+  this.car,
   this.password,
   this.reports = const []
   });
