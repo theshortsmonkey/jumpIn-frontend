@@ -90,11 +90,12 @@ Future<User> fetchUserByUsername(username) async {
 }
 
 Future<User> postUser(user) async {
-  print('test');
+  Uri url = Uri.parse('$baseUrl/users');
   String json = jsonEncode(user);
-  final response = await http.post(Uri.parse('http://localhost:1337/users'),
+  final response = await http.post(url,
       headers: {"Content-Type": "application/json"}, body: json);
-  var result = User.fromJson(jsonDecode(processResponse(response)) as Map<String, dynamic>);
+  var result = User.fromJson(
+      jsonDecode(processResponse(response)) as Map<String, dynamic>);
   return result;
 }
 
@@ -113,7 +114,8 @@ Future<ActiveSession> getCurrentSession() async {
   Uri url = Uri.parse('$baseUrl/users/currentUser');
   final response = await http.get(url);
   print(response.statusCode);
-  final user = ActiveSession.fromJson(jsonDecode(processResponse(response)) as Map<String, dynamic>);
+  final user = ActiveSession.fromJson(
+      jsonDecode(processResponse(response)) as Map<String, dynamic>);
   return user;
 }
 
@@ -122,25 +124,15 @@ Future<ActiveSession> postLogin(String username, String password) async {
   Uri url = Uri.parse('$baseUrl/users/$username/login');
   final response = await http.post(url,
       headers: {"Content-Type": "application/json"}, body: bodyJson);
-  if (response.statusCode == 200) {
-    final user = ActiveSession.fromJson(
-        jsonDecode(response.body) as Map<String, dynamic>);
-    return user;
-  } else if (response.statusCode == 401) {
-    throw Exception('Unauthorised');
-  } else {
-    throw Exception("User not found");
-  }
+  final user = ActiveSession.fromJson(
+      jsonDecode(processResponse(response)) as Map<String, dynamic>);
+  return user;
 }
 
-Future<String> postLogout(String username) async {
+Future<void> postLogout(String username) async {
   Uri url = Uri.parse('$baseUrl/users/$username/logout');
   final response = await http.post(url);
-  if (response.statusCode == 200) {
-    return 'Logout successful';
-  } else {
-    throw Exception("Logout failed");
-  }
+  processResponse(response);
 }
 
 Future<List> fetchLatLong(place) async {
@@ -172,16 +164,6 @@ Future<String?> uploadUserProfilePic(String username, String filePath) async {
     return 'good';
   } else {
     return 'bad';
-  }
-}
-
-Future deleteRide(rideId) async {
-  final url = Uri.parse('$baseUrl/rides/$rideId');
-  final response = await http.delete(url);
-  if (response.statusCode == 200) {
-    return null;
-  } else {
-    throw Exception("Failed to delete user account");
   }
 }
 
@@ -236,9 +218,18 @@ Future<Ride> postRide(ride) async {
   String json = jsonEncode(ride);
   final response = await http.post(url,
       headers: {"Content-Type": "application/json"}, body: json);
-  final result = Ride.fromJson(
-      jsonDecode(processResponse(response)) as Map<String, dynamic>);
-  return result;
+  List<Ride> result = processResponse(response).map<Ride>((item) {
+    return Ride.fromJson(item as Map<String, dynamic>);
+  }).toList();
+  // final result = Ride.fromJson(
+  // jsonDecode(processResponse(response)) as Map<String, dynamic>);
+  return result[0];
+}
+
+Future<void> deleteRide(rideId) async {
+  Uri url = Uri.parse('$baseUrl/rides/$rideId');
+  final response = await http.delete(url);
+  processResponse(response);
 }
 
 Future<Ride> patchRideById(rideId, patchDetails) async {
@@ -306,8 +297,9 @@ processResponse(Response response) {
       {
         throw Exception("Not Found");
       }
-
     default:
-      {}
+      {
+        throw Exception("Un-handled response");
+      }
   }
 }

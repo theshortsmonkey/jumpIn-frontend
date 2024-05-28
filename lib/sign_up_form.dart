@@ -1,3 +1,4 @@
+import 'package:fe/animated_progress_indicator.dart';
 import 'package:fe/api.dart';
 import 'package:flutter/material.dart';
 import 'classes/user_class.dart';
@@ -59,7 +60,7 @@ class _SignUpFormState extends State<SignUpForm> {
   double _formProgress = 0;
   bool _doesUserExist = false;
 
-  void _showWelcomeScreen() async {
+  void _handleSubmit() async {
     final userData = User(
         firstName: _firstNameTextController.text,
         lastName: _lastNameTextController.text,
@@ -70,16 +71,15 @@ class _SignUpFormState extends State<SignUpForm> {
         bio: _bioController.text,
         identity_verification_status: _currUser.identity_verification_status,
         driver_verification_status: _currUser.driver_verification_status,
-        car: _currUser.car);
+        // car: _currUser.car
+        );
     if (widget.submitType == 'post') {
       setState(() {
         _doesUserExist = false;
       });
       try {
-        final postedUser = await postUser(userData);
-        // final futureUser = await fetchUserByUsername(postedUser.username);
-        // context.read<AuthState>().setUser(futureUser);
-        Navigator.of(context).pushNamed('/profile');
+        await postUser(userData);
+        Navigator.of(context).pushNamed('/login',arguments: {'message':'Account created, please login'});
       } catch (e) {
         print(e);
         setState(() {
@@ -248,7 +248,7 @@ class _SignUpFormState extends State<SignUpForm> {
                     : Colors.blue;
               }),
             ),
-            onPressed: _formProgress > 0.99 ? _showWelcomeScreen : null,
+            onPressed: _formProgress > 0.99 ? _handleSubmit : null,
             child: Text(titleText),
           ),
           _doesUserExist
@@ -256,72 +256,6 @@ class _SignUpFormState extends State<SignUpForm> {
                   style: Theme.of(context).textTheme.bodyLarge)
               : const Text(''),
         ],
-      ),
-    );
-  }
-}
-
-class AnimatedProgressIndicator extends StatefulWidget {
-  final double value;
-
-  const AnimatedProgressIndicator({
-    super.key,
-    required this.value,
-  });
-
-  @override
-  State<AnimatedProgressIndicator> createState() {
-    return _AnimatedProgressIndicatorState();
-  }
-}
-
-class _AnimatedProgressIndicatorState extends State<AnimatedProgressIndicator>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<Color?> _colorAnimation;
-  late Animation<double> _curveAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 1200),
-      vsync: this,
-    );
-
-    final colorTween = TweenSequence([
-      TweenSequenceItem(
-        tween: ColorTween(begin: Colors.red, end: Colors.orange),
-        weight: 1,
-      ),
-      TweenSequenceItem(
-        tween: ColorTween(begin: Colors.orange, end: Colors.yellow),
-        weight: 1,
-      ),
-      TweenSequenceItem(
-        tween: ColorTween(begin: Colors.yellow, end: Colors.green),
-        weight: 1,
-      ),
-    ]);
-
-    _colorAnimation = _controller.drive(colorTween);
-    _curveAnimation = _controller.drive(CurveTween(curve: Curves.easeIn));
-  }
-
-  @override
-  void didUpdateWidget(oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    _controller.animateTo(widget.value);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) => LinearProgressIndicator(
-        value: _curveAnimation.value,
-        valueColor: _colorAnimation,
-        backgroundColor: _colorAnimation.value?.withOpacity(0.4),
       ),
     );
   }

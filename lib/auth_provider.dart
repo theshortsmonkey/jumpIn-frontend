@@ -20,7 +20,6 @@ class ActiveSession {
 
 class AuthState extends ChangeNotifier {
   ActiveSession _user = const ActiveSession();
-  // User _user = const User();
   ActiveSession get userInfo => _user;
   void setActiveSession(ActiveSession user) {
     _user = user;

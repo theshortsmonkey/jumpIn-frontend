@@ -11,6 +11,10 @@ class LoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    dynamic args;
+    (ModalRoute.of(context)?.settings.arguments != null)
+        ? args = ModalRoute.of(context)?.settings.arguments as Map
+        : args = {'message': null};
     return context.read<AuthState>().isAuthorized
         ? const ProfileScreen()
         : Scaffold(
@@ -19,13 +23,32 @@ class LoginPage extends StatelessWidget {
               context: context,
               disableLoginButton: true,
             ),
-            body: const ContainerWithBackgroundImage(
+            body: ContainerWithBackgroundImage(
               child: Center(
-                child: SizedBox(
-                  width: 400,
-                  child: Card(
-                    child: (LoginForm()),
-                  ),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 40),
+                    (args['message'] != null)
+                        ? ContainerWithBackgroundColor(
+                            child: Text(
+                              args['message'],
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontSize: 24,
+                              ),
+                            ),
+                          )
+                        : const SizedBox.shrink(),
+                    const SizedBox(height: 40),
+                    const Center(
+                      child: SizedBox(
+                        width: 400,
+                        child: Card(
+                          child: (LoginForm()),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),

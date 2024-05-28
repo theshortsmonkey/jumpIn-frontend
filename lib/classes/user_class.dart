@@ -23,9 +23,9 @@ class User {
   this.bio,
   this.identity_verification_status = false,
   this.driver_verification_status = false,
-  this.car,
+  this.car = const [],
   this.password,
-  this.reports
+  this.reports = const []
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -56,7 +56,7 @@ Map<String, dynamic> toJson() => {
         'email': email,
         "phoneNumber" : phoneNumber,
         "bio": bio,
-        // "password": password,
+        "password": password,
         "identity_verification_status" : identity_verification_status,
         "driver_verification_status" : driver_verification_status,
         "car" : car,
