@@ -1,12 +1,12 @@
 import 'package:fe/background.dart';
-
-import './login_page.dart';
+import 'package:fe/classes/user_class.dart';
+import 'package:fe/login_page.dart';
+import "package:fe/auth_provider.dart";
+import 'package:fe/api.dart';
+import "package:fe/appbar.dart";
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
-import "./auth_provider.dart";
-import './api.dart';
-import "./appbar.dart";
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -16,29 +16,32 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  bool isDriver = false;
   bool _isDeleted = false;
   bool _areYouSure = false;
   String _deleteButtonText = 'Delete your account';
-  dynamic userData;
-  String imgUrl = '';
+  ActiveSession _currUser = const ActiveSession();
+  User _userData = const User();
+  String _imgUrl = '';
+
   @override
   void initState() {
     super.initState();
-    final provider = Provider.of<AuthState>(context, listen: false);
-    userData = provider.userInfo;
-    if (userData.identity_verification_status &&
-        userData.driver_verification_status) {
-      isDriver = true;
-    }
+    final userState = Provider.of<AuthState>(context, listen: false);
+    _currUser = userState.userInfo;
+    _imgUrl = "http://localhost:1337/users/${_currUser.username}/image";
+    if (userState.isAuthorized) { _getUserInfo(); }
+  }
 
-    userData = context.read<AuthState>().userInfo;
-    imgUrl = "http://localhost:1337/users/${userData.username}/image";
+  Future<void> _getUserInfo() async {
+    final userData = await fetchUserByUsername(_currUser.username);
+    setState(() {
+      _userData = userData;
+    });
   }
 
   void _handleDelete() async {
     if (_areYouSure) {
-      deleteUser(userData);
+      deleteUser(_userData);
       setState(() {
         _isDeleted = true;
       });
@@ -113,40 +116,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             padding: const EdgeInsets.all(7),
                             decoration: BoxDecoration(
                               color:
-                                  isDriver ? Colors.green : Colors.amberAccent,
+                                  _currUser.isDriver ? Colors.green : Colors.amberAccent,
                               shape: BoxShape.circle,
                             ),
                             child: CircleAvatar(
                               radius: 70,
-                              backgroundImage: NetworkImage(imgUrl),
+                              backgroundImage: NetworkImage(_imgUrl),
                             ),
                           ),
                           const SizedBox(height: 20),
-                          itemProfile(
-                              'Name Lastname',
-                              '${userData.firstName} ${userData.lastName}',
-                              CupertinoIcons.person),
-                          const SizedBox(height: 10),
-                          itemProfile('Username', '${userData.username}',
+                          itemProfile('Username', _userData.username,
                               CupertinoIcons.location),
                           const SizedBox(height: 10),
-                          itemProfile('Email', '${userData.email}',
+                          itemProfile(
+                              'First Name, Last Name',
+                              '${_userData.firstName}, ${_userData.lastName}',
+                              CupertinoIcons.person),
+                          const SizedBox(height: 10),
+                          itemProfile('Email', '${_userData.email}',
                               CupertinoIcons.mail),
                           const SizedBox(
                             height: 20,
                           ),
-                          itemProfile('Phone', '${userData.phoneNumber}',
+                          itemProfile('Phone', '${_userData.phoneNumber}',
                               CupertinoIcons.phone),
                           const SizedBox(
                             height: 20,
                           ),
-                          itemProfile('Bio', '${userData.bio}',
+                          itemProfile('Bio', '${_userData.bio}',
                               CupertinoIcons.profile_circled),
                           const SizedBox(height: 20),
-                          userData.identity_verification_status
+                          _userData.identity_verification_status
                               ? itemProfile(
                                   'Licence valid: ',
-                                  '${userData.identity_verification_status}',
+                                  '${_userData.identity_verification_status}',
                                   CupertinoIcons.check_mark)
                               : SizedBox(
                                   width: double.infinity,
@@ -163,8 +166,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           const SizedBox(
                             height: 20,
                           ),
-                          userData.car != null
-                              ? carBox(userData.car)
+                          _userData.car.isNotEmpty
+                              ? carBox(_userData.car)
                               : SizedBox(
                                   width: double.infinity,
                                   child: ElevatedButton(

@@ -124,9 +124,9 @@ Future<ActiveSession> postLogin(String username, String password) async {
   Uri url = Uri.parse('$baseUrl/users/$username/login');
   final response = await http.post(url,
       headers: {"Content-Type": "application/json"}, body: bodyJson);
-  final user = ActiveSession.fromJson(
+  final result = ActiveSession.fromJson(
       jsonDecode(processResponse(response)) as Map<String, dynamic>);
-  return user;
+  return result;
 }
 
 Future<void> postLogout(String username) async {
@@ -145,26 +145,17 @@ Future<List> fetchLatLong(place) async {
   return latLong;
 }
 
-Future<User?> deleteUser(user) async {
-  final uri = Uri.parse("http://localhost:1337/users/${user.username}");
+Future<void> deleteUser(user) async {
+  final uri = Uri.parse("$baseUrl/users/${user.username}");
   final response = await http.delete(uri);
-
-  if (response.statusCode == 200) {
-    return null;
-  } else {
-    throw Exception("Failed to delete user account");
-  }
+  processResponse(response);
 }
 
-Future<String?> uploadUserProfilePic(String username, String filePath) async {
-  final response = await http.post(
-      Uri.parse('http://localhost:1337/users/$username/image'),
-      body: jsonEncode({'filePath': filePath}));
-  if (response.statusCode == 201) {
-    return 'good';
-  } else {
-    return 'bad';
-  }
+Future<void> uploadUserProfilePic(String username, String filePath) async {
+  Uri url = Uri.parse('$baseUrl/users/$username/image');
+  final response =
+      await http.post(url, body: jsonEncode({'filePath': filePath}));
+  return processResponse(response);
 }
 
 Future fetchDistance(waypoints) async {

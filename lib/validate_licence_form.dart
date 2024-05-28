@@ -1,3 +1,4 @@
+import 'package:fe/animated_progress_indicator.dart';
 import 'package:fe/api.dart';
 import 'package:flutter/material.dart';
 import 'classes/user_class.dart';
@@ -5,57 +6,57 @@ import "./auth_provider.dart";
 import 'package:provider/provider.dart';
 
 class ValidateLicenceForm extends StatefulWidget {
-  final String submitType;
-  const ValidateLicenceForm({super.key, required this.submitType});
+  const ValidateLicenceForm({super.key});
 
   @override
   State<ValidateLicenceForm> createState() => _ValidateLicenceFormState();
 }
 
 class _ValidateLicenceFormState extends State<ValidateLicenceForm> {
-  var _licenceNumberController = TextEditingController(text: '');
-  var _codeController = TextEditingController(text: '');
-  @override
-  void initState () {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-    _licenceNumberController = TextEditingController();
-    _codeController = TextEditingController();
-    setState(() {});
-    });
-  }
-
+  final _licenceNumberController = TextEditingController(text: '');
+  final _codeController = TextEditingController(text: '');
+  final _passwordTextController = TextEditingController(text: '');
+  User _currUser = const User();
   bool _isCodeValid = true;
   bool _isLicenceValid = true;
   double _formProgress = 0;
+  bool _isPasswordValid = true;
+  bool _isPasswordObscured = true;
 
-  void _showWelcomeScreen() async {
-    final provider = Provider.of<AuthState>(context, listen:false);
-    final currUser = await fetchUserByUsername(provider.userInfo.username);
+  @override
+  void initState() {
+    super.initState();
+    _setCurrUser();
+  }
+
+  Future<void> _setCurrUser() async {
+    final provider = Provider.of<AuthState>(context, listen: false);
+    if (provider.userInfo.username != '') {
+      _currUser = await fetchUserByUsername(provider.userInfo.username);
+      setState(() {});
+    }
+  }
+
+  void _handleFormSubmit() async {
     final userData = User(
-      firstName: currUser.firstName,
-      lastName: currUser.lastName,
-      username: currUser.username,
-      email: currUser.email,
-      password: currUser.password,
-      phoneNumber: currUser.phoneNumber,
-      bio: currUser.bio,
-      identity_verification_status: true,
-      driver_verification_status: currUser.driver_verification_status,
-      car:currUser.car
-    );
-      final patchedUser = await patchUser(userData);
-      // final futureUser = await fetchUserByUsername(patchedUser.username);
-      //   context.read<AuthState>().setUser(futureUser);
-        Navigator.of(context).pushNamed('/profile');
+        firstName: _currUser.firstName,
+        lastName: _currUser.lastName,
+        username: _currUser.username,
+        email: _currUser.email,
+        password: _passwordTextController.text,
+        phoneNumber: _currUser.phoneNumber,
+        bio: _currUser.bio,
+        identity_verification_status: true,
+        driver_verification_status: _currUser.driver_verification_status,
+        car: _currUser.car,
+        reports: _currUser.reports);
+    await patchUser(userData);
+    Navigator.of(context).pushNamed('/profile');
   }
 
   void _updateFormProgress() {
     var progress = 0.0;
-    final controllers = [
-      _licenceNumberController,
-      _codeController
-    ];
+    final controllers = [_licenceNumberController, _codeController];
 
     for (final controller in controllers) {
       if (controller.value.text.isNotEmpty) {
@@ -68,6 +69,12 @@ class _ValidateLicenceFormState extends State<ValidateLicenceForm> {
     });
   }
 
+  void _setIsPasswordObscured() {
+    setState(() {
+      _isPasswordObscured = !_isPasswordObscured;
+    });
+  }
+  
   @override
   Widget build(BuildContext context) {
     String titleText = 'Validate Licence';
@@ -81,38 +88,66 @@ class _ValidateLicenceFormState extends State<ValidateLicenceForm> {
             style: Theme.of(context).textTheme.headlineMedium,
             textAlign: TextAlign.center,
           ),
-          AnimatedProgressIndicator(value: _formProgress), 
+          AnimatedProgressIndicator(value: _formProgress),
           Padding(
             padding: const EdgeInsets.all(8),
             child: TextFormField(
               controller: _licenceNumberController,
               decoration: InputDecoration(
                 labelText: 'Licence Number',
-                errorText: _isLicenceValid ? null : 'Enter a valid UK licence number', 
-                ),
+                errorText:
+                    _isLicenceValid ? null : 'Enter a valid UK licence number',
+              ),
               onChanged: (value) {
-                final RegExp regex = RegExp(r'[A-Z0-9]{5}\d[0156]\d([0][1-9]|[12]\d|3[01])\d[A-Z0-9]{3}[A-Z]{2}');
+                final RegExp regex = RegExp(
+                    r'[A-Z0-9]{5}\d[0156]\d([0][1-9]|[12]\d|3[01])\d[A-Z0-9]{3}[A-Z]{2}');
                 setState(() {
                   _isLicenceValid = regex.hasMatch(value);
                 });
               },
             ),
           ),
-            Padding(
+          Padding(
             padding: const EdgeInsets.all(8),
             child: TextFormField(
               controller: _codeController,
               decoration: InputDecoration(
                 labelText: 'Verification code',
-                errorText: _isCodeValid ? null : 'Enter a valid verification code', 
-                ),
-                onChanged: (value) {
+                errorText:
+                    _isCodeValid ? null : 'Enter a valid verification code',
+              ),
+              onChanged: (value) {
                 final RegExp regex = RegExp(r'[a-zA-Z0-9]{1,8}');
                 setState(() {
                   _isCodeValid = regex.hasMatch(value);
                 });
               },
             ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8),
+            child: TextFormField(
+                obscureText: _isPasswordObscured,
+                controller: _passwordTextController,
+                decoration: InputDecoration(
+                    labelText: 'Enter you current password to make edits',
+                    suffixIcon: IconButton(
+                      icon: Icon(_isPasswordObscured
+                          ? Icons.visibility
+                          : Icons.visibility_off),
+                      onPressed: _setIsPasswordObscured,
+                    ),
+                    errorMaxLines: 3,
+                    errorText: _isPasswordValid
+                        ? null
+                        : "Enter valid password: At least one lowercase letter, one uppercase letter, one digit, one special character '`@!%*?&', at least 8 characters"),
+                onChanged: (value) {
+                  final RegExp regex = RegExp(
+                      r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@!%*?&t])[A-Za-z\d@$!%*?&]{8,}$');
+                  setState(() {
+                    _isPasswordValid = regex.hasMatch(value);
+                  });
+                }),
           ),
           TextButton(
             style: ButtonStyle(
@@ -124,11 +159,10 @@ class _ValidateLicenceFormState extends State<ValidateLicenceForm> {
               backgroundColor: MaterialStateProperty.resolveWith((states) {
                 return states.contains(MaterialState.disabled)
                     ? null
-                    : Colors.blue;
+                    : const Color.fromARGB(255, 129, 142, 153);
               }),
             ),
-            onPressed:
-            _formProgress > 0.99 ? _showWelcomeScreen : null,
+            onPressed: _formProgress > 0.99 ? _handleFormSubmit : null,
             child: Text(titleText),
           ),
         ],
@@ -137,69 +171,3 @@ class _ValidateLicenceFormState extends State<ValidateLicenceForm> {
   }
 }
 
-class AnimatedProgressIndicator extends StatefulWidget {
-  final double value;
-
-  const AnimatedProgressIndicator({
-    super.key,
-    required this.value,
-  });
-
-  @override
-  State<AnimatedProgressIndicator> createState() {
-    return _AnimatedProgressIndicatorState();
-  }
-}
-
-class _AnimatedProgressIndicatorState extends State<AnimatedProgressIndicator>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<Color?> _colorAnimation;
-  late Animation<double> _curveAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 1200),
-      vsync: this,
-    );
-
-    final colorTween = TweenSequence([
-      TweenSequenceItem(
-        tween: ColorTween(begin: Colors.red, end: Colors.orange),
-        weight: 1,
-      ),
-      TweenSequenceItem(
-        tween: ColorTween(begin: Colors.orange, end: Colors.yellow),
-        weight: 1,
-      ),
-      TweenSequenceItem(
-        tween: ColorTween(begin: Colors.yellow, end: Colors.green),
-        weight: 1,
-      ),
-    ]);
-
-    _colorAnimation = _controller.drive(colorTween);
-    _curveAnimation = _controller.drive(CurveTween(curve: Curves.easeIn));
-  }
-
-  @override
-  void didUpdateWidget(oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    _controller.animateTo(widget.value);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) => LinearProgressIndicator(
-        value: _curveAnimation.value,
-        valueColor: _colorAnimation,
-        backgroundColor: _colorAnimation.value?.withOpacity(0.4),
-      ),
-    );
-
-  }
-}

@@ -11,7 +11,6 @@ class UploadImageForm extends StatefulWidget {
   State<UploadImageForm> createState() => _UploadImageForm();
 }
 
-
 class _UploadImageForm extends State<UploadImageForm> {
   final _imageUrlController = TextEditingController();
   String _imageUrl = '';
@@ -22,8 +21,6 @@ class _UploadImageForm extends State<UploadImageForm> {
     final currUser = context.read<AuthState>().userInfo;
       await uploadUserProfilePic(currUser.username,_imageUrlController.text);
       await Future.delayed(const Duration(seconds: 1), () async {
-        final futureUser = await fetchUserByUsername(currUser.username);
-        // context.read<AuthState>().setUser(futureUser);
         imageCache.clear();
         imageCache.clearLiveImages();
         Navigator.of(context).pushNamed('/profile');
@@ -84,28 +81,6 @@ class _UploadImageForm extends State<UploadImageForm> {
             child: const Text('Upload image'),
           ),
         ],
-      ),
-    );
-  }
-itemProfile(String title, String subtitle, IconData iconData) {
-    return Container(
-      decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
-          boxShadow: [
-            BoxShadow(
-                offset: const Offset(0, 5),
-                color: Colors.deepOrange.withOpacity(.2),
-                spreadRadius: 2,
-                blurRadius: 10
-            )
-          ]
-      ),
-      child: ListTile(
-        title: Text(title),
-        subtitle: Text(subtitle),
-        leading: Icon(iconData),
-        tileColor: Colors.white,
       ),
     );
   }

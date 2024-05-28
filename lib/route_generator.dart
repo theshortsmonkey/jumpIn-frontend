@@ -14,8 +14,6 @@ import 'package:flutter/material.dart';
 class RouteGenerator {
 
   static Route<dynamic> generateRoutes(RouteSettings settings) {
-    print('route settings');
-    print(settings);
     switch(settings.name) {
       case '/':
         return MaterialPageRoute(settings: settings, builder: (context) => const MyHomePage(title:"jumpIn"));
@@ -23,21 +21,19 @@ class RouteGenerator {
         return MaterialPageRoute(settings: settings, builder: (context) => const SignUpPage());
 
       case '/login':
-      print('in login route');
         return MaterialPageRoute(settings: settings, builder: (context) => const LoginPage());
         
       case '/profile':
-      print('in profile route');
         return MaterialPageRoute(settings: settings, builder: (context) => const ProfileScreen());
         
       case '/postride':
-        return MaterialPageRoute(builder: (context) => const PostRidePage());
+        return MaterialPageRoute(settings: settings, builder: (context) => const PostRidePage());
         
       case '/allrides':
-        return MaterialPageRoute(builder: (context) => const GetRide());
+        return MaterialPageRoute(settings: settings, builder: (context) => const GetRide());
         
       case '/singleride':
-        return MaterialPageRoute(builder: (context) => const SingleRideByID());
+        return MaterialPageRoute(settings: settings, builder: (context) => const SingleRideByID());
 
       case '/editprofile':
         return MaterialPageRoute(builder: (context) => const EditProfilePage());
@@ -52,7 +48,6 @@ class RouteGenerator {
         return MaterialPageRoute(builder: (context) => const ValidateCarPage());
         
       default:
-        // return MaterialPageRoute(builder: (context) => const MyHomePage(title:"jumpIn"));
         return MaterialPageRoute(
             builder: (_) => Scaffold(
                   body: Center(

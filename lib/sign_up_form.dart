@@ -15,13 +15,13 @@ class SignUpForm extends StatefulWidget {
 }
 
 class _SignUpFormState extends State<SignUpForm> {
-  var _firstNameTextController = TextEditingController(text: '');
-  var _lastNameTextController = TextEditingController(text: '');
-  var _usernameTextController = TextEditingController(text: '');
-  var _passwordTextController = TextEditingController(text: '');
-  var _emailTextController = TextEditingController(text: '');
-  var _phoneNumberController = TextEditingController(text: '');
-  var _bioController = TextEditingController(text: '');
+  TextEditingController _firstNameTextController = TextEditingController(text: '');
+  TextEditingController _lastNameTextController = TextEditingController(text: '');
+  TextEditingController _usernameTextController = TextEditingController(text: '');
+  final _passwordTextController = TextEditingController(text: '');
+  TextEditingController _emailTextController = TextEditingController(text: '');
+  TextEditingController _phoneNumberController = TextEditingController(text: '');
+  TextEditingController _bioController = TextEditingController(text: '');
   User _currUser = const User();
 
   @override
@@ -41,8 +41,6 @@ class _SignUpFormState extends State<SignUpForm> {
             TextEditingController(text: _currUser.lastName);
         _usernameTextController =
             TextEditingController(text: _currUser.username);
-        _passwordTextController =
-            TextEditingController(text: _currUser.password);
         _emailTextController = TextEditingController(text: _currUser.email);
         _phoneNumberController =
             TextEditingController(text: _currUser.phoneNumber);
@@ -71,7 +69,8 @@ class _SignUpFormState extends State<SignUpForm> {
         bio: _bioController.text,
         identity_verification_status: _currUser.identity_verification_status,
         driver_verification_status: _currUser.driver_verification_status,
-        // car: _currUser.car
+        car: _currUser.car,
+        reports: _currUser.reports
         );
     if (widget.submitType == 'post') {
       setState(() {
@@ -87,11 +86,14 @@ class _SignUpFormState extends State<SignUpForm> {
         });
       }
     } else {
-      final patchedUser = await patchUser(userData);
-        // final futureUser = await fetchUserByUsername(patchedUser.username);
-        // context.read<AuthState>().setUser(futureUser);
+      try {
+        await patchUser(userData);
         Navigator.of(context).pushNamed('/profile');
-      // });
+      } catch (e) {
+        print(e);
+        setState(() {
+        });
+      }
     }
   }
 
@@ -140,6 +142,7 @@ class _SignUpFormState extends State<SignUpForm> {
           Padding(
             padding: const EdgeInsets.all(8),
             child: TextFormField(
+              enabled: widget.submitType == 'post', 
               controller: _usernameTextController,
               decoration: InputDecoration(
                   labelText: 'Username',
@@ -206,10 +209,19 @@ class _SignUpFormState extends State<SignUpForm> {
           Padding(
             padding: const EdgeInsets.all(8),
             child: TextFormField(
+              controller: _bioController,
+              decoration: const InputDecoration(labelText: 'Bio'),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8),
+            child: TextFormField(
                 obscureText: _isPasswordObscured,
                 controller: _passwordTextController,
                 decoration: InputDecoration(
-                    labelText: 'Password',
+                    labelText: widget.submitType == 'post' 
+                    ? 'Password'
+                    : 'Enter you current password to make edits',
                     suffixIcon: IconButton(
                       icon: Icon(_isPasswordObscured
                           ? Icons.visibility
@@ -227,13 +239,6 @@ class _SignUpFormState extends State<SignUpForm> {
                     _isPasswordValid = regex.hasMatch(value);
                   });
                 }),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8),
-            child: TextFormField(
-              controller: _bioController,
-              decoration: const InputDecoration(labelText: 'Bio'),
-            ),
           ),
           TextButton(
             style: ButtonStyle(

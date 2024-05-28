@@ -24,7 +24,7 @@ class ValidateLicencePage extends StatelessWidget {
                   child: SizedBox(
                     width: 400,
                     child: Card(
-                      child: (ValidateLicenceForm(submitType: 'patch')),
+                      child: (ValidateLicenceForm()),
                     ),
                   ),
                 ),

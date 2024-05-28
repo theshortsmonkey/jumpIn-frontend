@@ -24,7 +24,7 @@ class ValidateCarPage extends StatelessWidget {
                   child: SizedBox(
                     width: 400,
                     child: Card(
-                      child: (ValidateCarFrom(submitType: 'patch')),
+                      child: (ValidateCarForm()),
                     ),
                   ),
                 ),

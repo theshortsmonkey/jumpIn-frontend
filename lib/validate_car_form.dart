@@ -1,35 +1,42 @@
+import 'package:fe/animated_progress_indicator.dart';
 import 'package:fe/api.dart';
 import 'package:flutter/material.dart';
 import 'classes/user_class.dart';
 import "package:fe/auth_provider.dart";
 import 'package:provider/provider.dart';
 
-class ValidateCarFrom extends StatefulWidget {
-  final String submitType;
-  const ValidateCarFrom({super.key, required this.submitType});
+class ValidateCarForm extends StatefulWidget {
+  const ValidateCarForm({super.key});
 
   @override
-  State<ValidateCarFrom> createState() => _ValidateCarFormState();
+  State<ValidateCarForm> createState() => _ValidateCarFormState();
 }
 
-class _ValidateCarFormState extends State<ValidateCarFrom> {
-  var _regNumberController = TextEditingController(text: '');
+class _ValidateCarFormState extends State<ValidateCarForm> {
+  final _regNumberController = TextEditingController(text: '');
+  final _passwordTextController = TextEditingController(text: '');
+  User _currUser = const User();
+  double _formProgress = 0;
+  bool _isPasswordValid = true;
+  bool _isPasswordObscured = true;
+
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      _regNumberController = TextEditingController();
-    });
+    _setCurrUser();
   }
 
-  double _formProgress = 0;
+  Future<void> _setCurrUser() async {
+    final provider = Provider.of<AuthState>(context, listen: false);
+    if (provider.userInfo.username != '') {
+      _currUser = await fetchUserByUsername(provider.userInfo.username);
+      setState(() {});
+    }
+  }
 
   void _validateVehicleDetails() async {
-    var regNumber = _regNumberController.text;
-    final provider = Provider.of<AuthState>(context, listen: false);
-    final currUser = await fetchUserByUsername(provider.userInfo.username);
     dynamic carData;
-    await fetchCarDetails(regNumber).then((res) {
+    await fetchCarDetails(_regNumberController.text).then((res) {
       carData = res;
     });
     if (carData["taxStatus"] == "Taxed") {
@@ -42,20 +49,19 @@ class _ValidateCarFormState extends State<ValidateCarFrom> {
         "co2Emissions": carData["co2Emissions"]
       };
       var userData = User(
-          firstName: currUser.firstName,
-          lastName: currUser.lastName,
-          username: currUser.username,
-          email: currUser.email,
-          password: currUser.password,
-          phoneNumber: currUser.phoneNumber,
-          bio: currUser.bio,
-          identity_verification_status: currUser.identity_verification_status,
+          firstName: _currUser.firstName,
+          lastName: _currUser.lastName,
+          username: _currUser.username,
+          email: _currUser.email,
+          password: _passwordTextController.text,
+          phoneNumber: _currUser.phoneNumber,
+          bio: _currUser.bio,
+          identity_verification_status: _currUser.identity_verification_status,
           driver_verification_status: true,
-          car: carDetails);
-      final patchedUser = await patchUser(userData);
-      // final futureUser = await fetchUserByUsername(patchedUser.username);
-      //   context.read<AuthState>().setUser(futureUser);
-        Navigator.of(context).pushNamed('/profile');
+          car: carDetails,
+          reports: _currUser.reports);
+      await patchUser(userData);
+      Navigator.of(context).pushNamed('/profile');
     } else {
       Navigator.of(context).pushNamed('/');
     }
@@ -75,6 +81,12 @@ class _ValidateCarFormState extends State<ValidateCarFrom> {
 
     setState(() {
       _formProgress = progress;
+    });
+  }
+
+  void _setIsPasswordObscured() {
+    setState(() {
+      _isPasswordObscured = !_isPasswordObscured;
     });
   }
 
@@ -101,6 +113,31 @@ class _ValidateCarFormState extends State<ValidateCarFrom> {
               ),
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.all(8),
+            child: TextFormField(
+                obscureText: _isPasswordObscured,
+                controller: _passwordTextController,
+                decoration: InputDecoration(
+                    labelText: 'Enter you current password to make edits',
+                    suffixIcon: IconButton(
+                      icon: Icon(_isPasswordObscured
+                          ? Icons.visibility
+                          : Icons.visibility_off),
+                      onPressed: _setIsPasswordObscured,
+                    ),
+                    errorMaxLines: 3,
+                    errorText: _isPasswordValid
+                        ? null
+                        : "Enter valid password: At least one lowercase letter, one uppercase letter, one digit, one special character '`@!%*?&', at least 8 characters"),
+                onChanged: (value) {
+                  final RegExp regex = RegExp(
+                      r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@!%*?&t])[A-Za-z\d@$!%*?&]{8,}$');
+                  setState(() {
+                    _isPasswordValid = regex.hasMatch(value);
+                  });
+                }),
+          ),
           TextButton(
             style: ButtonStyle(
               foregroundColor: MaterialStateProperty.resolveWith((states) {
@@ -118,72 +155,6 @@ class _ValidateCarFormState extends State<ValidateCarFrom> {
             child: Text(titleText),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class AnimatedProgressIndicator extends StatefulWidget {
-  final double value;
-
-  const AnimatedProgressIndicator({
-    super.key,
-    required this.value,
-  });
-
-  @override
-  State<AnimatedProgressIndicator> createState() {
-    return _AnimatedProgressIndicatorState();
-  }
-}
-
-class _AnimatedProgressIndicatorState extends State<AnimatedProgressIndicator>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<Color?> _colorAnimation;
-  late Animation<double> _curveAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 1200),
-      vsync: this,
-    );
-
-    final colorTween = TweenSequence([
-      TweenSequenceItem(
-        tween: ColorTween(begin: Colors.red, end: Colors.orange),
-        weight: 1,
-      ),
-      TweenSequenceItem(
-        tween: ColorTween(begin: Colors.orange, end: Colors.yellow),
-        weight: 1,
-      ),
-      TweenSequenceItem(
-        tween: ColorTween(begin: Colors.yellow, end: Colors.green),
-        weight: 1,
-      ),
-    ]);
-
-    _colorAnimation = _controller.drive(colorTween);
-    _curveAnimation = _controller.drive(CurveTween(curve: Curves.easeIn));
-  }
-
-  @override
-  void didUpdateWidget(oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    _controller.animateTo(widget.value);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) => LinearProgressIndicator(
-        value: _curveAnimation.value,
-        valueColor: _colorAnimation,
-        backgroundColor: _colorAnimation.value?.withOpacity(0.4),
       ),
     );
   }
