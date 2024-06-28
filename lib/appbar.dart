@@ -1,6 +1,4 @@
 import 'package:fe/utils/api.dart';
-import 'package:fe/navigation_service.dart';
-import 'package:fe/service_locator.dart';
 import 'package:flutter/material.dart';
 import "package:fe/auth_provider.dart";
 import 'package:provider/provider.dart';
@@ -31,22 +29,22 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       this.isLoggedIn = false});
 
   void _setDefaultUser() async {
-    final futureUser = await postLogin('testUsername4', 'testPassword4');
-    final userState = Provider.of<AuthState>(context, listen: false);
-    userState.setActiveSession(futureUser);
-    // final locator = NavigationService();
-    // locator.routeTo('/profile');
-    Navigator.of(context).pushNamed('/profile');
+    try {
+      final futureUser = await postLogin('testUsername1', 'testPassword1');
+      final userState = Provider.of<AuthState>(context, listen: false);
+      userState.setActiveSession(futureUser);
+      Navigator.of(context).pushNamed('/profile');
+    } catch (e) {
+      debugPrint(e.toString());
+    }
   }
 
   void _navigateToPage(String page) {
     Navigator.of(context).pushNamed('/$page');
-    // locator<NavigationService>().routeTo('/$page');
   }
 
   void _handleLogout() {
     context.read<AuthState>().logout();
-    // locator<NavigationService>().routeTo('/login');
     Navigator.of(context).pushNamed('/');
   }
 
