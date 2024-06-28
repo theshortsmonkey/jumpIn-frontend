@@ -69,6 +69,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  List<Widget> loadingWidget = const <Widget>[
+    SizedBox(
+      width: 60,
+      height: 60,
+      child: CircularProgressIndicator(),
+    ),
+    Padding(
+      padding: EdgeInsets.only(top: 16),
+      child: Text('Awaiting result...'),
+    ),
+  ];
+
   @override
   Widget build(BuildContext context) {
     return _loading
