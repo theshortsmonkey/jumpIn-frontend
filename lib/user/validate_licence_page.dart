@@ -4,7 +4,7 @@ import "package:fe/auth_provider.dart";
 import 'package:fe/appbar.dart';
 import 'package:fe/utils/background.dart';
 import "package:fe/user/validate_licence_form.dart";
-import 'package:fe/login_page.dart';
+import 'package:fe/user/login_page.dart';
 
 class ValidateLicencePage extends StatelessWidget {
   const ValidateLicencePage({super.key});

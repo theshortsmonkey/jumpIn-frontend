@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fe/all_rides.dart';
 import 'package:fe/user/edit_profile_page.dart';
 import 'package:fe/homepage.dart';
-import 'package:fe/login_page.dart';
+import 'package:fe/user/login_page.dart';
 import 'package:fe/post_ride_page.dart';
 import 'package:fe/user/profile_page.dart';
 import 'package:fe/user/sign_up_page.dart';
