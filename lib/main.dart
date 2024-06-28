@@ -3,16 +3,12 @@ import 'package:provider/provider.dart';
 import "package:fe/auth_provider.dart";
 import 'package:google_fonts/google_fonts.dart';
 import 'package:fe/route_generator.dart';
-import 'package:fe/navigation_service.dart';
-import 'package:fe/service_locator.dart';
 
 void main() {
-  // setupLocator();
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => AuthState()),
-        // other providers
       ],
       child: const MyApp()
       ),
@@ -46,7 +42,6 @@ class MyApp extends StatelessWidget {
           bodyMedium: GoogleFonts.merriweather(),
         )
       ),
-      // navigatorKey: NavigationService().navigatorKey,
       onGenerateRoute: RouteGenerator.generateRoutes,
     );
   }
