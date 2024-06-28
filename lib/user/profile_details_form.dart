@@ -80,7 +80,7 @@ class _ProfileDetailsFormState extends State<ProfileDetailsForm> {
         await postUser(userData);
         Navigator.of(context).pushNamed('/login',arguments: {'message':'Account created, please login'});
       } catch (e) {
-        print(e);
+        debugPrint(e.toString());
         setState(() {
           _doesUserExist = true;
         });
@@ -130,8 +130,12 @@ class _ProfileDetailsFormState extends State<ProfileDetailsForm> {
   Widget build(BuildContext context) {
     String titleText;
     widget.submitType == 'post'
-        ? titleText = 'Enter your details to sign up'
-        : titleText = 'Edit your profile details';
+        ?  _formProgress > 0.99 
+          ? titleText = 'Click to sign up'
+          : titleText = 'Enter your details to sign up'
+        : _formProgress > 0.99 
+          ? titleText = 'Click to sign in'
+          : titleText = 'Edit your profile details';
     return Form(
       onChanged: _updateFormProgress,
       child: Column(
