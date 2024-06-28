@@ -38,11 +38,11 @@ class _LoginFormState extends State<LoginForm> {
         Navigator.of(context).pushNamed('/');
       });
     } on Exception catch (e) {
-      if (e.toString() == "Exception: Unauthorised") {
+      if (e.toString() == "Exception: Exception: Unauthorised") {
         setState(() {
           _isLoginFailed = true;
         });
-      } else if (e.toString() == "Exception: User not found") {
+      } else if (e.toString() == "Exception: Exception: Not Found") {
         setState(() {
           _isUserExist = false;
         });
