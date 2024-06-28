@@ -1,10 +1,7 @@
 import 'dart:convert';
 import 'package:enhanced_http/enhanced_http.dart';
 import 'package:fe/auth_provider.dart';
-import 'package:fe/navigation_service.dart';
-import 'package:fe/service_locator.dart';
 import '../classes/ride_class.dart';
-import '../classes/message_class.dart';
 import '../classes/chat_class.dart';
 import 'dart:async';
 import "../classes/user_class.dart";
@@ -18,6 +15,7 @@ EnhancedHttp httpGeocode =
 EnhancedHttp httpFuel = EnhancedHttp(baseURL: 'https://www.bp.com');
 
 const baseUrl = 'http://localhost:1337';
+const geoapifyUrl = 'https://api.geoapify.com/v1/routing';
 
 Future<List<Ride>> fetchRides(
     {String? to,
@@ -119,11 +117,17 @@ Future<ActiveSession> getCurrentSession() async {
 Future<ActiveSession> postLogin(String username, String password) async {
   final bodyJson = jsonEncode({'password': password});
   Uri url = Uri.parse('$baseUrl/users/$username/login');
+  try {
   final response = await http.post(url,
       headers: {"Content-Type": "application/json"}, body: bodyJson);
   final result = ActiveSession.fromJson(
       jsonDecode(processResponse(response)) as Map<String, dynamic>);
   return result;
+  } on ClientException {
+    throw Exception('server unavailable');
+  } catch (e) {
+    throw Exception(e.toString());
+  }
 }
 
 Future<void> postLogout(String username) async {
@@ -158,7 +162,6 @@ Future<void> uploadUserProfilePic(String username, String filePath) async {
 Future fetchDistance(waypoints) async {
   final response = await httpGeoapify.get(
       '?waypoints=$waypoints&mode=drive&apiKey=9ac318b7da314e00b462f8801c758396');
-  print(response);
   final distance = response['features'][0]['properties']['distance'];
   return distance;
 }
@@ -256,10 +259,10 @@ Future<List<Chat>> postMessageByRideId(rideId, message) async {
 }
 
 processResponse(Response response) {
-  NavigationService navigationService = NavigationService();
   switch (response.statusCode) {
     case 200:
       {
+        print(response.statusCode);
         return response.body;
       }
     case 201:
@@ -278,8 +281,6 @@ processResponse(Response response) {
       {
         print(response.body);
         print('Login session not active');
-        // getIt<AuthState>().logout();
-        navigationService.routeTo('/login');
       }
     case 404:
       {
