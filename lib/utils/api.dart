@@ -1,11 +1,11 @@
 import 'dart:convert';
+import 'dart:async';
+import "package:http/http.dart" as http;
 import 'package:enhanced_http/enhanced_http.dart';
 import 'package:fe/auth_provider.dart';
-import '../classes/ride_class.dart';
-import '../classes/chat_class.dart';
-import 'dart:async';
-import "../classes/user_class.dart";
-import "package:http/http.dart" as http;
+import 'package:fe/classes/ride_class.dart';
+import 'package:fe/classes/chat_class.dart';
+import "package:fe/classes/user_class.dart";
 
 EnhancedHttp httpEnhanced = EnhancedHttp(baseURL: 'http://localhost:1337');
 EnhancedHttp httpGeoapify =
@@ -259,7 +259,6 @@ processResponse(Response response) {
   switch (response.statusCode) {
     case 200:
       {
-        print(response.statusCode);
         return response.body;
       }
     case 201:
