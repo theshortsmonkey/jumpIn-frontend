@@ -38,10 +38,11 @@ class AuthState extends ChangeNotifier {
 
   Future<ActiveSession> checkActiveSession() async {
     try {
-      final user = await getCurrentSession();
-      return user;
+      _user = await getCurrentSession();
+      return _user;
     } catch (e) {
-      return const ActiveSession();
+      _user = const ActiveSession();
+      return _user;
     }
   } 
 }

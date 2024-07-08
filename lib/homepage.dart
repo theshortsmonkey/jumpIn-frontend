@@ -18,7 +18,21 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
+    _checkUserState();
   }
+
+  Future<void> _checkUserState() async {
+    try {
+      final userState = Provider.of<AuthState>(context, listen: false);
+      final activeUser = await userState.checkActiveSession();
+      userState.isAuthorized
+          ? userState.setActiveSession(activeUser)
+          : throw Exception('no active user');
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
 
   void _showLoginPage() {
     Navigator.of(context).pushNamed('/login');
