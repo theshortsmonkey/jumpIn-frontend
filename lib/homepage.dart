@@ -1,8 +1,8 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import "package:fe/auth_provider.dart";
 import 'package:fe/appbar.dart';
 import 'package:fe/utils/background.dart';
-import 'package:flutter/material.dart';
-import "./auth_provider.dart";
-import 'package:provider/provider.dart';
 
 class MyHomePage extends StatefulWidget {
   final String title;

@@ -1,20 +1,19 @@
-import 'package:fe/utils/api.dart';
 import 'package:flutter/material.dart';
+import 'package:fe/utils/api.dart';
 
 class ActiveSession {
   final String username;
   final bool isDriver;
 
-  const ActiveSession ({
+  const ActiveSession({
     this.username = '',
     this.isDriver = false,
   });
 
   factory ActiveSession.fromJson(Map<String, dynamic> json) {
     return ActiveSession(
-      username: json['username'] as String,
-      isDriver: json['isDriver'] as bool
-    );
+        username: json['username'] as String,
+        isDriver: json['isDriver'] as bool);
   }
 }
 
@@ -44,5 +43,5 @@ class AuthState extends ChangeNotifier {
       _user = const ActiveSession();
       return _user;
     }
-  } 
+  }
 }
