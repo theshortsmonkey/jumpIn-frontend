@@ -14,7 +14,8 @@ EnhancedHttp httpGeocode =
     EnhancedHttp(baseURL: 'https://api.geoapify.com/v1/geocode');
 EnhancedHttp httpFuel = EnhancedHttp(baseURL: 'https://www.bp.com');
 
-const baseUrl = 'http://localhost:1337';
+const baseHost = 'localhost:1337';
+const baseUrl = 'http://$baseHost';
 const geoapifyUrl = 'https://api.geoapify.com/v1/routing';
 
 Future<List<Ride>> fetchRides(
@@ -44,9 +45,8 @@ Future<List<Ride>> fetchRides(
     queryParams['carbon_emissions'] = carbonEmissions;
   }
 
-  final url = Uri.http(baseUrl, '/rides', queryParams);
+  final url = Uri.http(baseHost, '/rides', queryParams);
   final response = await http.get(url);
-  // final responseData = json.decode(processResponse(response));
   List<Ride> result = json.decode(processResponse(response)).map<Ride>((item) {
     return Ride.fromJson(item as Map<String, dynamic>);
   }).toList();
@@ -118,11 +118,11 @@ Future<ActiveSession> postLogin(String username, String password) async {
   final bodyJson = jsonEncode({'password': password});
   Uri url = Uri.parse('$baseUrl/users/$username/login');
   try {
-  final response = await http.post(url,
-      headers: {"Content-Type": "application/json"}, body: bodyJson);
-  final result = ActiveSession.fromJson(
-      jsonDecode(processResponse(response)) as Map<String, dynamic>);
-  return result;
+    final response = await http.post(url,
+        headers: {"Content-Type": "application/json"}, body: bodyJson);
+    final result = ActiveSession.fromJson(
+        jsonDecode(processResponse(response)) as Map<String, dynamic>);
+    return result;
   } on ClientException {
     throw Exception('server unavailable');
   } catch (e) {
@@ -210,7 +210,7 @@ Future<Ride> postRide(ride) async {
   final response = await http.post(url,
       headers: {"Content-Type": "application/json"}, body: json);
   final result = Ride.fromJson(
-  jsonDecode(processResponse(response)) as Map<String, dynamic>);
+      jsonDecode(processResponse(response)) as Map<String, dynamic>);
   return result;
 }
 
