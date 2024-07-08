@@ -209,10 +209,6 @@ Future<Ride> postRide(ride) async {
   String json = jsonEncode(ride);
   final response = await http.post(url,
       headers: {"Content-Type": "application/json"}, body: json);
-  print(response.body);
-  // List<Ride> result = processResponse(response).map<Ride>((item) {
-  //   return Ride.fromJson(item as Map<String, dynamic>);
-  // }).toList();
   final result = Ride.fromJson(
   jsonDecode(processResponse(response)) as Map<String, dynamic>);
   return result;

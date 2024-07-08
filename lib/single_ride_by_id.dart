@@ -4,7 +4,7 @@ import 'package:fe/chat_card.dart';
 import 'package:fe/classes/chat_class.dart';
 import 'package:fe/classes/message_class.dart';
 import 'package:fe/classes/ride_class.dart';
-import 'package:fe/login_page.dart';
+import 'package:fe/user/login_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:intl/intl.dart';
@@ -83,7 +83,7 @@ class _SingleRideByIDState extends State<SingleRideByID> {
     final patchDetails = {
       'requestJumpin': currUser.username,
     };
-    await patchRideById(rideData.id, patchDetails);    
+    await patchRideById(rideData.id, patchDetails);
     await _getRideDetails();
   }
 
@@ -94,16 +94,16 @@ class _SingleRideByIDState extends State<SingleRideByID> {
       final patchDetails = {
         'acceptRider': requestFrom,
       };
-      patchRideById(rideData.id, patchDetails);
+      await patchRideById(rideData.id, patchDetails);
       final newMessage = Message(
           from: currUser.username,
           text: 'Request from $requestFrom accepted',
           driver: rideData.driverUsername,
           rider: requestFrom);
-      postMessageByRideId(rideData.id, newMessage);
+      await postMessageByRideId(rideData.id, newMessage);
       await _getRideDetails();
     } else {
-      print('no seats left');
+      debugPrint('no seats left');
     }
   }
 
@@ -111,13 +111,27 @@ class _SingleRideByIDState extends State<SingleRideByID> {
     final patchDetails = {
       'rejectRider': requestFrom,
     };
-    patchRideById(rideData.id, patchDetails);
+    await patchRideById(rideData.id, patchDetails);
     final newMessage = Message(
         from: currUser.username,
         text: 'Request from $requestFrom rejected',
         driver: rideData.driverUsername,
         rider: requestFrom);
-    postMessageByRideId(rideData.id, newMessage);
+    await postMessageByRideId(rideData.id, newMessage);
+    await _getRideDetails();
+  }
+
+  void removeRider(Ride rideData, requestFrom) async {
+    final patchDetails = {
+      'removeRider': requestFrom,
+    };
+    await patchRideById(rideData.id, patchDetails);
+    final newMessage = Message(
+        from: currUser.username,
+        text: '$requestFrom removed from ride',
+        driver: rideData.driverUsername,
+        rider: requestFrom);
+    await postMessageByRideId(rideData.id, newMessage);
     await _getRideDetails();
   }
 
@@ -205,27 +219,8 @@ class _SingleRideByIDState extends State<SingleRideByID> {
                             const SizedBox(width: 10),
                             driverProfile(imgUrl, _currRide),
                             actionsCard(_currRide),
-                            Column(
-                              children: [
-                                _rideChats.isEmpty
-                                    ? ChatCard(
-                                        rideId: rideId,
-                                        driverUsername: driverUsername,
-                                        currChats: const [],
-                                      )
-                                    : const ContainerWithBackgroundColor(
-                                        child: Text(
-                                          'Ride Chats',
-                                        ),
-                                      ),
-                                for (var chat in _rideChats)
-                                  ChatCard(
-                                    rideId: rideId,
-                                    driverUsername: driverUsername,
-                                    currChats: [chat],
-                                  ),
-                              ],
-                            )
+                            chatCards(
+                                _currRide, _rideChats, rideId, driverUsername)
                           ],
                         ),
                 ),
@@ -368,11 +363,22 @@ class _SingleRideByIDState extends State<SingleRideByID> {
             style: theme.textTheme.headlineSmall,
           ),
           for (var rider in rideData.riderUsernames)
-            Center(
-              child: Text(
-                '$rider - accepted',
-                style: theme.textTheme.bodyLarge,
-              ),
+            Wrap(
+              alignment: WrapAlignment.center,
+              children: [
+                Center(
+                  child: Text(
+                    '$rider - accepted',
+                    style: theme.textTheme.bodyLarge,
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    removeRider(rideData, rider);
+                  },
+                  child: const Text('Remove Rider'),
+                ),
+              ],
             ),
           for (var rider in rideData.jumpInRequests)
             Wrap(
@@ -395,6 +401,12 @@ class _SingleRideByIDState extends State<SingleRideByID> {
                 ),
               ],
             ),
+          rideData.jumpInRequests.isEmpty && rideData.riderUsernames.isEmpty
+              ? Text(
+                  'No requests',
+                  style: theme.textTheme.bodyLarge,
+                )
+              : const SizedBox.shrink(),
         ],
       ),
     );
@@ -468,6 +480,38 @@ class _SingleRideByIDState extends State<SingleRideByID> {
             isDriver ? driverRequestsView : riderRequestsView,
           ],
         ),
+      ),
+    );
+  }
+
+  chatCards(Ride rideData, rideChats, rideId, driverUsername) {
+    final theme = Theme.of(context);
+    final Widget headerText = Text(
+      'Ride Chats',
+      style: theme.textTheme.headlineSmall,
+    );
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+      ),
+      clipBehavior: Clip.antiAliasWithSaveLayer,
+      margin: const EdgeInsets.all(12.0),
+      child: Column(
+        children: [
+          _rideChats.isEmpty
+              ? ChatCard(
+                  rideId: rideId,
+                  driverUsername: driverUsername,
+                  currChats: const [],
+                )
+              : headerText,
+          for (var chat in _rideChats)
+            ChatCard(
+              rideId: rideId,
+              driverUsername: driverUsername,
+              currChats: [chat],
+            ),
+        ],
       ),
     );
   }

@@ -134,7 +134,7 @@ class _ProfileDetailsFormState extends State<ProfileDetailsForm> {
           ? titleText = 'Click to sign up'
           : titleText = 'Enter your details to sign up'
         : _formProgress > 0.99 
-          ? titleText = 'Click to sign in'
+          ? titleText = 'Click to make changes'
           : titleText = 'Edit your profile details';
     return Form(
       onChanged: _updateFormProgress,

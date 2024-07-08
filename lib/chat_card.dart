@@ -1,10 +1,10 @@
+import 'package:flutter/material.dart';
+import "package:fe/auth_provider.dart";
+import 'package:provider/provider.dart';
+import 'package:fe/utils/api.dart';
 import 'package:fe/classes/chat_class.dart';
 import 'package:fe/classes/user_class.dart';
 import 'package:fe/classes/message_class.dart';
-import 'utils/api.dart';
-import 'package:provider/provider.dart';
-import "./auth_provider.dart";
-import 'package:flutter/material.dart';
 
 class ChatCard extends StatefulWidget {
   final String rideId;

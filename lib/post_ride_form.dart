@@ -72,7 +72,6 @@ class _PostRideFormState extends State<PostRideForm> {
     );
 
     final postedRide = await postRide(rideData);
-    print(postedRide.id);
 
     Navigator.of(context).pushNamed('/singleride', arguments: postedRide.id);
   }
