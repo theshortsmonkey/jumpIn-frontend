@@ -1,7 +1,7 @@
-import 'package:fe/utils/api.dart';
 import 'package:flutter/material.dart';
-import "package:fe/auth_provider.dart";
 import 'package:provider/provider.dart';
+import "package:fe/auth_provider.dart";
+import 'package:fe/utils/api.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -28,7 +28,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       this.disableAllRidesButton = false,
       this.isLoggedIn = false});
 
-  void _setDefaultUser() async {
+  void _setDefaultUser(context) async {
     try {
       final futureUser = await postLogin('testUsername1', 'testPassword1');
       final userState = Provider.of<AuthState>(context, listen: false);
@@ -81,7 +81,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         if (!disableDefaultUserButton)
           IconButton(
             icon: const Icon(Icons.verified_user),
-            onPressed: _setDefaultUser,
+            onPressed: () { _setDefaultUser(context); },
             tooltip: 'Login default user',
           ),
         isLoggedIn
@@ -104,12 +104,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                     onPressed: disableProfileButton
                         ? null
                         : () => _navigateToPage('profile'),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.mail),
-                    onPressed: disableMailboxButton
-                        ? null
-                        : () => _navigateToPage('inbox'),
                   ),
                   IconButton(
                     icon: const Icon(Icons.logout),
