@@ -2,11 +2,11 @@ import 'package:fe/appbar.dart';
 import 'package:fe/utils/background.dart';
 import 'package:fe/user/login_page.dart';
 import 'package:flutter/material.dart';
-import './ride_card.dart';
-import './classes/ride_class.dart';
-import 'utils/api.dart';
+import 'ride_card.dart';
+import '../classes/ride_class.dart';
+import '../utils/api.dart';
 import 'package:provider/provider.dart';
-import "./auth_provider.dart";
+import "../auth_provider.dart";
 
 class GetRide extends StatefulWidget {
   const GetRide({super.key});

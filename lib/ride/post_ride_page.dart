@@ -2,8 +2,8 @@ import 'package:fe/appbar.dart';
 import 'package:fe/utils/background.dart';
 import 'package:fe/user/login_page.dart';
 import 'package:flutter/material.dart';
-import "./post_ride_form.dart";
-import "./auth_provider.dart";
+import "post_ride_form.dart";
+import "../auth_provider.dart";
 import 'package:provider/provider.dart';
 
 class PostRidePage extends StatelessWidget {
