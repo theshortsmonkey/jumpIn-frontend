@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import "package:fe/auth_provider.dart";
 import 'package:provider/provider.dart';
+import "package:fe/auth_provider.dart";
 import 'package:fe/utils/api.dart';
 import 'package:fe/classes/chat_class.dart';
 import 'package:fe/classes/user_class.dart';
@@ -80,7 +80,8 @@ class _ChatCardState extends State<ChatCard> {
     } else {
       return Padding(
         padding: const EdgeInsets.all(12.0),
-        child: (_driver!.username == currUser!.username && _rideChats[0].driver == null)
+        child: (_driver!.username == currUser!.username &&
+                _rideChats[0].driver == null)
             ? const Text('No Chats started for this ride')
             : Column(
                 children: [
@@ -139,7 +140,7 @@ class _ChatCardState extends State<ChatCard> {
           child: Container(
             padding: const EdgeInsets.all(7),
             decoration: BoxDecoration(
-              color: user.driver_verification_status
+              color: user.driverVerificationStatus
                   ? Colors.green
                   : Colors.amberAccent,
               shape: BoxShape.circle,

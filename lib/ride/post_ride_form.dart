@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:fe/classes/ride_class.dart';
-import 'package:table_calendar/table_calendar.dart';
-import 'dart:async';
-import 'package:fe/utils/api.dart';
-import "package:fe/auth_provider.dart";
 import 'package:provider/provider.dart';
+import "package:fe/auth_provider.dart";
 import 'package:fe/utils/animated_progress_indicator.dart';
+import 'package:fe/utils/api.dart';
+import 'package:fe/classes/ride_class.dart';
+import 'package:intl/intl.dart';
+import 'dart:async';
+import 'package:table_calendar/table_calendar.dart';
 
 class PostRideForm extends StatefulWidget {
   const PostRideForm({super.key});
@@ -124,9 +124,9 @@ class _PostRideFormState extends State<PostRideForm> {
       initialTime: TimeOfDay.now(),
     );
     if (picked == null) {
-    //   setState(() {
-    //     _rideTime = picked;
-    //   });
+      //   setState(() {
+      //     _rideTime = picked;
+      //   });
     } else if (_selectedDay == null) {
     } else {
       final dateTime = DateTime(_selectedDay!.year, _selectedDay!.month,
@@ -294,12 +294,12 @@ class _PostRideFormState extends State<PostRideForm> {
                     Padding(
                       padding: const EdgeInsets.all(8),
                       child: Column(children: [
-                        _selectedDay != null 
-                        ? Text(
-                            'Chosen Ride Day: ${_selectedDay!.day.toString()}/${_selectedDay!.month.toString()}/${_selectedDay!.year.toString()}')
-                        : const SizedBox.shrink(),
+                        _selectedDay != null
+                            ? Text(
+                                'Chosen Ride Day: ${_selectedDay!.day.toString()}/${_selectedDay!.month.toString()}/${_selectedDay!.year.toString()}')
+                            : const SizedBox.shrink(),
                         Text(
-                            'Chosen Ride Time: ${_rideTime.hour.toString().padLeft(2,'0')}:${_rideTime.minute.toString().padLeft(2,'0')}'),
+                            'Chosen Ride Time: ${_rideTime.hour.toString().padLeft(2, '0')}:${_rideTime.minute.toString().padLeft(2, '0')}'),
                       ]),
                     ),
                     Padding(
@@ -385,4 +385,3 @@ class _PostRideFormState extends State<PostRideForm> {
     );
   }
 }
-

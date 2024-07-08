@@ -1,18 +1,18 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
+import "package:fe/auth_provider.dart";
 import 'package:fe/appbar.dart';
 import 'package:fe/utils/background.dart';
+import 'package:fe/utils/api.dart';
 import 'package:fe/ride/chat_card.dart';
 import 'package:fe/classes/chat_class.dart';
 import 'package:fe/classes/message_class.dart';
 import 'package:fe/classes/ride_class.dart';
-import 'package:fe/user/login_page.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
-import '../utils/api.dart';
-import 'package:provider/provider.dart';
-import "../auth_provider.dart";
-import 'package:flutter/material.dart';
+import 'package:fe/user/login_page.dart';
 
 class SingleRideByID extends StatefulWidget {
   const SingleRideByID({
@@ -202,16 +202,14 @@ class _SingleRideByIDState extends State<SingleRideByID> {
                                       ),
                                     ),
                                     Expanded(
-                                        child: Padding(
-                                      padding: const EdgeInsets.all(16),
-                                      child: SizedBox(
-                                          height: 300,
-                                          child:
-                                              map(_startLatLong, _endLatLong)),
-                                    ))
-                                    // Expanded(
-                                    //   child:
-                                    // ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(16),
+                                        child: SizedBox(
+                                            height: 300,
+                                            child: map(
+                                                _startLatLong, _endLatLong)),
+                                      ),
+                                    )
                                   ],
                                 ),
                               ),
