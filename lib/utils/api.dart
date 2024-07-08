@@ -44,10 +44,10 @@ Future<List<Ride>> fetchRides(
     queryParams['carbon_emissions'] = carbonEmissions;
   }
 
-  final url = Uri.http('localhost:1337', '/rides', queryParams);
+  final url = Uri.http(baseUrl, '/rides', queryParams);
   final response = await http.get(url);
-  final responseData = json.decode(processResponse(response));
-  List<Ride> result = responseData.map<Ride>((item) {
+  // final responseData = json.decode(processResponse(response));
+  List<Ride> result = json.decode(processResponse(response)).map<Ride>((item) {
     return Ride.fromJson(item as Map<String, dynamic>);
   }).toList();
   return result;
@@ -264,33 +264,26 @@ processResponse(Response response) {
       }
     case 201:
       {
-        print(response.statusCode);
         return response.body;
       }
     case 400:
       {
-        print(response.statusCode);
         throw Exception('Bad Request');
       }
     case 401:
       {
-        print(response.statusCode);
         throw Exception('Unauthorised');
       }
     case 403:
       {
-        print(response.body);
-        print(response.statusCode);
-        print('Login session not active');
+        throw Exception('Login session not active');
       }
     case 404:
       {
-        print(response.statusCode);
         throw Exception("Not Found");
       }
     default:
       {
-        print(response.statusCode);
         throw Exception("Un-handled response");
       }
   }

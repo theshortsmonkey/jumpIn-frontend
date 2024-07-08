@@ -34,7 +34,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     try {
       final userState = Provider.of<AuthState>(context, listen: false);
       final activeUser = await userState.checkActiveSession();
-      userState.setActiveSession(activeUser);
+      userState.isAuthorized
+          ? userState.setActiveSession(activeUser)
+          : throw Exception('no active user');
       _currUser = userState.userInfo;
       _imgUrl = "http://localhost:1337/users/${_currUser.username}/image";
       final userData = await fetchUserByUsername(_currUser.username);
@@ -68,18 +70,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       });
     }
   }
-
-  List<Widget> loadingWidget = const <Widget>[
-    SizedBox(
-      width: 60,
-      height: 60,
-      child: CircularProgressIndicator(),
-    ),
-    Padding(
-      padding: EdgeInsets.only(top: 16),
-      child: Text('Awaiting result...'),
-    ),
-  ];
 
   @override
   Widget build(BuildContext context) {

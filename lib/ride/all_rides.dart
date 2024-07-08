@@ -16,14 +16,36 @@ class GetRide extends StatefulWidget {
 }
 
 class _GetRideState extends State<GetRide> {
-  late Future<List<Ride>> futureRides;
+  bool _loading = false;
+  late Future<List<Ride>> _futureRides;
   final _toController = TextEditingController();
   final _fromController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    futureRides = fetchRides();
+    _getAllRides();
+  }
+
+  Future<void> _getAllRides() async {
+    try {
+      setState(() {
+        _loading = true;
+      });
+      final userState = Provider.of<AuthState>(context, listen: false);
+      final activeUser = await userState.checkActiveSession();
+      userState.isAuthorized
+          ? userState.setActiveSession(activeUser)
+          : throw Exception('no active user');
+        setState(() {
+              _futureRides = fetchRides();
+            });
+    } catch (e) {
+      debugPrint(e.toString());
+      setState(() {
+        _loading = false;
+      });
+    }
   }
 
   Future<void> _filterRides(
@@ -33,9 +55,8 @@ class _GetRideState extends State<GetRide> {
       int? price,
       int? getAvailableSeats,
       int? carbonEmissions}) async {
-    // Fetch rides based on the provided criteria
     setState(() {
-      futureRides = fetchRides(
+      _futureRides = fetchRides(
           to: to,
           from: from,
           getDateTime: getDateTime,
@@ -104,7 +125,7 @@ class _GetRideState extends State<GetRide> {
                   Expanded(
                     child: Center(
                       child: FutureBuilder<List<Ride>>(
-                        future: futureRides,
+                        future: _futureRides,
                         builder: (context, snapshot) {
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
