@@ -23,6 +23,14 @@ class _ProfileDetailsFormState extends State<ProfileDetailsForm> {
   TextEditingController _phoneNumberController = TextEditingController(text: '');
   TextEditingController _bioController = TextEditingController(text: '');
   User _currUser = const User();
+  
+  bool _isEmailValid = true;
+  bool _isPhoneNumberValid = true;
+  bool _isUserNameValid = true;
+  bool _isPasswordValid = true;
+  bool _isPasswordObscured = true;
+  double _formProgress = 0;
+  bool _doesUserExist = false;
 
   @override
   void initState() {
@@ -49,14 +57,6 @@ class _ProfileDetailsFormState extends State<ProfileDetailsForm> {
       });
     }
   }
-
-  bool _isEmailValid = true;
-  bool _isPhoneNumberValid = true;
-  bool _isUserNameValid = true;
-  bool _isPasswordValid = true;
-  bool _isPasswordObscured = true;
-  double _formProgress = 0;
-  bool _doesUserExist = false;
 
   void _handleSubmit() async {
     final userData = User(

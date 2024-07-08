@@ -30,9 +30,9 @@ class _ValidateLicenceFormState extends State<ValidateLicenceForm> {
   }
 
   Future<void> _setCurrUser() async {
-    final provider = Provider.of<AuthState>(context, listen: false);
-    if (provider.userInfo.username != '') {
-      _currUser = await fetchUserByUsername(provider.userInfo.username);
+    final userState = Provider.of<AuthState>(context, listen: false);
+    if (userState.userInfo.username != '') {
+      _currUser = await fetchUserByUsername(userState.userInfo.username);
       setState(() {});
     }
   }
