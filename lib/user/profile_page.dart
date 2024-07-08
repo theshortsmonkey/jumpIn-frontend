@@ -8,14 +8,14 @@ import 'package:fe/utils/api.dart';
 import 'package:fe/classes/user_class.dart';
 import 'package:fe/user/login_page.dart';
 
-class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+class ProfilePage extends StatefulWidget {
+  const ProfilePage({super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  State<ProfilePage> createState() => _ProfilePageState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _ProfilePageState extends State<ProfilePage> {
   bool _isDeleted = false;
   bool _areYouSure = false;
   String _deleteButtonText = 'Delete your account';

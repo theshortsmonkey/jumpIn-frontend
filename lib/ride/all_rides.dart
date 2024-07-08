@@ -8,14 +8,14 @@ import 'package:fe/utils/api.dart';
 import 'package:fe/ride/ride_card.dart';
 import 'package:fe/user/login_page.dart';
 
-class GetRide extends StatefulWidget {
-  const GetRide({super.key});
+class AllRidesPage extends StatefulWidget {
+  const AllRidesPage({super.key});
 
   @override
-  State<GetRide> createState() => _GetRideState();
+  State<AllRidesPage> createState() => _AllRidesPageState();
 }
 
-class _GetRideState extends State<GetRide> {
+class _AllRidesPageState extends State<AllRidesPage> {
   bool _loading = false;
   late Future<List<Ride>> _futureRides;
   final _toController = TextEditingController();

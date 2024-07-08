@@ -16,7 +16,7 @@ class LoginPage extends StatelessWidget {
         ? args = ModalRoute.of(context)?.settings.arguments as Map
         : args = {'message': null};
     return context.read<AuthState>().isAuthorized
-        ? const ProfileScreen()
+        ? const ProfilePage()
         : Scaffold(
             appBar: CustomAppBar(
               title: 'jumpIn: Login',

@@ -24,28 +24,32 @@ class RouteGenerator {
         return MaterialPageRoute(settings: settings, builder: (context) => const LoginPage());
         
       case '/profile':
-        return MaterialPageRoute(settings: settings, builder: (context) => const ProfileScreen());
+        return MaterialPageRoute(settings: settings, builder: (context) => const ProfilePage());
         
       case '/postride':
         return MaterialPageRoute(settings: settings, builder: (context) => const PostRidePage());
         
       case '/allrides':
-        return MaterialPageRoute(settings: settings, builder: (context) => const GetRide());
+        return MaterialPageRoute(settings: settings, builder: (context) => const AllRidesPage());
         
       case '/singleride':
         return MaterialPageRoute(settings: settings, builder: (context) => const SingleRideByID());
 
       case '/editprofile':
-        return MaterialPageRoute(builder: (context) => const EditProfilePage());
+        RouteSettings customSettings = RouteSettings(name: '/profile',arguments: settings.arguments);
+        return MaterialPageRoute(settings: customSettings, builder: (context) => const EditProfilePage());
         
       case '/uploadProfilePic':
-        return MaterialPageRoute(builder: (context) => const UploadProfilePicPage());
+        RouteSettings customSettings = RouteSettings(name: '/profile',arguments: settings.arguments);
+        return MaterialPageRoute(settings: customSettings, builder: (context) => const UploadProfilePicPage());
         
       case '/validatelicence':
-        return MaterialPageRoute(builder: (context) => const ValidateLicencePage());
+        RouteSettings customSettings = RouteSettings(name: '/profile',arguments: settings.arguments);
+        return MaterialPageRoute(settings: customSettings, builder: (context) => const ValidateLicencePage());
         
       case '/validatecar':
-        return MaterialPageRoute(builder: (context) => const ValidateCarPage());
+        RouteSettings customSettings = RouteSettings(name: '/profile',arguments: settings.arguments);
+        return MaterialPageRoute(settings: customSettings, builder: (context) => const ValidateCarPage());
         
       default:
         return MaterialPageRoute(
