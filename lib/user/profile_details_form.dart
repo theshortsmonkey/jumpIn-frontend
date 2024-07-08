@@ -15,15 +15,19 @@ class ProfileDetailsForm extends StatefulWidget {
 }
 
 class _ProfileDetailsFormState extends State<ProfileDetailsForm> {
-  TextEditingController _firstNameTextController = TextEditingController(text: '');
-  TextEditingController _lastNameTextController = TextEditingController(text: '');
-  TextEditingController _usernameTextController = TextEditingController(text: '');
+  TextEditingController _firstNameTextController =
+      TextEditingController(text: '');
+  TextEditingController _lastNameTextController =
+      TextEditingController(text: '');
+  TextEditingController _usernameTextController =
+      TextEditingController(text: '');
   final _passwordTextController = TextEditingController(text: '');
   TextEditingController _emailTextController = TextEditingController(text: '');
-  TextEditingController _phoneNumberController = TextEditingController(text: '');
+  TextEditingController _phoneNumberController =
+      TextEditingController(text: '');
   TextEditingController _bioController = TextEditingController(text: '');
   User _currUser = const User();
-  
+
   bool _isEmailValid = true;
   bool _isPhoneNumberValid = true;
   bool _isUserNameValid = true;
@@ -58,7 +62,7 @@ class _ProfileDetailsFormState extends State<ProfileDetailsForm> {
     }
   }
 
-  void _handleSubmit() async {
+  void _handleSubmit(context) async {
     final userData = User(
         firstName: _firstNameTextController.text,
         lastName: _lastNameTextController.text,
@@ -70,15 +74,15 @@ class _ProfileDetailsFormState extends State<ProfileDetailsForm> {
         identityVerificationStatus: _currUser.identityVerificationStatus,
         driverVerificationStatus: _currUser.driverVerificationStatus,
         car: _currUser.car,
-        reports: _currUser.reports
-        );
+        reports: _currUser.reports);
     if (widget.submitType == 'post') {
       setState(() {
         _doesUserExist = false;
       });
       try {
         await postUser(userData);
-        Navigator.of(context).pushNamed('/login',arguments: {'message':'Account created, please login'});
+        Navigator.of(context).pushNamed('/login',
+            arguments: {'message': 'Account created, please login'});
       } catch (e) {
         debugPrint(e.toString());
         setState(() {
@@ -90,9 +94,8 @@ class _ProfileDetailsFormState extends State<ProfileDetailsForm> {
         await patchUser(userData);
         Navigator.of(context).pushNamed('/profile');
       } catch (e) {
-        print(e);
-        setState(() {
-        });
+        debugPrint(e.toString());
+        setState(() {});
       }
     }
   }
@@ -130,12 +133,12 @@ class _ProfileDetailsFormState extends State<ProfileDetailsForm> {
   Widget build(BuildContext context) {
     String titleText;
     widget.submitType == 'post'
-        ?  _formProgress > 0.99 
-          ? titleText = 'Click to sign up'
-          : titleText = 'Enter your details to sign up'
-        : _formProgress > 0.99 
-          ? titleText = 'Click to make changes'
-          : titleText = 'Edit your profile details';
+        ? _formProgress > 0.99
+            ? titleText = 'Click to sign up'
+            : titleText = 'Enter your details to sign up'
+        : _formProgress > 0.99
+            ? titleText = 'Click to make changes'
+            : titleText = 'Edit your profile details';
     return Form(
       onChanged: _updateFormProgress,
       child: Column(
@@ -146,7 +149,7 @@ class _ProfileDetailsFormState extends State<ProfileDetailsForm> {
           Padding(
             padding: const EdgeInsets.all(8),
             child: TextFormField(
-              enabled: widget.submitType == 'post', 
+              enabled: widget.submitType == 'post',
               controller: _usernameTextController,
               decoration: InputDecoration(
                   labelText: 'Username',
@@ -223,9 +226,9 @@ class _ProfileDetailsFormState extends State<ProfileDetailsForm> {
                 obscureText: _isPasswordObscured,
                 controller: _passwordTextController,
                 decoration: InputDecoration(
-                    labelText: widget.submitType == 'post' 
-                    ? 'Password'
-                    : 'Enter you current password to make edits',
+                    labelText: widget.submitType == 'post'
+                        ? 'Password'
+                        : 'Enter you current password to make edits',
                     suffixIcon: IconButton(
                       icon: Icon(_isPasswordObscured
                           ? Icons.visibility
@@ -257,7 +260,11 @@ class _ProfileDetailsFormState extends State<ProfileDetailsForm> {
                     : Colors.blue;
               }),
             ),
-            onPressed: _formProgress > 0.99 ? _handleSubmit : null,
+            onPressed: _formProgress > 0.99
+                ? () {
+                    _handleSubmit(context);
+                  }
+                : null,
             child: Text(titleText),
           ),
           _doesUserExist

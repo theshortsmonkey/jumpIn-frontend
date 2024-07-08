@@ -25,7 +25,7 @@ class _UploadProfilePicForm extends State<UploadProfilePicForm> {
         Navigator.of(context).pushNamed('/profile');
       });
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
     }
   }
 

@@ -54,7 +54,7 @@ class _PostRideFormState extends State<PostRideForm> {
     });
   }
 
-  void _postRide() async {
+  void _postRide(context) async {
     final co2 = _carDetails['co2Emissions'];
 
     final rideData = Ride(
@@ -369,7 +369,7 @@ class _PostRideFormState extends State<PostRideForm> {
                         }),
                       ),
                       onPressed:
-                          _formProgress > 0.99 ? _postRide : null, // UPDATED
+                          _formProgress > 0.99 ? () {_postRide(context);} : null, // UPDATED
                       child: const Text('Create Ride'),
                     ),
                   ],

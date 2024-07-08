@@ -34,7 +34,7 @@ class _ValidateCarFormState extends State<ValidateCarForm> {
     }
   }
 
-  void _validateVehicleDetails() async {
+  void _validateVehicleDetails(context) async {
     dynamic carData;
     await fetchCarDetails(_regNumberController.text).then((res) {
       carData = res;
@@ -151,7 +151,7 @@ class _ValidateCarFormState extends State<ValidateCarForm> {
                     : Colors.blue;
               }),
             ),
-            onPressed: _formProgress > 0.99 ? _validateVehicleDetails : null,
+            onPressed: _formProgress > 0.99 ? () {_validateVehicleDetails(context);} : null,
             child: Text(titleText),
           ),
         ],

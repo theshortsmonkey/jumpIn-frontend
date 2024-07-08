@@ -21,7 +21,7 @@ class _LoginFormState extends State<LoginForm> {
   bool _isLoginFailed = false;
   bool _isLoginSuccesful = false;
 
-  void _handleLogin() async {
+  void _handleLogin(context) async {
     setState(() {
       _isLoginFailed = false;
       _isLoginSuccesful = false;
@@ -161,7 +161,7 @@ class _LoginFormState extends State<LoginForm> {
                           : Colors.blue;
                     }),
                   ),
-                  onPressed: _formProgress > 0.99 ? _handleLogin : null,
+                  onPressed: _formProgress > 0.99 ? () {_handleLogin(context);} : null,
                   child: const Text('Login'),
                 ),
                 TextButton(

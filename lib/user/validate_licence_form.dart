@@ -37,7 +37,7 @@ class _ValidateLicenceFormState extends State<ValidateLicenceForm> {
     }
   }
 
-  void _handleFormSubmit() async {
+  void _handleFormSubmit(context) async {
     final userData = User(
         firstName: _currUser.firstName,
         lastName: _currUser.lastName,
@@ -162,7 +162,7 @@ class _ValidateLicenceFormState extends State<ValidateLicenceForm> {
                     : const Color.fromARGB(255, 129, 142, 153);
               }),
             ),
-            onPressed: _formProgress > 0.99 ? _handleFormSubmit : null,
+            onPressed: _formProgress > 0.99 ? () {_handleFormSubmit(context);} : null,
             child: Text(titleText),
           ),
         ],
