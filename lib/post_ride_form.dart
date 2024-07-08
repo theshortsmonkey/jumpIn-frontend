@@ -1,4 +1,3 @@
-import 'package:fe/classes/user_class.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:fe/classes/ride_class.dart';
@@ -7,6 +6,7 @@ import 'dart:async';
 import 'package:fe/utils/api.dart';
 import "package:fe/auth_provider.dart";
 import 'package:provider/provider.dart';
+import 'package:fe/utils/animated_progress_indicator.dart';
 
 class PostRideForm extends StatefulWidget {
   const PostRideForm({super.key});
@@ -42,7 +42,9 @@ class _PostRideFormState extends State<PostRideForm> {
     super.initState();
     final userState = Provider.of<AuthState>(context, listen: false);
     _currUser = userState.userInfo;
-    if (userState.isAuthorized) {_getCarDetails();}
+    if (userState.isAuthorized) {
+      _getCarDetails();
+    }
   }
 
   Future<void> _getCarDetails() async {
@@ -50,7 +52,6 @@ class _PostRideFormState extends State<PostRideForm> {
     setState(() {
       _carDetails = userData.car;
     });
-
   }
 
   void _postRide() async {
@@ -71,6 +72,7 @@ class _PostRideFormState extends State<PostRideForm> {
     );
 
     final postedRide = await postRide(rideData);
+    print(postedRide.id);
 
     Navigator.of(context).pushNamed('/singleride', arguments: postedRide.id);
   }
@@ -79,61 +81,42 @@ class _PostRideFormState extends State<PostRideForm> {
     setState(() {
       isPriceLoading = true;
     });
-    final startPointFuture = fetchLatLong(_startPointTextController.text);
-    final endPointFuture = fetchLatLong(_endPointTextController.text);
+    final startPointFuture = await fetchLatLong(_startPointTextController.text);
+    final endPointFuture = await fetchLatLong(_endPointTextController.text);
 
-    return Future.wait([
-      startPointFuture,
-      endPointFuture,
-    ]).then((results) {
-      final startPoint = results[0];
-      final endPoint = results[1];
-      if (_carDetails == null) {
-        throw Exception('Car details not found');
-      }
-      final fuelType = _carDetails["fuelType"];
+    if (_carDetails == null) {
+      throw Exception('Car details not found');
+    }
+    final fuelType = _carDetails["fuelType"];
 
-      final co2 =
-          _carDetails["co2Emissions"]; // I AM AN INTEGER emissions in g/km
-      final fuelPriceFuture = fetchFuelPrice(fuelType);
+    final co2 =
+        _carDetails["co2Emissions"]; // I AM AN INTEGER emissions in g/km
+    final fuelPriceFuture = await fetchFuelPrice(fuelType);
 
-      // Handle the results of all completed futures
-      final double? startLat = startPoint[1];
-      final double? startLong = startPoint[0];
-      final double? endLat = endPoint[1];
-      final double? endLong = endPoint[0];
+    final double? startLat = startPointFuture[0];
+    final double? startLong = startPointFuture[1];
+    final double? endLat = endPointFuture[0];
+    final double? endLong = endPointFuture[1];
 
-      final String apiString =
-          "lonlat:$startLong,$startLat|lonlat:$endLong,$endLat";
+    final String apiString =
+        "lonlat:$startLong,$startLat|lonlat:$endLong,$endLat";
 
-      final metreDistanceFuture = fetchDistance(apiString);
+    final metreDistanceFuture = await fetchDistance(apiString);
 
-      return Future.wait([
-        Future.value(fuelType),
-        Future.value(co2),
-        fuelPriceFuture,
-        metreDistanceFuture
-      ]).then((results) {
-        final fuelType = results[0];
-        final co2 = results[1];
-        final fuelPrice = results[2];
-        final metreDistance = results[3];
+    final double fuelEfficiency;
+    final double journeyPrice;
 
-        final double fuelEfficiency;
-        final double journeyPrice;
-
-        if (fuelType == 'PETROL') {
-          //use co2 to calc mpg and hence cost - petrol: 2310g/L; diesel: 2680g/L
-          fuelEfficiency = (2310 / co2); //in km/L
-          journeyPrice = (metreDistance / (1000 * fuelEfficiency)) * fuelPrice;
-        } else {
-          //DIESEL
-          fuelEfficiency = (2680 / co2); //in km/L
-          journeyPrice = (metreDistance / (1000 * fuelEfficiency)) * fuelPrice;
-        }
-        return (journeyPrice / 100).toString().substring(0, 5);
-      });
-    });
+    if (fuelType == 'PETROL') {
+      //use co2 to calc mpg and hence cost - petrol: 2310g/L; diesel: 2680g/L
+      fuelEfficiency = (2310 / co2); //in km/L
+      journeyPrice =
+          (metreDistanceFuture / (1000 * fuelEfficiency)) * fuelPriceFuture;
+    } else {
+      fuelEfficiency = (2680 / co2); //in km/L
+      journeyPrice =
+          (metreDistanceFuture / (1000 * fuelEfficiency)) * fuelPriceFuture;
+    }
+    return (journeyPrice / 100).toString().substring(0, 5);
   }
 
   Future<void> _selectTime() async {
@@ -141,7 +124,12 @@ class _PostRideFormState extends State<PostRideForm> {
       context: context,
       initialTime: TimeOfDay.now(),
     );
-    if (picked != null) {
+    if (picked == null) {
+    //   setState(() {
+    //     _rideTime = picked;
+    //   });
+    } else if (_selectedDay == null) {
+    } else {
       final dateTime = DateTime(_selectedDay!.year, _selectedDay!.month,
           _selectedDay!.day, picked.hour, picked.minute);
       setState(() {
@@ -305,9 +293,16 @@ class _PostRideFormState extends State<PostRideForm> {
                       child: const Text('Set Ride Time'),
                     ),
                     Padding(
-                        padding: const EdgeInsets.all(8),
-                        child: Text(
-                            'Ride Time: ${_rideTime.hour.toString()}:${_rideTime.minute.toString()}')),
+                      padding: const EdgeInsets.all(8),
+                      child: Column(children: [
+                        _selectedDay != null 
+                        ? Text(
+                            'Chosen Ride Day: ${_selectedDay!.day.toString()}/${_selectedDay!.month.toString()}/${_selectedDay!.year.toString()}')
+                        : const SizedBox.shrink(),
+                        Text(
+                            'Chosen Ride Time: ${_rideTime.hour.toString().padLeft(2,'0')}:${_rideTime.minute.toString().padLeft(2,'0')}'),
+                      ]),
+                    ),
                     Padding(
                       padding: const EdgeInsets.all(8),
                       child: DropdownMenu<SeatsLabel>(
@@ -391,71 +386,4 @@ class _PostRideFormState extends State<PostRideForm> {
     );
   }
 }
-//DROP DOWN BUTTO
 
-//ANIMATION
-class AnimatedProgressIndicator extends StatefulWidget {
-  final double value;
-
-  const AnimatedProgressIndicator({
-    super.key,
-    required this.value,
-  });
-
-  @override
-  State<AnimatedProgressIndicator> createState() {
-    return _AnimatedProgressIndicatorState();
-  }
-}
-
-class _AnimatedProgressIndicatorState extends State<AnimatedProgressIndicator>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<Color?> _colorAnimation;
-  late Animation<double> _curveAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 1200),
-      vsync: this,
-    );
-
-    final colorTween = TweenSequence([
-      TweenSequenceItem(
-        tween: ColorTween(begin: Colors.red, end: Colors.orange),
-        weight: 1,
-      ),
-      TweenSequenceItem(
-        tween: ColorTween(begin: Colors.orange, end: Colors.yellow),
-        weight: 1,
-      ),
-      TweenSequenceItem(
-        tween: ColorTween(begin: Colors.yellow, end: Colors.green),
-        weight: 1,
-      ),
-    ]);
-
-    _colorAnimation = _controller.drive(colorTween);
-    _curveAnimation = _controller.drive(CurveTween(curve: Curves.easeIn));
-  }
-
-  @override
-  void didUpdateWidget(oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    _controller.animateTo(widget.value);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) => LinearProgressIndicator(
-        value: _curveAnimation.value,
-        valueColor: _colorAnimation,
-        backgroundColor: _colorAnimation.value?.withOpacity(0.4),
-      ),
-    );
-  }
-}

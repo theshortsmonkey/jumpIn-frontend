@@ -209,12 +209,13 @@ Future<Ride> postRide(ride) async {
   String json = jsonEncode(ride);
   final response = await http.post(url,
       headers: {"Content-Type": "application/json"}, body: json);
-  List<Ride> result = processResponse(response).map<Ride>((item) {
-    return Ride.fromJson(item as Map<String, dynamic>);
-  }).toList();
-  // final result = Ride.fromJson(
-  // jsonDecode(processResponse(response)) as Map<String, dynamic>);
-  return result[0];
+  print(response.body);
+  // List<Ride> result = processResponse(response).map<Ride>((item) {
+  //   return Ride.fromJson(item as Map<String, dynamic>);
+  // }).toList();
+  final result = Ride.fromJson(
+  jsonDecode(processResponse(response)) as Map<String, dynamic>);
+  return result;
 }
 
 Future<void> deleteRide(rideId) async {
@@ -267,27 +268,33 @@ processResponse(Response response) {
       }
     case 201:
       {
+        print(response.statusCode);
         return response.body;
       }
     case 400:
       {
+        print(response.statusCode);
         throw Exception('Bad Request');
       }
     case 401:
       {
+        print(response.statusCode);
         throw Exception('Unauthorised');
       }
     case 403:
       {
         print(response.body);
+        print(response.statusCode);
         print('Login session not active');
       }
     case 404:
       {
+        print(response.statusCode);
         throw Exception("Not Found");
       }
     default:
       {
+        print(response.statusCode);
         throw Exception("Un-handled response");
       }
   }
