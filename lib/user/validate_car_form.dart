@@ -56,8 +56,8 @@ class _ValidateCarFormState extends State<ValidateCarForm> {
           password: _passwordTextController.text,
           phoneNumber: _currUser.phoneNumber,
           bio: _currUser.bio,
-          identity_verification_status: _currUser.identity_verification_status,
-          driver_verification_status: true,
+          identityVerificationStatus: _currUser.identityVerificationStatus,
+          driverVerificationStatus: true,
           car: carDetails,
           reports: _currUser.reports);
       await patchUser(userData);

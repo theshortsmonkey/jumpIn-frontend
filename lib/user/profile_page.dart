@@ -163,10 +163,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               itemProfile('Bio', '${_userData.bio}',
                                   CupertinoIcons.profile_circled),
                               const SizedBox(height: 20),
-                              _userData.identity_verification_status
+                              _userData.identityVerificationStatus
                                   ? itemProfile(
                                       'Licence valid: ',
-                                      '${_userData.identity_verification_status}',
+                                      '${_userData.identityVerificationStatus}',
                                       CupertinoIcons.check_mark)
                                   : SizedBox(
                                       width: double.infinity,

@@ -67,8 +67,8 @@ class _ProfileDetailsFormState extends State<ProfileDetailsForm> {
         password: _passwordTextController.text,
         phoneNumber: _phoneNumberController.text,
         bio: _bioController.text,
-        identity_verification_status: _currUser.identity_verification_status,
-        driver_verification_status: _currUser.driver_verification_status,
+        identityVerificationStatus: _currUser.identityVerificationStatus,
+        driverVerificationStatus: _currUser.driverVerificationStatus,
         car: _currUser.car,
         reports: _currUser.reports
         );

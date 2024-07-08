@@ -46,8 +46,8 @@ class _ValidateLicenceFormState extends State<ValidateLicenceForm> {
         password: _passwordTextController.text,
         phoneNumber: _currUser.phoneNumber,
         bio: _currUser.bio,
-        identity_verification_status: true,
-        driver_verification_status: _currUser.driver_verification_status,
+        identityVerificationStatus: true,
+        driverVerificationStatus: _currUser.driverVerificationStatus,
         car: _currUser.car,
         reports: _currUser.reports);
     await patchUser(userData);
