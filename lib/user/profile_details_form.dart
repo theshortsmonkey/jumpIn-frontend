@@ -43,9 +43,9 @@ class _ProfileDetailsFormState extends State<ProfileDetailsForm> {
   }
 
   Future<void> _setCurrUser() async {
-    final provider = Provider.of<AuthState>(context, listen: false);
-    if (provider.userInfo.username != '') {
-      _currUser = await fetchUserByUsername(provider.userInfo.username);
+    final userState = Provider.of<AuthState>(context, listen: false);
+    if (userState.userInfo.username != '') {
+      _currUser = await fetchUserByUsername(userState.userInfo.username);
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
         _firstNameTextController =
             TextEditingController(text: _currUser.firstName);
