@@ -19,13 +19,17 @@ const baseUrl = 'http://$baseHost';
 const geoapifyUrl = 'https://api.geoapify.com/v1/routing';
 
 Future<List<Ride>> fetchRides(
-    {String? to,
+    {String? driverUsername,
+    String? to,
     String? from,
     String? getDateTime,
     int? price,
     int? getAvailableSeats,
     int? carbonEmissions}) async {
   final queryParams = <String, dynamic>{};
+  if (driverUsername?.isNotEmpty ?? false) {
+    queryParams['driver_username'] = driverUsername;
+  }
   if (to?.isNotEmpty ?? false) {
     queryParams['to'] = to;
   }

@@ -18,6 +18,8 @@ class AllRidesPage extends StatefulWidget {
 class _AllRidesPageState extends State<AllRidesPage> {
   bool _loading = false;
   late Future<List<Ride>> _futureRides;
+  ActiveSession _currUser = ActiveSession();
+  String _driverUsername = '';
   final _toController = TextEditingController();
   final _fromController = TextEditingController();
 
@@ -39,6 +41,7 @@ class _AllRidesPageState extends State<AllRidesPage> {
           : throw Exception('no active user');
       setState(() {
         _loading = false;
+        _currUser = activeUser;
         _futureRides = fetchRides();
       });
     } catch (e) {
@@ -53,11 +56,13 @@ class _AllRidesPageState extends State<AllRidesPage> {
       {String? to,
       String? from,
       String? getDateTime,
+      String? driverUsername,
       int? price,
       int? getAvailableSeats,
       int? carbonEmissions}) async {
     setState(() {
       _futureRides = fetchRides(
+          driverUsername: driverUsername,
           to: to,
           from: from,
           getDateTime: getDateTime,
@@ -112,14 +117,42 @@ class _AllRidesPageState extends State<AllRidesPage> {
                           onPressed: () {
                             _filterRides(
                                 to: _toController.text,
-                                from: _fromController.text);
+                                from: _fromController.text,
+                                driverUsername: _driverUsername);
                           },
-                          child: const Text('Filter'),
+                          child: const Text('Filter by start and end point'),
+                        ),
+                        FilledButton(
+                          onPressed: () {
+                            setState(() {
+                              _driverUsername = _currUser.username;
+                            });
+                            _filterRides(
+                                to: _toController.text,
+                                from: _fromController.text,
+                                driverUsername: _driverUsername);
+                          },
+                          child: const Text('Show only my rides'),
+                        ),
+                        FilledButton(
+                          onPressed: () {
+                            setState(() {
+                              _driverUsername = '';
+                            });
+                            _filterRides(
+                                to: _toController.text,
+                                from: _fromController.text,
+                                driverUsername: _driverUsername);
+                          },
+                          child: const Text('Show all rides'),
                         ),
                         const SizedBox(height: 8),
                         ElevatedButton(
                           onPressed: () {
                             setState(() {
+                              _toController.text = '';
+                              _fromController.text = '';
+                              _driverUsername = '';
                               _filterRides();
                             });
                           },
