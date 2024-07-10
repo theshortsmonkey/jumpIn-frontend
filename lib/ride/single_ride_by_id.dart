@@ -178,11 +178,11 @@ class _SingleRideByIDState extends State<SingleRideByID> {
                                               CupertinoIcons.flag_circle_fill),
                                           itemProfile(
                                               'Date',
-                                              '${_currRide.getDateTime?.substring(0, 10)}',
+                                              _currRide.getDateTime.substring(0, 10),
                                               CupertinoIcons.calendar_today),
                                           itemProfile(
                                               'Time',
-                                              '${_currRide.getDateTime?.substring(11, 16)}',
+                                              _currRide.getDateTime.substring(11, 16),
                                               CupertinoIcons.clock),
                                           itemProfile(
                                               'Spaces Left',
@@ -362,14 +362,11 @@ class _SingleRideByIDState extends State<SingleRideByID> {
           ),
           for (var rider in rideData.riderUsernames)
             Wrap(
-              alignment: WrapAlignment.center,
               children: [
-                Center(
-                  child: Text(
+                Text(
                     '$rider - accepted',
                     style: theme.textTheme.bodyLarge,
                   ),
-                ),
                 ElevatedButton(
                   onPressed: () {
                     removeRider(rideData, rider);
@@ -447,18 +444,25 @@ class _SingleRideByIDState extends State<SingleRideByID> {
           'Ride Actions',
           style: theme.textTheme.headlineSmall,
         ),
+        Text(
+          'Only available when no riders accepted on ride',
+          style: theme.textTheme.bodyLarge,
+        ),
         ElevatedButton(
-          onPressed: () {
-            deleteRide(rideData.id);
-            Navigator.of(context).pushNamed('/allrides');
-          },
+          onPressed: rideData.riderUsernames.isEmpty
+              ? () {
+                  deleteRide(rideData.id);
+                  Navigator.of(context).pushNamed('/allrides');
+                }
+              : null,
           child: const Text('Delete Ride'),
         ),
         ElevatedButton(
-          onPressed: () {
-            print('edit ride');
-            // Navigator.of(context).pushNamed('/editride');
-          },
+          onPressed: rideData.riderUsernames.isEmpty
+              ? () {
+                  Navigator.of(context).pushNamed('/editride', arguments: rideData.id);
+                }
+              : null,
           child: const Text('Edit Ride'),
         ),
       ],

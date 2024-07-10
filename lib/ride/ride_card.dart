@@ -52,9 +52,9 @@ class RideCard extends StatelessWidget {
                         const Icon(Icons.arrow_circle_down_rounded),
                         Text("${ride.to}", style: titleStyleM),
                         Container(height: 10),
-                        Text("Date ${ride.getDateTime?.substring(0, 10)}",
+                        Text("Date ${ride.getDateTime.substring(0, 10)}",
                             style: titleStyleS),
-                        Text("Time ${ride.getDateTime?.substring(11, 16)}",
+                        Text("Time ${ride.getDateTime.substring(11, 16)}",
                             style: titleStyleS)
                       ],
                     ),

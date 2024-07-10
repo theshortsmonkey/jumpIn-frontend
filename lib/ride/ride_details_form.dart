@@ -8,21 +8,24 @@ import 'package:intl/intl.dart';
 import 'dart:async';
 import 'package:table_calendar/table_calendar.dart';
 
-class PostRideForm extends StatefulWidget {
-  const PostRideForm({super.key});
+class RideDetailsForm extends StatefulWidget {
+  final String submitType;
+  final String rideId;
+  const RideDetailsForm(
+      {super.key, required this.submitType, required this.rideId});
 
   @override
-  State<PostRideForm> createState() => _PostRideFormState();
+  State<RideDetailsForm> createState() => _RideDetailsFormState();
 }
 
-class _PostRideFormState extends State<PostRideForm> {
-  final _startPointTextController = TextEditingController();
-  final _startRegionTextController = TextEditingController();
-  final _endPointTextController = TextEditingController();
-  final _endRegionTextController = TextEditingController();
-  final _inputPriceTextController = TextEditingController();
-  final _seatSelectionTextController = TextEditingController();
-  final _dateSelectionTextController = TextEditingController();
+class _RideDetailsFormState extends State<RideDetailsForm> {
+  TextEditingController _startPointTextController = TextEditingController();
+  TextEditingController _startRegionTextController = TextEditingController();
+  TextEditingController _endPointTextController = TextEditingController();
+  TextEditingController _endRegionTextController = TextEditingController();
+  TextEditingController _inputPriceTextController = TextEditingController();
+  TextEditingController _seatSelectionTextController = TextEditingController();
+  TextEditingController _dateSelectionTextController = TextEditingController();
   dynamic _calculatedPrice;
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
@@ -36,6 +39,7 @@ class _PostRideFormState extends State<PostRideForm> {
   TimeOfDay _rideTime = TimeOfDay.now();
   ActiveSession _currUser = const ActiveSession();
   dynamic _carDetails;
+  Ride _currRideData = Ride();
 
   @override
   void initState() {
@@ -44,6 +48,9 @@ class _PostRideFormState extends State<PostRideForm> {
     _currUser = userState.userInfo;
     if (userState.isAuthorized) {
       _getCarDetails();
+      if (widget.rideId != '') {
+        _setRideDetails();
+      }
     }
   }
 
@@ -54,26 +61,57 @@ class _PostRideFormState extends State<PostRideForm> {
     });
   }
 
-  void _postRide(context) async {
-    final co2 = _carDetails['co2Emissions'];
+  void _setRideDetails() async {
+    Ride ride = await fetchRideById(widget.rideId);
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      _startPointTextController = TextEditingController(text: ride.from);
+      _endPointTextController = TextEditingController(text: ride.to);
+      _startRegion = ride.fromRegion;
+      _startRegionTextController =
+          TextEditingController(text: _startRegion!.region);
+          _endRegion = ride.toRegion;
+      _endRegionTextController =
+          TextEditingController(text: _endRegion!.region);
+      _inputPriceTextController =
+          TextEditingController(text: ride.price.toString());
+      _selectedDay = DateTime.parse(ride.getDateTime);
+      _dateSelectionTextController =
+          TextEditingController(text: ride.getDateTime);
+      _rideTime =
+          TimeOfDay(hour: _selectedDay!.hour, minute: _selectedDay!.minute);
+          _selectedSeats = SeatsLabel.fromInt(ride.getAvailableSeats);
+      _seatSelectionTextController =
+          TextEditingController(text: _selectedSeats!.seats.toString());
+    setState(() {
+      _currRideData = ride;
+    });
+      _updateFormProgress();
+    });
+  }
 
+  void _handleSubmit(context) async {
+    final co2 = _carDetails['co2Emissions'];
     final rideData = Ride(
       to: _endPointTextController.text,
       toRegion: _endRegion,
       from: _startPointTextController.text,
       fromRegion: _startRegion,
-      driverUsername: context.read<AuthState>().userInfo.username,
+      driverUsername: _currUser.username,
       postAvailableSeats: _selectedSeats,
       carbonEmissions: co2,
       distance: 0,
       price: int.parse(_inputPriceTextController.text),
-      map: [],
+      map: _currRideData.map,
       setDateTime: _selectedDay,
+      chats: _currRideData.chats
     );
-
-    final postedRide = await postRide(rideData);
-
-    Navigator.of(context).pushNamed('/singleride', arguments: postedRide.id);
+    if (widget.submitType == 'post') {
+      final postedRide = await postRide(rideData);
+      Navigator.of(context).pushNamed('/singleride', arguments: postedRide.id);
+    } else {
+      final patchedRide = await patchRideById(widget.rideId,rideData);
+      Navigator.of(context).pushNamed('/singleride', arguments: patchedRide.id);
+    }
   }
 
   Future calculatePrice() async {
@@ -123,12 +161,7 @@ class _PostRideFormState extends State<PostRideForm> {
       context: context,
       initialTime: TimeOfDay.now(),
     );
-    if (picked == null) {
-      //   setState(() {
-      //     _rideTime = picked;
-      //   });
-    } else if (_selectedDay == null) {
-    } else {
+    if (picked != null && _selectedDay != null) {
       final dateTime = DateTime(_selectedDay!.year, _selectedDay!.month,
           _selectedDay!.day, picked.hour, picked.minute);
       setState(() {
@@ -139,25 +172,25 @@ class _PostRideFormState extends State<PostRideForm> {
   }
 
   void _updateFormProgress() {
-    double progress = 0.0;
+    double formProgress = 0.0;
     double priceProgress = 0.0;
-    final controllers = [
+    final formControllers = [
       _startPointTextController,
       _endPointTextController,
       _inputPriceTextController,
       _startRegionTextController,
       _endRegionTextController,
       _seatSelectionTextController,
-      _dateSelectionTextController
+      _dateSelectionTextController,
     ];
     final priceControllers = [
       _startPointTextController,
       _endPointTextController,
     ];
 
-    for (final controller in controllers) {
-      if (controller.value.text.isNotEmpty) {
-        progress += 1 / controllers.length;
+    for (final formController in formControllers) {
+      if (formController.value.text.isNotEmpty) {
+        formProgress += 1 / formControllers.length;
       }
     }
     for (final priceController in priceControllers) {
@@ -167,7 +200,7 @@ class _PostRideFormState extends State<PostRideForm> {
     }
 
     setState(() {
-      _formProgress = progress;
+      _formProgress = formProgress;
       _priceProgress = priceProgress;
     });
   }
@@ -183,21 +216,30 @@ class _PostRideFormState extends State<PostRideForm> {
     final screenWidth = MediaQuery.of(context).size.width;
     final pixelRatio = MediaQuery.of(context).devicePixelRatio;
     final viewWidth = screenWidth * pixelRatio;
+    String titleText;
+    String submitButtonText;
+    if (widget.submitType == 'post') {
+      titleText = 'Complete the form to post a ride';
+      submitButtonText = 'Create Ride';
+    } else {
+      titleText = 'Edit the ride details';
+      submitButtonText = 'Submit Ride Changes';
+    }
 
     return Scaffold(
       body: _currUser.isDriver
           ? Form(
-              onChanged: _updateFormProgress, // NEW
+              onChanged: _updateFormProgress,
               child: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'Complete the form to post a ride',
+                      titleText,
                       style: Theme.of(context).textTheme.headlineMedium,
                       textAlign: TextAlign.center,
                     ),
-                    AnimatedProgressIndicator(value: _formProgress), // NEW
+                    AnimatedProgressIndicator(value: _formProgress),
                     Padding(
                       padding: const EdgeInsets.all(8),
                       child: DropdownMenu<RegionsLabel>(
@@ -368,9 +410,12 @@ class _PostRideFormState extends State<PostRideForm> {
                               : Colors.blue;
                         }),
                       ),
-                      onPressed:
-                          _formProgress > 0.99 ? () {_postRide(context);} : null, // UPDATED
-                      child: const Text('Create Ride'),
+                      onPressed: _formProgress > 0.99
+                          ? () {
+                              _handleSubmit(context);
+                            }
+                          : null,
+                      child: Text(submitButtonText),
                     ),
                   ],
                 ),

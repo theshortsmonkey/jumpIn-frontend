@@ -6,15 +6,16 @@ import 'package:fe/utils/background.dart';
 import 'package:fe/user/login_page.dart';
 import "package:fe/ride/ride_details_form.dart";
 
-class PostRidePage extends StatelessWidget {
-  const PostRidePage({super.key});
+class EditRidePage extends StatelessWidget {
+  const EditRidePage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final rideIdArgs = ModalRoute.of(context)!.settings.arguments;
     return context.read<AuthState>().isAuthorized
         ? Scaffold(
             appBar: CustomAppBar(
-              title: 'jumpIn - Post a Ride',
+              title: 'jumpIn - Edit Your Ride',
               context: context,
               disablePostRideButton: true,
             ),
@@ -23,8 +24,9 @@ class PostRidePage extends StatelessWidget {
                 child: SizedBox(
                   height: MediaQuery.of(context).size.height,
                   width: 600,
-                  child: const Card(
-                    child: (RideDetailsForm(submitType: 'post',rideId: '')),
+                  child: Card(
+                    child:
+                        (RideDetailsForm(submitType: 'patch', rideId: rideIdArgs as String)),
                   ),
                 ),
               ),
