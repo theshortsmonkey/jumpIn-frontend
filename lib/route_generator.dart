@@ -1,14 +1,13 @@
-import 'package:fe/ride/edit_ride_page.dart';
-import 'package:fe/ride/ride_page.dart';
 import 'package:flutter/material.dart';
 import 'package:fe/homepage.dart';
 import 'package:fe/user/sign_up_page.dart';
 import 'package:fe/user/login_page.dart';
 import 'package:fe/user/profile_page.dart';
 import 'package:fe/ride/post_ride_page.dart';
+import 'package:fe/ride/edit_ride_page.dart';
 import 'package:fe/ride/all_rides.dart';
+import 'package:fe/ride/ride_page.dart';
 import 'package:fe/user/edit_profile_page.dart';
-import 'package:fe/ride/single_ride_by_id.dart';
 import 'package:fe/user/upload_profile_pic_page.dart';
 import 'package:fe/user/validate_car_page.dart';
 import 'package:fe/user/validate_licence_page.dart';

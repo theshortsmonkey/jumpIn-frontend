@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import "package:fe/auth_provider.dart";
-import 'package:fe/appbar.dart';
-import 'package:fe/utils/background.dart';
 import 'package:fe/utils/api.dart';
 import 'package:fe/ride/chat_card.dart';
 import 'package:fe/classes/chat_class.dart';
@@ -28,6 +26,7 @@ class SingleRideByID extends StatefulWidget {
 
 class _SingleRideByIDState extends State<SingleRideByID> {
   late ActiveSession _currUser = const ActiveSession();
+  dynamic _carDetails = {'reg': ''};
   late Ride _currRide = Ride();
   List<Chat> _rideChats = [];
   late String rideId = '';
@@ -66,9 +65,17 @@ class _SingleRideByIDState extends State<SingleRideByID> {
         _endLatLong = endLatLong;
         _loading = false;
       });
+      _getCarDetails();
     } catch (e) {
       debugPrint(e.toString());
     }
+  }
+
+  Future<void> _getCarDetails() async {
+    final userData = await fetchUserByUsername(_currUser.username);
+    setState(() {
+      _carDetails = userData.car;
+    });
   }
 
   void sendRequest(Ride rideData) async {
@@ -147,84 +154,75 @@ class _SingleRideByIDState extends State<SingleRideByID> {
     final seatsLeft =
         _currRide.getAvailableSeats - _currRide.riderUsernames.length;
     return _loading
-            ? const CircularProgressIndicator()
-            : context.read<AuthState>().isAuthorized
-                ? Center(
-                    child: _currRide.driverUsername == ''
-                        ? const CircularProgressIndicator()
-                        : Column(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(12.0),
-                                child: Card(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  clipBehavior: Clip.antiAliasWithSaveLayer,
-                                  child: Row(
-                                    children: [
-                                      IntrinsicWidth(
-                                        child: Column(
-                                          children: [
-                                            itemProfile(
-                                                'Start',
-                                                '${_currRide.from}',
-                                                CupertinoIcons
-                                                    .arrow_right_circle),
-                                            itemProfile(
-                                                'End',
-                                                '${_currRide.to}',
-                                                CupertinoIcons
-                                                    .flag_circle_fill),
-                                            itemProfile(
-                                                'Date',
-                                                _currRide.getDateTime
-                                                    .substring(0, 10),
-                                                CupertinoIcons.calendar_today),
-                                            itemProfile(
-                                                'Time',
-                                                _currRide.getDateTime
-                                                    .substring(11, 16),
-                                                CupertinoIcons.clock),
-                                            itemProfile(
-                                                'Spaces Left',
-                                                '$seatsLeft',
-                                                CupertinoIcons.person_2),
-                                            itemProfile(
-                                                'Price',
-                                                cost,
-                                                CupertinoIcons
-                                                    .money_pound_circle),
-                                            itemProfile(
-                                                'Total Carbon',
-                                                '${_currRide.carbonEmissions}',
-                                                CupertinoIcons
-                                                    .leaf_arrow_circlepath),
-                                          ],
-                                        ),
-                                      ),
-                                      Expanded(
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(16),
-                                          child: SizedBox(
-                                              height: 300,
-                                              child: map(
-                                                  _startLatLong, _endLatLong)),
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                ),
+        ? const CircularProgressIndicator()
+        : context.read<AuthState>().isAuthorized
+            ? Center(
+                child: _currRide.driverUsername == ''
+                    ? const CircularProgressIndicator()
+                    : Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: Card(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
                               ),
-                              const SizedBox(width: 10),
-                              driverProfile(imgUrl, _currRide),
-                              actionsCard(_currRide),
-                              chatCards(
-                                  _currRide, _rideChats, rideId, driverUsername)
-                            ],
+                              clipBehavior: Clip.antiAliasWithSaveLayer,
+                              child: Row(
+                                children: [
+                                  IntrinsicWidth(
+                                    child: Column(
+                                      children: [
+                                        itemProfile(
+                                            'Start',
+                                            '${_currRide.from}',
+                                            CupertinoIcons.arrow_right_circle),
+                                        itemProfile('End', '${_currRide.to}',
+                                            CupertinoIcons.flag_circle_fill),
+                                        itemProfile(
+                                            'Date',
+                                            _currRide.getDateTime
+                                                .substring(0, 10),
+                                            CupertinoIcons.calendar_today),
+                                        itemProfile(
+                                            'Time',
+                                            _currRide.getDateTime
+                                                .substring(11, 16),
+                                            CupertinoIcons.clock),
+                                        itemProfile('Spaces Left', '$seatsLeft',
+                                            CupertinoIcons.person_2),
+                                        itemProfile('Price', cost,
+                                            CupertinoIcons.money_pound_circle),
+                                        itemProfile(
+                                            'Total Carbon',
+                                            '${_currRide.carbonEmissions}',
+                                            CupertinoIcons
+                                                .leaf_arrow_circlepath),
+                                      ],
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(16),
+                                      child: SizedBox(
+                                          height: 300,
+                                          child:
+                                              map(_startLatLong, _endLatLong)),
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
                           ),
-                  )
-                : const LoginPage();
+                          const SizedBox(width: 10),
+                          driverProfile(imgUrl, _currRide),
+                          actionsCard(_currRide),
+                          chatCards(
+                              _currRide, _rideChats, rideId, driverUsername)
+                        ],
+                      ),
+              )
+            : const LoginPage();
   }
 
   riderList(riderList) {
@@ -279,6 +277,8 @@ class _SingleRideByIDState extends State<SingleRideByID> {
 
   driverProfile(imgURL, rideData) {
     final theme = Theme.of(context);
+    bool isDriver = (rideData.driverUsername == _currUser.username);
+    bool isAcceptedRider = rideData.riderUsernames.contains(_currUser.username);
 
     return Card(
       shape: RoundedRectangleBorder(
@@ -336,6 +336,22 @@ class _SingleRideByIDState extends State<SingleRideByID> {
                           ),
                         ],
                       ),
+                      isDriver || isAcceptedRider
+                          ? Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text(
+                                  "Car Registration:",
+                                  style: theme.textTheme.headlineSmall,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  "${_carDetails['reg']}",
+                                  style: theme.textTheme.bodyLarge,
+                                ),
+                              ],
+                            )
+                          : const SizedBox.shrink(),
                       Container(height: 10),
                     ],
                   ),
