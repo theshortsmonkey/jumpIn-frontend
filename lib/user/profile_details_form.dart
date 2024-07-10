@@ -44,6 +44,10 @@ class _ProfileDetailsFormState extends State<ProfileDetailsForm> {
 
   Future<void> _setCurrUser() async {
     final userState = Provider.of<AuthState>(context, listen: false);
+    final activeUser = await userState.checkActiveSession();
+    userState.isAuthorized
+        ? userState.setActiveSession(activeUser)
+        : throw Exception('no active user');
     if (userState.userInfo.username != '') {
       _currUser = await fetchUserByUsername(userState.userInfo.username);
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
