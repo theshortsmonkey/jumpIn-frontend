@@ -18,7 +18,7 @@ class AllRidesPage extends StatefulWidget {
 class _AllRidesPageState extends State<AllRidesPage> {
   bool _loading = false;
   late Future<List<Ride>> _futureRides;
-  ActiveSession _currUser = ActiveSession();
+  ActiveSession _currUser = const ActiveSession();
   String _driverUsername = '';
   final _toController = TextEditingController();
   final _fromController = TextEditingController();
