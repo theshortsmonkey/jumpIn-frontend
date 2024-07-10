@@ -42,9 +42,9 @@ dependencies:
   geocode: ^1.0.3
   provider: ^6.1.2
   http: ^1.2.1
-  flutter_map: ^6.1.0
+  flutter_map: ^7.0.2
   latlong2: ^0.9.1
-  flutter_map_cancellable_tile_provider: ^2.0.0
+  flutter_map_cancellable_tile_provider: ^3.0.0
   email_validator: ^2.1.16
   dio: ^5.4.2+1
   intl: ^0.19.0

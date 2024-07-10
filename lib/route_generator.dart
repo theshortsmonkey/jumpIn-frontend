@@ -1,4 +1,5 @@
 import 'package:fe/ride/edit_ride_page.dart';
+import 'package:fe/ride/ride_page.dart';
 import 'package:flutter/material.dart';
 import 'package:fe/homepage.dart';
 import 'package:fe/user/sign_up_page.dart';
@@ -38,7 +39,7 @@ class RouteGenerator {
         return MaterialPageRoute(settings: settings, builder: (context) => const AllRidesPage());
         
       case '/singleride':
-        return MaterialPageRoute(settings: settings, builder: (context) => const SingleRideByID());
+        return MaterialPageRoute(settings: settings, builder: (context) => const RidePage());
 
       case '/editprofile':
         RouteSettings customSettings = RouteSettings(name: '/profile',arguments: settings.arguments);

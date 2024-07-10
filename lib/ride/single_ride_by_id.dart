@@ -12,11 +12,14 @@ import 'package:fe/classes/ride_class.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:flutter_map_cancellable_tile_provider/flutter_map_cancellable_tile_provider.dart';
 import 'package:fe/user/login_page.dart';
 
 class SingleRideByID extends StatefulWidget {
+  final String rideId;
   const SingleRideByID({
     super.key,
+    required this.rideId,
   });
 
   @override
@@ -24,7 +27,7 @@ class SingleRideByID extends StatefulWidget {
 }
 
 class _SingleRideByIDState extends State<SingleRideByID> {
-  late ActiveSession currUser;
+  late ActiveSession _currUser = const ActiveSession();
   late Ride _currRide = Ride();
   List<Chat> _rideChats = [];
   late String rideId = '';
@@ -32,41 +35,40 @@ class _SingleRideByIDState extends State<SingleRideByID> {
   late List _endLatLong = [];
   String _requestText = 'Request to jumpIn';
   bool _isRequestButtonActive = true;
+  bool _loading = true;
 
   @override
   void initState() {
     super.initState();
-    currUser = context.read<AuthState>().userInfo;
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (rideId.isEmpty && currUser.username != '') {
-      final rideIdArg = ModalRoute.of(context)!.settings.arguments;
-      if (rideIdArg != null) {
-        rideId = rideIdArg as String;
-      } else {
-        rideId = '';
-      }
-      _getRideDetails();
-    }
+    rideId = widget.rideId;
+    _getRideDetails();
   }
 
   Future<void> _getRideDetails() async {
-    Ride ride = await fetchRideById(rideId);
-    bool isDriver = false;
-    if (currUser.username == ride.driverUsername) isDriver = true;
-    List<Chat> chats =
-        await fetchMessagesByRideId(rideId, currUser.username, isDriver);
-    final List startLatLong = await fetchLatLong(ride.from);
-    final List endLatLong = await fetchLatLong(ride.to);
-    setState(() {
-      _currRide = ride;
-      _rideChats = chats;
-      _startLatLong = startLatLong;
-      _endLatLong = endLatLong;
-    });
+    try {
+      final userState = Provider.of<AuthState>(context, listen: false);
+      final currUser = await userState.checkActiveSession();
+      userState.isAuthorized
+          ? userState.setActiveSession(currUser)
+          : throw Exception('no active user');
+      Ride ride = await fetchRideById(rideId);
+      bool isDriver = false;
+      if (currUser.username == ride.driverUsername) isDriver = true;
+      List<Chat> chats =
+          await fetchMessagesByRideId(rideId, currUser.username, isDriver);
+      final List startLatLong = await fetchLatLong(ride.from);
+      final List endLatLong = await fetchLatLong(ride.to);
+      setState(() {
+        _currUser = currUser;
+        _currRide = ride;
+        _rideChats = chats;
+        _startLatLong = startLatLong;
+        _endLatLong = endLatLong;
+        _loading = false;
+      });
+    } catch (e) {
+      debugPrint(e.toString());
+    }
   }
 
   void sendRequest(Ride rideData) async {
@@ -75,13 +77,13 @@ class _SingleRideByIDState extends State<SingleRideByID> {
       _isRequestButtonActive = false;
     });
     final newMessage = Message(
-        from: currUser.username,
-        text: '${currUser.username} would like to jumpIn',
+        from: _currUser.username,
+        text: '${_currUser.username} would like to jumpIn',
         driver: rideData.driverUsername,
-        rider: currUser.username);
+        rider: _currUser.username);
     postMessageByRideId(rideData.id, newMessage);
     final patchDetails = {
-      'requestJumpin': currUser.username,
+      'requestJumpin': _currUser.username,
     };
     await patchRideById(rideData.id, patchDetails);
     await _getRideDetails();
@@ -96,7 +98,7 @@ class _SingleRideByIDState extends State<SingleRideByID> {
       };
       await patchRideById(rideData.id, patchDetails);
       final newMessage = Message(
-          from: currUser.username,
+          from: _currUser.username,
           text: 'Request from $requestFrom accepted',
           driver: rideData.driverUsername,
           rider: requestFrom);
@@ -113,7 +115,7 @@ class _SingleRideByIDState extends State<SingleRideByID> {
     };
     await patchRideById(rideData.id, patchDetails);
     final newMessage = Message(
-        from: currUser.username,
+        from: _currUser.username,
         text: 'Request from $requestFrom rejected',
         driver: rideData.driverUsername,
         rider: requestFrom);
@@ -127,7 +129,7 @@ class _SingleRideByIDState extends State<SingleRideByID> {
     };
     await patchRideById(rideData.id, patchDetails);
     final newMessage = Message(
-        from: currUser.username,
+        from: _currUser.username,
         text: '$requestFrom removed from ride',
         driver: rideData.driverUsername,
         rider: requestFrom);
@@ -144,88 +146,85 @@ class _SingleRideByIDState extends State<SingleRideByID> {
     final String driverUsername = _currRide.driverUsername;
     final seatsLeft =
         _currRide.getAvailableSeats - _currRide.riderUsernames.length;
-    return context.read<AuthState>().isAuthorized
-        ? Scaffold(
-            appBar: CustomAppBar(
-              title: 'jumpIn - Ride Details',
-              context: context,
-            ),
-            body: ContainerWithBackgroundImage(
-              child: SingleChildScrollView(
-                child: Center(
-                  child: _currRide.driverUsername == ''
-                      ? const CircularProgressIndicator()
-                      : Column(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(12.0),
-                              child: Card(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                clipBehavior: Clip.antiAliasWithSaveLayer,
-                                child: Row(
-                                  children: [
-                                    IntrinsicWidth(
-                                      child: Column(
-                                        children: [
-                                          itemProfile(
-                                              'Start',
-                                              '${_currRide.from}',
-                                              CupertinoIcons
-                                                  .arrow_right_circle),
-                                          itemProfile('End', '${_currRide.to}',
-                                              CupertinoIcons.flag_circle_fill),
-                                          itemProfile(
-                                              'Date',
-                                              _currRide.getDateTime.substring(0, 10),
-                                              CupertinoIcons.calendar_today),
-                                          itemProfile(
-                                              'Time',
-                                              _currRide.getDateTime.substring(11, 16),
-                                              CupertinoIcons.clock),
-                                          itemProfile(
-                                              'Spaces Left',
-                                              '$seatsLeft',
-                                              CupertinoIcons.person_2),
-                                          itemProfile(
-                                              'Price',
-                                              cost,
-                                              CupertinoIcons
-                                                  .money_pound_circle),
-                                          itemProfile(
-                                              'Total Carbon',
-                                              '${_currRide.carbonEmissions}',
-                                              CupertinoIcons
-                                                  .leaf_arrow_circlepath),
-                                        ],
+    return _loading
+            ? const CircularProgressIndicator()
+            : context.read<AuthState>().isAuthorized
+                ? Center(
+                    child: _currRide.driverUsername == ''
+                        ? const CircularProgressIndicator()
+                        : Column(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(12.0),
+                                child: Card(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  clipBehavior: Clip.antiAliasWithSaveLayer,
+                                  child: Row(
+                                    children: [
+                                      IntrinsicWidth(
+                                        child: Column(
+                                          children: [
+                                            itemProfile(
+                                                'Start',
+                                                '${_currRide.from}',
+                                                CupertinoIcons
+                                                    .arrow_right_circle),
+                                            itemProfile(
+                                                'End',
+                                                '${_currRide.to}',
+                                                CupertinoIcons
+                                                    .flag_circle_fill),
+                                            itemProfile(
+                                                'Date',
+                                                _currRide.getDateTime
+                                                    .substring(0, 10),
+                                                CupertinoIcons.calendar_today),
+                                            itemProfile(
+                                                'Time',
+                                                _currRide.getDateTime
+                                                    .substring(11, 16),
+                                                CupertinoIcons.clock),
+                                            itemProfile(
+                                                'Spaces Left',
+                                                '$seatsLeft',
+                                                CupertinoIcons.person_2),
+                                            itemProfile(
+                                                'Price',
+                                                cost,
+                                                CupertinoIcons
+                                                    .money_pound_circle),
+                                            itemProfile(
+                                                'Total Carbon',
+                                                '${_currRide.carbonEmissions}',
+                                                CupertinoIcons
+                                                    .leaf_arrow_circlepath),
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                    Expanded(
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(16),
-                                        child: SizedBox(
-                                            height: 300,
-                                            child: map(
-                                                _startLatLong, _endLatLong)),
-                                      ),
-                                    )
-                                  ],
+                                      Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(16),
+                                          child: SizedBox(
+                                              height: 300,
+                                              child: map(
+                                                  _startLatLong, _endLatLong)),
+                                        ),
+                                      )
+                                    ],
+                                  ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(width: 10),
-                            driverProfile(imgUrl, _currRide),
-                            actionsCard(_currRide),
-                            chatCards(
-                                _currRide, _rideChats, rideId, driverUsername)
-                          ],
-                        ),
-                ),
-              ),
-            ),
-          )
-        : const LoginPage();
+                              const SizedBox(width: 10),
+                              driverProfile(imgUrl, _currRide),
+                              actionsCard(_currRide),
+                              chatCards(
+                                  _currRide, _rideChats, rideId, driverUsername)
+                            ],
+                          ),
+                  )
+                : const LoginPage();
   }
 
   riderList(riderList) {
@@ -264,6 +263,7 @@ class _SingleRideByIDState extends State<SingleRideByID> {
         TileLayer(
           urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
           userAgentPackageName: 'com.example.app',
+          tileProvider: CancellableNetworkTileProvider(),
         ),
         PolylineLayer(
           polylines: [
@@ -350,7 +350,7 @@ class _SingleRideByIDState extends State<SingleRideByID> {
 
   actionsCard(Ride rideData) {
     final theme = Theme.of(context);
-    bool isDriver = (rideData.driverUsername == currUser.username);
+    bool isDriver = (rideData.driverUsername == _currUser.username);
     int spacesLeft =
         rideData.getAvailableSeats - rideData.riderUsernames.length;
     final Widget driverRequestsView = Expanded(
@@ -364,9 +364,9 @@ class _SingleRideByIDState extends State<SingleRideByID> {
             Wrap(
               children: [
                 Text(
-                    '$rider - accepted',
-                    style: theme.textTheme.bodyLarge,
-                  ),
+                  '$rider - accepted',
+                  style: theme.textTheme.bodyLarge,
+                ),
                 ElevatedButton(
                   onPressed: () {
                     removeRider(rideData, rider);
@@ -412,12 +412,12 @@ class _SingleRideByIDState extends State<SingleRideByID> {
             'jumpIn Requests:',
             style: theme.textTheme.headlineSmall,
           ),
-          rideData.riderUsernames.contains(currUser.username)
+          rideData.riderUsernames.contains(_currUser.username)
               ? Text(
                   'Request accepted',
                   style: theme.textTheme.bodyLarge,
                 )
-              : rideData.jumpInRequests.contains(currUser.username)
+              : rideData.jumpInRequests.contains(_currUser.username)
                   ? Text(
                       'Request pending',
                       style: theme.textTheme.bodyLarge,
@@ -460,7 +460,8 @@ class _SingleRideByIDState extends State<SingleRideByID> {
         ElevatedButton(
           onPressed: rideData.riderUsernames.isEmpty
               ? () {
-                  Navigator.of(context).pushNamed('/editride', arguments: rideData.id);
+                  Navigator.of(context)
+                      .pushNamed('/editride', arguments: rideData.id);
                 }
               : null,
           child: const Text('Edit Ride'),
