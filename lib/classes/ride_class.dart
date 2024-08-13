@@ -71,7 +71,7 @@ class Ride {
     this.carbonEmissions,
     this.distance,
     this.price = 0,
-    this.map,
+    this.map = const {},
     this.setDateTime,
     this.getDateTime = '2024-01-01T00:00:01.000Z',
     this.chats = const [],

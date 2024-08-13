@@ -1,3 +1,5 @@
+import 'package:fe/classes/ride_class.dart';
+import 'package:fe/utils/api_rides.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import "package:fe/auth_provider.dart";
@@ -37,6 +39,31 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     } catch (e) {
       debugPrint(e.toString());
     }
+  }
+
+  void _calculatePriceTest() async {
+    try {
+      final fuelPriceFuture = await fetchFuelPrice('PETROL');
+      print(fuelPriceFuture);
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+  void _postRideTest() async {
+    final rideData = Ride(
+      to: 'Leeds',
+      toRegion: RegionsLabel.fromString('Yorkshire'),
+      from: 'Durham',
+      fromRegion: RegionsLabel.fromString('North East'),
+      driverUsername: 'user1',
+      carbonEmissions: 0,
+      distance: 0,
+      price: 2000,
+      postAvailableSeats: SeatsLabel.fromInt(1),
+      setDateTime: DateTime.now(),
+    );
+      final postedRide = await postRide(rideData);
+      print(postedRide);
   }
 
   void _navigateToPage(String page) {
@@ -83,6 +110,16 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             icon: const Icon(Icons.verified_user),
             onPressed: () { _setDefaultUser(context); },
             tooltip: 'Login default user',
+          ),
+          IconButton(
+            icon: const Icon(Icons.abc),
+            onPressed: () { _postRideTest(); },
+            tooltip: 'testfunction',
+          ),
+          IconButton(
+            icon: const Icon(Icons.currency_pound),
+            onPressed: () { _calculatePriceTest(); },
+            tooltip: 'testfunction',
           ),
         isLoggedIn
             ? Row(
