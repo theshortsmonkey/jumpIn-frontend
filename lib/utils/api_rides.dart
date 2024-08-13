@@ -36,7 +36,7 @@ Future<List<Ride>> fetchRides(
     queryParams['carbon_emissions'] = carbonEmissions;
   }
 
-  final url = Uri.https(baseHost, '/rides', queryParams);
+  final url = Uri.https(Paths.baseUrl, '/rides', queryParams);
   final response = await clientWithCredentials.get(url);
   List<Ride> result = json.decode(processResponse(response)).map<Ride>((item) {
     return Ride.fromJson(item as Map<String, dynamic>);

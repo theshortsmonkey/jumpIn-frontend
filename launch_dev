@@ -1,1 +1,1 @@
-flutter run -d chrome --web-port=43089
+flutter run --dart-define=API_URL='localhost:1337' -d chrome --web-port=43089

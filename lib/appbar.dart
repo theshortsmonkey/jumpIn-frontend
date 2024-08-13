@@ -30,9 +30,19 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       this.disableAllRidesButton = false,
       this.isLoggedIn = false});
 
-  void _setDefaultUser(context) async {
+  void _setDefaultDevUser(context) async {
     try {
       final futureUser = await postLogin('user1', 'User123!');
+      final userState = Provider.of<AuthState>(context, listen: false);
+      userState.setActiveSession(futureUser);
+      Navigator.of(context).pushNamed('/profile');
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+  void _setDefaultTestUser(context) async {
+    try {
+      final futureUser = await postLogin('testUsername1', 'testPassword1');
       final userState = Provider.of<AuthState>(context, listen: false);
       userState.setActiveSession(futureUser);
       Navigator.of(context).pushNamed('/profile');
@@ -107,9 +117,14 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       actions: [
         if (!disableDefaultUserButton)
           IconButton(
-            icon: const Icon(Icons.verified_user),
-            onPressed: () { _setDefaultUser(context); },
-            tooltip: 'Login default user',
+            icon: const Icon(Icons.logo_dev),
+            onPressed: () { _setDefaultDevUser(context); },
+            tooltip: 'Login default dev user',
+          ),
+          IconButton(
+            icon: const Icon(Icons.supervised_user_circle),
+            onPressed: () { _setDefaultTestUser(context); },
+            tooltip: 'Login default test user',
           ),
           IconButton(
             icon: const Icon(Icons.abc),
