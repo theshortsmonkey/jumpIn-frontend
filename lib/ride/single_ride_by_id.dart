@@ -1,3 +1,4 @@
+import 'package:fe/utils/api_paths.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
@@ -148,7 +149,7 @@ class _SingleRideByIDState extends State<SingleRideByID> {
   @override
   Widget build(BuildContext context) {
     final String imgUrl =
-        'http://localhost:1337/users/${_currRide.driverUsername}/image';
+        '$baseUrl/users/${_currRide.driverUsername}/image';
     final String cost = NumberFormat.currency(locale: "en_GB", symbol: '£')
         .format(_currRide.price / 100);
     final String driverUsername = _currRide.driverUsername;

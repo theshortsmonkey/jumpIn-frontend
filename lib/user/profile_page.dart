@@ -1,3 +1,4 @@
+import 'package:fe/utils/api_paths.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
@@ -38,7 +39,7 @@ class _ProfilePageState extends State<ProfilePage> {
           ? userState.setActiveSession(activeUser)
           : throw Exception('no active user');
       _currUser = userState.userInfo;
-      _imgUrl = "http://localhost:1337/users/${_currUser.username}/image";
+      _imgUrl = "$baseUrl/users/${_currUser.username}/image";
       final userData = await fetchUserByUsername(_currUser.username);
       setState(() {
         _userData = userData;

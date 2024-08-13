@@ -1,3 +1,4 @@
+import 'package:fe/utils/api_paths.dart';
 import 'package:flutter/material.dart';
 import 'package:fe/classes/ride_class.dart';
 
@@ -11,7 +12,7 @@ class RideCard extends StatelessWidget {
     final titleStyleM = theme.textTheme.titleMedium;
     final titleStyleS = theme.textTheme.titleSmall;
     final String imgUrl =
-        'http://localhost:1337/users/${ride.driverUsername}/image';
+        '$baseUrl/users/${ride.driverUsername}/image';
     return GestureDetector(
       onTap: () {
         Navigator.of(context).pushNamed('/singleride', arguments: ride.id);

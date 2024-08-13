@@ -1,3 +1,4 @@
+import 'package:fe/utils/api_paths.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import "package:fe/auth_provider.dart";
@@ -134,7 +135,7 @@ class _ChatCardState extends State<ChatCard> {
   }
 
   userCard(User? user) {
-    final imgUrl = "http://localhost:1337/users/${user!.username}/image";
+    final imgUrl = "$baseUrl/users/${user!.username}/image";
     return Row(
       children: [
         Center(
