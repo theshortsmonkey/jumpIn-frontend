@@ -94,7 +94,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               height: 40.0,
               decoration: const BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage("../web/icons/logo.png"),
+                  image: AssetImage("web/images/logo.png"),
                   fit: BoxFit.cover,
                   alignment: Alignment(-0.2, -0.2),
                 ),

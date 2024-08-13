@@ -57,14 +57,7 @@ class _MyHomePageState extends State<MyHomePage> {
         disableMainPageButton: true,
         isLoggedIn: isLoggedIn,
       ),
-      body: Container(
-        alignment: Alignment.topCenter,
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage("../web/background/background.png"),
-            fit: BoxFit.cover,
-          ),
-        ),
+      body: ContainerWithBackgroundImage(
         child: SingleChildScrollView(
           child: Center(
             child:

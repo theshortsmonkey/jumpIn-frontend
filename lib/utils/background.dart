@@ -14,7 +14,7 @@ class ContainerWithBackgroundImage extends StatelessWidget {
       alignment: Alignment.topCenter,
       decoration: const BoxDecoration(
         image: DecorationImage(
-          image: AssetImage("../web/background/background.png"),
+          image: AssetImage("web/images/background.png"),
           fit: BoxFit.cover,
         ),
       ),
