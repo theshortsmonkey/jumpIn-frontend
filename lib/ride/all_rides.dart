@@ -4,7 +4,7 @@ import "package:fe/auth_provider.dart";
 import 'package:fe/appbar.dart';
 import 'package:fe/utils/background.dart';
 import 'package:fe/classes/ride_class.dart';
-import 'package:fe/utils/api.dart';
+import 'package:fe/utils/api_rides.dart';
 import 'package:fe/ride/ride_card.dart';
 import 'package:fe/user/login_page.dart';
 
