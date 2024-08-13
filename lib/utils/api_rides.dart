@@ -1,35 +1,9 @@
 import 'dart:convert';
 import 'dart:async';
+import 'package:fe/utils/api_paths.dart';
 import 'package:fe/utils/process_api_response.dart';
-import "package:http/http.dart" as http;
-import 'package:enhanced_http/enhanced_http.dart';
-import 'package:fe/auth_provider.dart';
 import 'package:fe/classes/ride_class.dart';
 import 'package:fe/classes/chat_class.dart';
-
-EnhancedHttp httpEnhanced = EnhancedHttp(
-  baseURL: 'https://localhost:1337',
-  );
-// EnhancedHttp httpEnhanced = EnhancedHttp(baseURL: 'https://jumpin-backend.onrender.com');
-EnhancedHttp httpGeoapify =
-    EnhancedHttp(baseURL: 'https://api.geoapify.com/v1/routing');
-EnhancedHttp httpGeocode =
-    EnhancedHttp(baseURL: 'https://api.geoapify.com/v1/geocode');
-EnhancedHttp httpFuel = EnhancedHttp(baseURL: 'https://www.bp.com');
-
-const baseHost = 'localhost:1337';
-const baseUrl = 'https://$baseHost';
-// const baseHost = 'jumpin-backend.onrender.com';
-// const baseUrl = 'https://$baseHost';
-const geoapifyUrl = 'https://api.geoapify.com/v1/routing';
-
-Future<ActiveSession> getCurrentSession() async {
-  Uri url = Uri.parse('$baseUrl/users/currentUser');
-  final response = await http.get(url);
-  final user = ActiveSession.fromJson(
-      jsonDecode(processResponse(response)) as Map<String, dynamic>);
-  return user;
-}
 
 Future<List<Ride>> fetchRides(
     {String? driverUsername,
@@ -63,7 +37,7 @@ Future<List<Ride>> fetchRides(
   }
 
   final url = Uri.https(baseHost, '/rides', queryParams);
-  final response = await http.get(url);
+  final response = await clientWithCredentials.get(url);
   List<Ride> result = json.decode(processResponse(response)).map<Ride>((item) {
     return Ride.fromJson(item as Map<String, dynamic>);
   }).toList();
@@ -71,12 +45,10 @@ Future<List<Ride>> fetchRides(
 }
 
 Future<Ride> fetchRideById(rideId) async {
-  final response = await httpEnhanced.get('/rides/$rideId');
-  if (response.isNotEmpty) {
-    return Ride.fromJson(response as Map<String, dynamic>);
-  } else {
-    throw Exception('No ride found');
-  }
+  Uri url = Uri.parse('$baseUrl/rides/$rideId');
+  final response = await clientWithCredentials.get(url);
+  final result = Ride.fromJson(json.decode(processResponse(response)) as Map<String, dynamic>);
+  return result;
 }
 
 Future<List<Chat>> fetchMessagesByRideId(rideId, rider, isDriver) async {
@@ -84,7 +56,7 @@ Future<List<Chat>> fetchMessagesByRideId(rideId, rider, isDriver) async {
   if (isDriver) {
     url = Uri.parse('$baseUrl/rides/$rideId/driverMessages/$rider');
   }
-  final response = await http.get(url);
+  final response = await clientWithCredentials.get(url);
   final responseData = json.decode(processResponse(response));
   List<Chat> result = responseData.map<Chat>((item) {
     return Chat.fromJson(item as Map<String, dynamic>);
@@ -95,7 +67,7 @@ Future<List<Chat>> fetchMessagesByRideId(rideId, rider, isDriver) async {
 Future<List<Chat>> postMessageByRideId(rideId, message) async {
   Uri url = Uri.parse('$baseUrl/rides/$rideId/messages');
   String bodyJson = jsonEncode(message);
-  final response = await http.post(url,
+  final response = await clientWithCredentials.post(url,
       headers: {"Content-Type": "application/json"}, body: bodyJson);
   final responseData = json.decode(processResponse(response));
   List<Chat> result = responseData.map<Chat>((item) {
@@ -105,11 +77,12 @@ Future<List<Chat>> postMessageByRideId(rideId, message) async {
 }
 
 Future<List> fetchLatLong(place) async {
-  final response = await httpGeocode.get(
-      '/search?text=$place&filter=countrycode:gb&format=json&apiKey=9ac318b7da314e00b462f8801c758396');
+  final url = Uri.parse('$geocodeUrl/search?text=$place&filter=countrycode:gb&format=json&apiKey=9ac318b7da314e00b462f8801c758396');
+  final response = await clientDefault.get(url);
+  final result = json.decode(processResponse(response));
   final List latLong = [
-    response['results'][0]['lat'],
-    response['results'][0]['lon']
+    result['results'][0]['lat'],
+    result['results'][0]['lon']
   ];
   return latLong;
 }
@@ -117,7 +90,7 @@ Future<List> fetchLatLong(place) async {
 Future<Ride> postRide(ride) async {
   Uri url = Uri.parse('$baseUrl/rides');
   String json = jsonEncode(ride);
-  final response = await http.post(url,
+  final response = await clientWithCredentials.post(url,
       headers: {"Content-Type": "application/json"}, body: json);
   final result = Ride.fromJson(
       jsonDecode(processResponse(response)) as Map<String, dynamic>);
@@ -127,7 +100,7 @@ Future<Ride> postRide(ride) async {
 Future<Ride> patchRideById(rideId, patchDetails) async {
   Uri url = Uri.parse('$baseUrl/rides/$rideId');
   String bodyJson = jsonEncode(patchDetails);
-  final response = await http.patch(url,
+  final response = await clientWithCredentials.patch(url,
       headers: {"Content-Type": "application/json"}, body: bodyJson);
   final result = Ride.fromJson(
       jsonDecode(processResponse(response)) as Map<String, dynamic>);
@@ -136,30 +109,32 @@ Future<Ride> patchRideById(rideId, patchDetails) async {
 
 Future<void> deleteRide(rideId) async {
   Uri url = Uri.parse('$baseUrl/rides/$rideId');
-  final response = await http.delete(url);
+  final response = await clientWithCredentials.delete(url);
   processResponse(response);
 }
 
 Future fetchDistance(waypoints) async {
-  final response = await httpGeoapify.get(
-      '?waypoints=$waypoints&mode=drive&apiKey=9ac318b7da314e00b462f8801c758396');
-  final distance = response['features'][0]['properties']['distance'];
+  final url = Uri.parse('$geoapifyUrl?waypoints=$waypoints&mode=drive&apiKey=9ac318b7da314e00b462f8801c758396');
+  final response = await clientDefault.get(url);
+  final result = json.decode(processResponse(response));
+  final distance = result['features'][0]['properties']['distance'];
   return distance;
 }
 
 Future fetchFuelPrice(fuelType) async {
   final double fuelPrice;
-  final response = await httpFuel.get(
-      '/en_gb/united-kingdom/home/fuelprices/fuel_prices_data.json',
-      headers: {
+  final url = Uri.parse(fuelUrl);
+  final Map<String, String> requestHeaders = {
         "accept": '*/*',
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "POST, GET, OPTIONS, PUT, DELETE, HEAD",
-      });
+      };
+  final response = await clientDefault.get(url,headers: requestHeaders);
+  final result = json.decode(processResponse(response));
   if (fuelType == "PETROL") {
-    fuelPrice = response["stations"][0]['prices']['E10']; //petrol price
+    fuelPrice = result["stations"][0]['prices']['E10']; //petrol price
   } else {
-    fuelPrice = response["stations"][0]['prices']['B7']; //diesel price
+    fuelPrice = result["stations"][0]['prices']['B7']; //diesel price
   }
   return fuelPrice;
 }
