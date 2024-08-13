@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:async';
+import 'package:fe/utils/process_api_response.dart';
 import "package:http/http.dart" as http;
 import 'package:enhanced_http/enhanced_http.dart';
 import 'package:fe/auth_provider.dart';
@@ -161,37 +162,4 @@ Future fetchFuelPrice(fuelType) async {
     fuelPrice = response["stations"][0]['prices']['B7']; //diesel price
   }
   return fuelPrice;
-}
-
-processResponse(Response response) {
-  switch (response.statusCode) {
-    case 200:
-      {
-        return response.body;
-      }
-    case 201:
-      {
-        return response.body;
-      }
-    case 400:
-      {
-        throw Exception('Bad Request');
-      }
-    case 401:
-      {
-        throw Exception('Unauthorised');
-      }
-    case 403:
-      {
-        throw Exception('Login session not active');
-      }
-    case 404:
-      {
-        throw Exception("Not Found");
-      }
-    default:
-      {
-        throw Exception("Un-handled response");
-      }
-  }
 }
