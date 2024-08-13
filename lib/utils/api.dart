@@ -23,6 +23,91 @@ const baseUrl = 'https://$baseHost';
 // const baseUrl = 'https://$baseHost';
 const geoapifyUrl = 'https://api.geoapify.com/v1/routing';
 
+Future<ActiveSession> getCurrentSession() async {
+  Uri url = Uri.parse('$baseUrl/users/currentUser');
+  final response = await http.get(url);
+  final user = ActiveSession.fromJson(
+      jsonDecode(processResponse(response)) as Map<String, dynamic>);
+  return user;
+}
+
+Future<ActiveSession> postLogin(String username, String password) async {
+  final bodyJson = jsonEncode({'password': password});
+  Uri url = Uri.parse('$baseUrl/users/$username/login');
+  try {
+    final response = await http.post(url, body: bodyJson,);
+    final result = ActiveSession.fromJson(jsonDecode(processResponse(response)) as Map<String, dynamic>);
+    return result;
+  } on ClientException {
+    throw Exception('server unavailable');
+  } catch (e) {
+    throw Exception(e.toString());
+  } 
+}
+
+Future<void> postLogout(String username) async {
+  Uri url = Uri.parse('$baseUrl/users/$username/logout');
+  final response = await http.post(url);
+  processResponse(response);
+}
+
+Future<List<User>> fetchUsers() async {
+  final response = await httpEnhanced.get('/users');
+  if (response.isNotEmpty) {
+    List<User> users = response.map<User>((item) {
+      return User.fromJson(item as Map<String, dynamic>);
+    }).toList();
+    return users;
+  } else {
+    throw Exception('No users found');
+  }
+}
+
+Future<User> fetchUserByUsername(username) async {
+  try {
+    Uri url = Uri.parse('$baseUrl/users/$username');
+    final response = await http.get(url);
+    var user = User.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+    return user;
+  } catch (e) {
+    throw Exception('No users found');
+  }
+}
+
+Future<User> postUser(user) async {
+  Uri url = Uri.parse('$baseUrl/users');
+  String json = jsonEncode(user);
+  final response = await http.post(url,
+      headers: {"Content-Type": "application/json"}, body: json);
+  var result = User.fromJson(
+      jsonDecode(processResponse(response)) as Map<String, dynamic>);
+  return result;
+}
+
+Future<User> patchUser(user) async {
+  String json = jsonEncode(user);
+  Uri url = Uri.parse('$baseUrl/users/${user.username}');
+  final response = await http.patch(url,
+      headers: {"Content-Type": "application/json"}, body: json);
+  List<User> result = jsonDecode(processResponse(response)).map<User>((item) {
+    return User.fromJson(item as Map<String, dynamic>);
+  }).toList();
+  return result[0];
+}
+
+Future<void> uploadUserProfilePic(String username, String filePath) async {
+  Uri url = Uri.parse('$baseUrl/users/$username/image');
+  final response =
+      await http.post(url, body: jsonEncode({'filePath': filePath}));
+  return processResponse(response);
+}
+
+Future<void> deleteUser(user) async {
+  final uri = Uri.parse("$baseUrl/users/${user.username}");
+  final response = await http.delete(uri);
+  processResponse(response);
+}
+
 Future<List<Ride>> fetchRides(
     {String? driverUsername,
     String? to,
@@ -71,76 +156,29 @@ Future<Ride> fetchRideById(rideId) async {
   }
 }
 
-Future<List<User>> fetchUsers() async {
-  final response = await httpEnhanced.get('/users');
-  if (response.isNotEmpty) {
-    List<User> users = response.map<User>((item) {
-      return User.fromJson(item as Map<String, dynamic>);
-    }).toList();
-    return users;
-  } else {
-    throw Exception('No users found');
+Future<List<Chat>> fetchMessagesByRideId(rideId, rider, isDriver) async {
+  Uri url = Uri.parse('$baseUrl/rides/$rideId/messages/$rider');
+  if (isDriver) {
+    url = Uri.parse('$baseUrl/rides/$rideId/driverMessages/$rider');
   }
-}
-
-Future<User> fetchUserByUsername(username) async {
-  try {
-    Uri url = Uri.parse('$baseUrl/users/$username');
-    final response = await http.get(url);
-    var user = User.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
-    return user;
-  } catch (e) {
-    throw Exception('No users found');
-  }
-}
-
-Future<User> postUser(user) async {
-  Uri url = Uri.parse('$baseUrl/users');
-  String json = jsonEncode(user);
-  final response = await http.post(url,
-      headers: {"Content-Type": "application/json"}, body: json);
-  var result = User.fromJson(
-      jsonDecode(processResponse(response)) as Map<String, dynamic>);
+  final response = await http.get(url);
+  final responseData = json.decode(processResponse(response));
+  List<Chat> result = responseData.map<Chat>((item) {
+    return Chat.fromJson(item as Map<String, dynamic>);
+  }).toList();
   return result;
 }
 
-Future<User> patchUser(user) async {
-  String json = jsonEncode(user);
-  Uri url = Uri.parse('$baseUrl/users/${user.username}');
-  final response = await http.patch(url,
-      headers: {"Content-Type": "application/json"}, body: json);
-  List<User> result = jsonDecode(processResponse(response)).map<User>((item) {
-    return User.fromJson(item as Map<String, dynamic>);
+Future<List<Chat>> postMessageByRideId(rideId, message) async {
+  Uri url = Uri.parse('$baseUrl/rides/$rideId/messages');
+  String bodyJson = jsonEncode(message);
+  final response = await http.post(url,
+      headers: {"Content-Type": "application/json"}, body: bodyJson);
+  final responseData = json.decode(processResponse(response));
+  List<Chat> result = responseData.map<Chat>((item) {
+    return Chat.fromJson(item as Map<String, dynamic>);
   }).toList();
-  return result[0];
-}
-
-Future<ActiveSession> getCurrentSession() async {
-  Uri url = Uri.parse('$baseUrl/users/currentUser');
-  final response = await http.get(url);
-  final user = ActiveSession.fromJson(
-      jsonDecode(processResponse(response)) as Map<String, dynamic>);
-  return user;
-
-}
-Future<ActiveSession> postLogin(String username, String password) async {
-  final bodyJson = jsonEncode({'password': password});
-  Uri url = Uri.parse('$baseUrl/users/$username/login');
-  try {
-    final response = await http.post(url, body: bodyJson,);
-    final result = ActiveSession.fromJson(jsonDecode(processResponse(response)) as Map<String, dynamic>);
-    return result;
-  } on ClientException {
-    throw Exception('server unavailable');
-  } catch (e) {
-    throw Exception(e.toString());
-  } 
-}
-
-Future<void> postLogout(String username) async {
-  Uri url = Uri.parse('$baseUrl/users/$username/logout');
-  final response = await http.post(url);
-  processResponse(response);
+  return result;
 }
 
 Future<List> fetchLatLong(place) async {
@@ -153,17 +191,30 @@ Future<List> fetchLatLong(place) async {
   return latLong;
 }
 
-Future<void> deleteUser(user) async {
-  final uri = Uri.parse("$baseUrl/users/${user.username}");
-  final response = await http.delete(uri);
-  processResponse(response);
+Future<Ride> postRide(ride) async {
+  Uri url = Uri.parse('$baseUrl/rides');
+  String json = jsonEncode(ride);
+  final response = await http.post(url,
+      headers: {"Content-Type": "application/json"}, body: json);
+  final result = Ride.fromJson(
+      jsonDecode(processResponse(response)) as Map<String, dynamic>);
+  return result;
 }
 
-Future<void> uploadUserProfilePic(String username, String filePath) async {
-  Uri url = Uri.parse('$baseUrl/users/$username/image');
-  final response =
-      await http.post(url, body: jsonEncode({'filePath': filePath}));
-  return processResponse(response);
+Future<Ride> patchRideById(rideId, patchDetails) async {
+  Uri url = Uri.parse('$baseUrl/rides/$rideId');
+  String bodyJson = jsonEncode(patchDetails);
+  final response = await http.patch(url,
+      headers: {"Content-Type": "application/json"}, body: bodyJson);
+  final result = Ride.fromJson(
+      jsonDecode(processResponse(response)) as Map<String, dynamic>);
+  return result;
+}
+
+Future<void> deleteRide(rideId) async {
+  Uri url = Uri.parse('$baseUrl/rides/$rideId');
+  final response = await http.delete(url);
+  processResponse(response);
 }
 
 Future fetchDistance(waypoints) async {
@@ -209,57 +260,6 @@ Future fetchCarDetails(carReg) async {
   } catch (e) {
     throw Exception("Error fetching car details: $e");
   }
-}
-
-Future<Ride> postRide(ride) async {
-  Uri url = Uri.parse('$baseUrl/rides');
-  String json = jsonEncode(ride);
-  final response = await http.post(url,
-      headers: {"Content-Type": "application/json"}, body: json);
-  final result = Ride.fromJson(
-      jsonDecode(processResponse(response)) as Map<String, dynamic>);
-  return result;
-}
-
-Future<void> deleteRide(rideId) async {
-  Uri url = Uri.parse('$baseUrl/rides/$rideId');
-  final response = await http.delete(url);
-  processResponse(response);
-}
-
-Future<Ride> patchRideById(rideId, patchDetails) async {
-  Uri url = Uri.parse('$baseUrl/rides/$rideId');
-  String bodyJson = jsonEncode(patchDetails);
-  final response = await http.patch(url,
-      headers: {"Content-Type": "application/json"}, body: bodyJson);
-  final result = Ride.fromJson(
-      jsonDecode(processResponse(response)) as Map<String, dynamic>);
-  return result;
-}
-
-Future<List<Chat>> fetchMessagesByRideId(rideId, rider, isDriver) async {
-  Uri url = Uri.parse('$baseUrl/rides/$rideId/messages/$rider');
-  if (isDriver) {
-    url = Uri.parse('$baseUrl/rides/$rideId/driverMessages/$rider');
-  }
-  final response = await http.get(url);
-  final responseData = json.decode(processResponse(response));
-  List<Chat> result = responseData.map<Chat>((item) {
-    return Chat.fromJson(item as Map<String, dynamic>);
-  }).toList();
-  return result;
-}
-
-Future<List<Chat>> postMessageByRideId(rideId, message) async {
-  Uri url = Uri.parse('$baseUrl/rides/$rideId/messages');
-  String bodyJson = jsonEncode(message);
-  final response = await http.post(url,
-      headers: {"Content-Type": "application/json"}, body: bodyJson);
-  final responseData = json.decode(processResponse(response));
-  List<Chat> result = responseData.map<Chat>((item) {
-    return Chat.fromJson(item as Map<String, dynamic>);
-  }).toList();
-  return result;
 }
 
 processResponse(Response response) {

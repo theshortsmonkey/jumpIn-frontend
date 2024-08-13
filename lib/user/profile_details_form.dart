@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import "package:fe/auth_provider.dart";
 import 'package:fe/classes/user_class.dart';
 import 'package:fe/utils/animated_progress_indicator.dart';
-import 'package:fe/utils/api.dart';
+import 'package:fe/utils/api_users.dart';
 import 'package:email_validator/email_validator.dart';
 
 class ProfileDetailsForm extends StatefulWidget {
