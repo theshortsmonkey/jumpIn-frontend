@@ -6,8 +6,12 @@ import 'package:fe/auth_provider.dart';
 import 'package:fe/classes/ride_class.dart';
 import 'package:fe/classes/chat_class.dart';
 import "package:fe/classes/user_class.dart";
+import 'package:http/browser_client.dart';
 
-EnhancedHttp httpEnhanced = EnhancedHttp(baseURL: 'http://localhost:1337');
+EnhancedHttp httpEnhanced = EnhancedHttp(
+  baseURL: 'https://localhost:1337',
+  );
+// EnhancedHttp httpEnhanced = EnhancedHttp(baseURL: 'https://jumpin-backend.onrender.com');
 EnhancedHttp httpGeoapify =
     EnhancedHttp(baseURL: 'https://api.geoapify.com/v1/routing');
 EnhancedHttp httpGeocode =
@@ -15,7 +19,9 @@ EnhancedHttp httpGeocode =
 EnhancedHttp httpFuel = EnhancedHttp(baseURL: 'https://www.bp.com');
 
 const baseHost = 'localhost:1337';
-const baseUrl = 'http://$baseHost';
+const baseUrl = 'https://$baseHost';
+// const baseHost = 'jumpin-backend.onrender.com';
+// const baseUrl = 'https://$baseHost';
 const geoapifyUrl = 'https://api.geoapify.com/v1/routing';
 
 Future<List<Ride>> fetchRides(
@@ -49,7 +55,7 @@ Future<List<Ride>> fetchRides(
     queryParams['carbon_emissions'] = carbonEmissions;
   }
 
-  final url = Uri.http(baseHost, '/rides', queryParams);
+  final url = Uri.https(baseHost, '/rides', queryParams);
   final response = await http.get(url);
   List<Ride> result = json.decode(processResponse(response)).map<Ride>((item) {
     return Ride.fromJson(item as Map<String, dynamic>);
@@ -80,8 +86,8 @@ Future<List<User>> fetchUsers() async {
 
 Future<User> fetchUserByUsername(username) async {
   try {
-    String uri = 'http://localhost:1337/users/$username';
-    final response = await http.get(Uri.parse(uri));
+    Uri url = Uri.parse('$baseUrl/users/$username');
+    final response = await http.get(url);
     var user = User.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
     return user;
   } catch (e) {
@@ -116,22 +122,20 @@ Future<ActiveSession> getCurrentSession() async {
   final user = ActiveSession.fromJson(
       jsonDecode(processResponse(response)) as Map<String, dynamic>);
   return user;
-}
 
+}
 Future<ActiveSession> postLogin(String username, String password) async {
   final bodyJson = jsonEncode({'password': password});
   Uri url = Uri.parse('$baseUrl/users/$username/login');
   try {
-    final response = await http.post(url,
-        headers: {"Content-Type": "application/json"}, body: bodyJson);
-    final result = ActiveSession.fromJson(
-        jsonDecode(processResponse(response)) as Map<String, dynamic>);
+    final response = await http.post(url, body: bodyJson,);
+    final result = ActiveSession.fromJson(jsonDecode(processResponse(response)) as Map<String, dynamic>);
     return result;
   } on ClientException {
     throw Exception('server unavailable');
   } catch (e) {
     throw Exception(e.toString());
-  }
+  } 
 }
 
 Future<void> postLogout(String username) async {
