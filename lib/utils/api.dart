@@ -6,7 +6,6 @@ import 'package:fe/auth_provider.dart';
 import 'package:fe/classes/ride_class.dart';
 import 'package:fe/classes/chat_class.dart';
 import "package:fe/classes/user_class.dart";
-import 'package:http/browser_client.dart';
 
 EnhancedHttp httpEnhanced = EnhancedHttp(
   baseURL: 'https://localhost:1337',
