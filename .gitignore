@@ -9,6 +9,8 @@
 .history
 .svn/
 migrate_working_dir/
+launch_dev.sh
+build_web.sh
 
 # IntelliJ related
 *.iml
