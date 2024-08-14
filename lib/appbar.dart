@@ -9,6 +9,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final BuildContext context;
   final bool disableDefaultUserButton;
+  final bool disableTestButtons;
   final bool disableProfileButton;
   final bool disableLoginButton;
   final bool disableMailboxButton;
@@ -22,6 +23,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       required this.title,
       required this.context,
       this.disableDefaultUserButton = false,
+      this.disableTestButtons = true,
       this.disableProfileButton = false,
       this.disableLoginButton = false,
       this.disableMailboxButton = false,
@@ -40,6 +42,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       debugPrint(e.toString());
     }
   }
+
   void _setDefaultTestUser(context) async {
     try {
       final futureUser = await postLogin('testUsername1', 'testPassword1');
@@ -59,6 +62,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       debugPrint(e.toString());
     }
   }
+
   void _postRideTest() async {
     final rideData = Ride(
       to: 'Leeds',
@@ -72,8 +76,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       postAvailableSeats: SeatsLabel.fromInt(1),
       setDateTime: DateTime.now(),
     );
-      final postedRide = await postRide(rideData);
-      print(postedRide);
+    final postedRide = await postRide(rideData);
+    print(postedRide);
   }
 
   void _navigateToPage(String page) {
@@ -118,23 +122,34 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         if (!disableDefaultUserButton)
           IconButton(
             icon: const Icon(Icons.logo_dev),
-            onPressed: () { _setDefaultDevUser(context); },
-            tooltip: 'Login default dev user',
+            onPressed: () {
+              _setDefaultDevUser(context);
+            },
+            tooltip: 'Login sample user to test functionality',
           ),
+        if (!disableTestButtons)
           IconButton(
             icon: const Icon(Icons.supervised_user_circle),
-            onPressed: () { _setDefaultTestUser(context); },
+            onPressed: () {
+              _setDefaultTestUser(context);
+            },
             tooltip: 'Login default test user',
           ),
+        if (!disableTestButtons)
           IconButton(
             icon: const Icon(Icons.abc),
-            onPressed: () { _postRideTest(); },
-            tooltip: 'testfunction',
+            onPressed: () {
+              _postRideTest();
+            },
+            tooltip: 'test post ride function',
           ),
+        if (!disableTestButtons)
           IconButton(
             icon: const Icon(Icons.currency_pound),
-            onPressed: () { _calculatePriceTest(); },
-            tooltip: 'testfunction',
+            onPressed: () {
+              _calculatePriceTest();
+            },
+            tooltip: 'test calculate price function',
           ),
         isLoggedIn
             ? Row(
