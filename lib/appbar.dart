@@ -23,7 +23,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       required this.title,
       required this.context,
       this.disableDefaultUserButton = false,
-      this.disableTestButtons = true,
+      this.disableTestButtons = false,
       this.disableProfileButton = false,
       this.disableLoginButton = false,
       this.disableMailboxButton = false,
@@ -56,8 +56,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   void _calculatePriceTest() async {
     try {
-      final fuelPriceFuture = await fetchFuelPrice('PETROL');
-      print(fuelPriceFuture);
+      final priceFuture = await fetchCarDetails('YL14TOH');
+      print(priceFuture);
     } catch (e) {
       debugPrint(e.toString());
     }

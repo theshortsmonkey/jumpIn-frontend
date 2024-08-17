@@ -49,10 +49,10 @@ Future<List<User>> fetchUsers() async {
 }
 
 Future<User> fetchUserByUsername(username) async {
-    Uri url = Uri.parse('$baseUrl/users/$username');
-    final response = await clientWithCredentials.get(url);
-    var user = User.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
-    return user;
+  Uri url = Uri.parse('$baseUrl/users/$username');
+  final response = await clientWithCredentials.get(url);
+  var user = User.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+  return user;
 }
 
 Future<User> postUser(user) async {
@@ -77,19 +77,12 @@ Future<User> patchUser(user) async {
 }
 
 Future fetchCarDetails(carReg) async {
-  try {
-    Uri url = Uri.parse(licenseURL);
-    final response = await clientWithCredentials.post(
-      url,
-      headers: licenseHeaders,
-      body: jsonEncode({'registrationNumber': carReg}),
-    );
-    final result = json.decode(processResponse(response));
-    return result;
-  } catch (e) {
-    debugPrint(e.toString());
-    throw Exception("Error fetching car details: $e");
-  }
+  Uri url = Uri.parse('$baseUrl/users/getCarDetails');
+  String body = jsonEncode({'carReg': carReg});
+  final response = await clientWithCredentials.post(url,
+      headers: {"Content-Type": "application/json"}, body: body);
+  final result = json.decode(processResponse(response));
+  return result;
 }
 
 Future<void> uploadUserProfilePic(String username, String filePath) async {
