@@ -15,6 +15,13 @@ Future<ActiveSession> getCurrentSession() async {
   return user;
 }
 
+Future<User> fetchUserByUsername(username) async {
+  Uri url = Uri.parse('$baseUrl/users/$username');
+  final response = await clientWithCredentials.get(url);
+  var user = User.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+  return user;
+}
+
 Future<ActiveSession> postLogin(String username, String password) async {
   final bodyJson = jsonEncode({'password': password});
   Uri url = Uri.parse('$baseUrl/users/$username/login');
@@ -39,20 +46,10 @@ Future<void> postLogout(String username) async {
   processResponse(response);
 }
 
-Future<List<User>> fetchUsers() async {
-  Uri url = Uri.parse('$baseUrl/users');
-  final response = await clientWithCredentials.get(url);
-  List<User> users = jsonDecode(processResponse(response)).map<User>((item) {
-    return User.fromJson(item as Map<String, dynamic>);
-  }).toList();
-  return users;
-}
-
-Future<User> fetchUserByUsername(username) async {
-  Uri url = Uri.parse('$baseUrl/users/$username');
-  final response = await clientWithCredentials.get(url);
-  var user = User.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
-  return user;
+Future<void> deleteUser(user) async {
+  final uri = Uri.parse("$baseUrl/users/${user.username}");
+  final response = await clientWithCredentials.delete(uri);
+  processResponse(response);
 }
 
 Future<User> postUser(user) async {
@@ -76,15 +73,6 @@ Future<User> patchUser(user) async {
   return result[0];
 }
 
-Future fetchCarDetails(carReg) async {
-  Uri url = Uri.parse('$baseUrl/users/getCarDetails');
-  String body = jsonEncode({'carReg': carReg});
-  final response = await clientWithCredentials.post(url,
-      headers: {"Content-Type": "application/json"}, body: body);
-  final result = json.decode(processResponse(response));
-  return result;
-}
-
 Future<void> uploadUserProfilePic(String username, String filePath) async {
   Uri url = Uri.parse('$baseUrl/users/$username/image');
   final response = await clientWithCredentials.post(url,
@@ -92,8 +80,22 @@ Future<void> uploadUserProfilePic(String username, String filePath) async {
   return processResponse(response);
 }
 
-Future<void> deleteUser(user) async {
-  final uri = Uri.parse("$baseUrl/users/${user.username}");
-  final response = await clientWithCredentials.delete(uri);
-  processResponse(response);
+Future setUserCarDetails(String carReg, String password) async {
+  Uri url = Uri.parse('$baseUrl/users/getCarDetails');
+  String body = jsonEncode({'carReg': carReg, 'password': password});
+  final response = await clientWithCredentials.post(url,
+      headers: {"Content-Type": "application/json"}, body: body);
+    List<User> result = jsonDecode(processResponse(response)).map<User>((item) {
+    return User.fromJson(item as Map<String, dynamic>);
+  }).toList();
+  return result[0];
+}
+
+Future<List<User>> fetchUsers() async {
+  Uri url = Uri.parse('$baseUrl/users');
+  final response = await clientWithCredentials.get(url);
+  List<User> users = jsonDecode(processResponse(response)).map<User>((item) {
+    return User.fromJson(item as Map<String, dynamic>);
+  }).toList();
+  return users;
 }

@@ -187,19 +187,22 @@ class _ProfilePageState extends State<ProfilePage> {
                               ),
                               _userData.car != null
                                   ? carBox(_userData.car)
-                                  : SizedBox(
-                                      width: double.infinity,
-                                      child: ElevatedButton(
-                                          onPressed: () {
-                                            Navigator.of(context)
-                                                .pushNamed('/validatecar');
-                                          },
-                                          style: ElevatedButton.styleFrom(
-                                            padding: const EdgeInsets.all(15),
-                                          ),
-                                          child:
-                                              const Text('Validate vehicle')),
+                                  : const SizedBox.shrink(),
+                              const SizedBox( height: 20),
+                              SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.of(context)
+                                          .pushNamed('/validatecar');
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      padding: const EdgeInsets.all(15),
                                     ),
+                                    child: _userData.car != null
+                                        ? const Text('Change vehicle')
+                                        : const Text('Add Vehicle')),
+                              ),
                               const SizedBox(height: 20),
                               SizedBox(
                                   width: double.infinity,

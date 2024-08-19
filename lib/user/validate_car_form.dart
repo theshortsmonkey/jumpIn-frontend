@@ -35,36 +35,9 @@ class _ValidateCarFormState extends State<ValidateCarForm> {
   }
 
   void _validateVehicleDetails(context) async {
-    dynamic carData;
-    await fetchCarDetails(_regNumberController.text).then((res) {
-      carData = res;
-    });
-    if (carData["taxStatus"] == "Taxed") {
-      final carDetails = {
-        "make": carData["make"],
-        "reg": carData["registrationNumber"],
-        "colour": carData["colour"],
-        "tax_due_date": carData["taxDueDate"],
-        "fuelType": carData["fuelType"],
-        "co2Emissions": carData["co2Emissions"]
-      };
-      var userData = User(
-          firstName: _currUser.firstName,
-          lastName: _currUser.lastName,
-          username: _currUser.username,
-          email: _currUser.email,
-          password: _passwordTextController.text,
-          phoneNumber: _currUser.phoneNumber,
-          bio: _currUser.bio,
-          identityVerificationStatus: _currUser.identityVerificationStatus,
-          driverVerificationStatus: true,
-          car: carDetails,
-          reports: _currUser.reports);
-      await patchUser(userData);
-      Navigator.of(context).pushNamed('/profile');
-    } else {
-      Navigator.of(context).pushNamed('/');
-    }
+    await setUserCarDetails(
+        _regNumberController.text, _passwordTextController.text);
+    Navigator.of(context).pushNamed('/profile');
   }
 
   void _updateFormProgress() {
@@ -151,7 +124,11 @@ class _ValidateCarFormState extends State<ValidateCarForm> {
                     : Colors.blue;
               }),
             ),
-            onPressed: _formProgress > 0.99 ? () {_validateVehicleDetails(context);} : null,
+            onPressed: _formProgress > 0.99
+                ? () {
+                    _validateVehicleDetails(context);
+                  }
+                : null,
             child: Text(titleText),
           ),
         ],

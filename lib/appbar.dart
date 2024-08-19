@@ -54,10 +54,11 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     }
   }
 
-  void _calculatePriceTest() async {
+  void _setCarDetails() async {
     try {
-      final priceFuture = await fetchCarDetails('YL14TOH');
-      print(priceFuture);
+      await postLogin('testUsername4', 'testPassword4');
+      final updatedUser = await setUserCarDetails('RV56NZR','testPassword4');
+      print(updatedUser);
     } catch (e) {
       debugPrint(e.toString());
     }
@@ -147,7 +148,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           IconButton(
             icon: const Icon(Icons.currency_pound),
             onPressed: () {
-              _calculatePriceTest();
+              _setCarDetails();
             },
             tooltip: 'test calculate price function',
           ),
